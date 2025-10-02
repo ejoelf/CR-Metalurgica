@@ -1,0 +1,36 @@
+.hero {
+  background: url("../../../public/image/fondo2.jpg"); 
+  background-size: cover;
+  background-position: center;
+  color: #2b2b2b;
+  text-align: center;
+  padding: 6rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.hero-content {
+  max-width: 800px;
+  background: rgba(255,255,255,0.85);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.hero h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
