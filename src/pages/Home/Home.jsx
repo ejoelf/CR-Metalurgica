@@ -7,16 +7,16 @@ import Contact from "../../components/Contact/Contact";
 function Home() {
   return (
     <>
-      <section className="hero">
-        <div className="hero-content">
-          <h1>Bienvenidos a CR Metalúrgica</h1>
+      <section className="home">
+        <div className="home-content">
+          <h1>CR Metalúrgica</h1>
           <h2>Soluciones integrales para tu obra</h2>
           <p>
-            Especialistas en <strong>metalúrgica</strong> y servicios de{" "}
+            Especialistas en <strong>metalúrgica</strong>, servicios de{" "}
             <strong>pintura, durlock y electricidad</strong>.
           </p>
           <a href="#contact" className="btn btn-primary">
-            Pedir presupuesto
+            Pedir Presupuesto
           </a>
         </div>
       </section>

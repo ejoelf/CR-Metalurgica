@@ -13,13 +13,13 @@ function Footer() {
           <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
             <FaFacebook />
           </a>
-          <a href="https://wa.me/5493511234567" target="_blank" rel="noopener noreferrer">
+          <a href="https://wa.me/5493585719450" target="_blank" rel="noopener noreferrer">
             <FaWhatsapp />
           </a>
         </div>
         <p>© {new Date().getFullYear()} CR Metalúrgica - Todos los derechos reservados</p>
         <p className="credits">
-          Sitio creado por <span className="nexodigital">NexoDigital</span>
+          Creada por <a href="https://nexo-digital.tech" target="_blank" rel="noopener noreferrer" className="nexodigital">NexoDigital</a>
         </p>
       </div>
     </footer>

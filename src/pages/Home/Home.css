@@ -1,5 +1,4 @@
-.hero {
-  background: url('"../../../public/image/fondo2.jpg"') center/cover no-repeat fixed;
+.home {
   color: #fff;
   text-align: center;
   padding: 8rem 1rem;
@@ -10,43 +9,102 @@
   position: relative;
 }
 
-.hero::before {
+.home::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.4); /* Overlay semi-transparente */
+  background: rgba(0,0,0,0.4); 
   z-index: 1;
 }
 
-.hero-content {
+.home-content {
   position: relative;
   z-index: 2;
   max-width: 800px;
-  background: rgba(0, 0, 0, 0.3); /* Overlay sobre el texto */
+  background: rgba(0, 0, 0, 0.9);
   padding: 2rem;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-.hero h1 {
+.home h1 {
+  color: #fff;
   font-size: 3rem;
   margin-bottom: 1rem;
 }
 
-.hero h2 {
+.home h2 {
+  color: #fff;
   font-size: 2rem;
   margin-bottom: 1.5rem;
 }
 
-.hero p {
+.home p {
+  color: #fff;
   font-size: 1.2rem;
   margin-bottom: 2rem;
 }
 
-.hero .btn-primary {
-  background: #f1a12a;
-  color: #fff;
+
+/* From Uiverse.io by Damithkumara */ 
+.home .btn-primary {
+  padding: 0.9em 1.8em;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 4px;
+  color: transparent;
+  border: 3px solid #ff0;
+  font-size: 14px;
+  position: relative;
+  font-family: inherit;
+  background: transparent;
+  cursor: pointer;
 }
+
+.home .btn-primary::before {
+  content: "Pedir presupuesto";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #363636;
+  color: #ff0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s;
+}
+
+.home .btn-primary:hover::before {
+  left: 100%;
+  transform: scale(0) rotateY(360deg);
+  opacity: 0;
+}
+
+.home .btn-primary::after {
+  content: "pedir presupuesto";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background-color: #363636;
+  color: #ff0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s;
+  transform: scale(0) rotateY(0deg);
+  opacity: 0;
+}
+
+.home .btn-primary:hover::after {
+  left: 0;
+  transform: scale(1) rotateY(360deg);
+  opacity: 1;
+}
+

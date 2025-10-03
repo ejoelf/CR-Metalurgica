@@ -12,7 +12,7 @@ html {
 body {
   font-family: 'Poppins', sans-serif;
   color: #2b2b2b;
-  background: #fff;
+  background: url("../../../public/image/fondo8.jpeg") center/cover no-repeat fixed;
   line-height: 1.6;
 }
 
@@ -22,30 +22,10 @@ body {
   margin: 0 auto;
 }
 
-/* Botones */
-.btn {
-  display: inline-block;
-  padding: 0.8rem 2rem;
-  border-radius: 5px;
-  font-weight: bold;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background: #f1a12a;
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: #d97c1a;
-}
-
 /* Titulos generales */
 h1, h2, h3 {
   font-weight: 700;
-  color: #2b2b2b;
+  color: #fff;
 }
 
 h1 {
@@ -73,7 +53,7 @@ a {
 }
 
 a:hover {
-  color: #f1a12a;
+  color: #fff;
 }
 
 /* Footer básico */
