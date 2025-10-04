@@ -1,33 +1,126 @@
 .projects {
-  padding: 6rem 1rem;
+  padding: 8rem 1rem;
   text-align: center;
   background: rgba(0, 0, 0, 0.4);
+  position: relative;
+  min-height: 90vh;
 }
 
 .projects h2 {
   color: #deaa0c;
   font-size: 2.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
+.projects-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+.projects-container {
+  padding: 1rem;
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none; 
+}
+
+.projects-container::-webkit-scrollbar {
+  display: none; 
+}
+
 .project-card {
-  background: #fff;
-  padding: 2rem;
+  flex: 0 0 280px;
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
   border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  cursor: pointer;
+  outline: 2px solid #FEBF00;
+  outline-offset: 3px;
+  height: 180px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 
+.carousel-btn {
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+  z-index: 10;
+}
+
+.carousel-btn:hover {
+  background: #deaa0c;
+  color: #000;
+}
+
+.carousel-btn.left {
+  position: absolute;
+  left: -2rem;
+}
+
+.carousel-btn.right {
+  position: absolute;
+  right: -2rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.modal-content p {
+  color: #555;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.modal-close:hover {
+  color: #000;
+}

@@ -1,13 +1,13 @@
 import "./Home.css";
 import Services from "../../components/Services/Services";
 import Projects from "../../components/Projects/Projects";
-import Testimonials from "../../components/Testimonials/Testimonials";
+import Nosotros from "../../components/Nosotros/Nosotros";
 import Contact from "../../components/Contact/Contact";
 
 function Home() {
   return (
     <>
-      <section className="home">
+      <section id="home" className="home">
         <div className="home-content">
           <h1>CR Metalúrgica</h1>
           <h2>Soluciones integrales para tu obra</h2>
@@ -23,7 +23,7 @@ function Home() {
 
       <Services />
       <Projects />
-      <Testimonials />
+      <Nosotros />
       <Contact />
     </>
   );

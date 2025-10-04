@@ -6,15 +6,15 @@ function Navbar() {
     <nav className="navbar">
       <div className="container navbar-container">
         <h1>
-          <Link to="/" className="logo">
+          <a href="#home" className="logo">
             CR Metalúrgica
-          </Link>
+          </a>
         </h1>
         <ul className="nav-links">
-          <li><a href="#hero">Inicio</a></li>
+          <li><a href="#home">Inicio</a></li>
           <li><a href="#services">Servicios</a></li>
-          <li><a href="#projects">Portfolio</a></li>
-          <li><a href="#testimonials">Testimonios</a></li>
+          <li><a href="#projects">Trabajos</a></li>
+          <li><a href="#nosotros">Nosotros</a></li>
           <li><a href="#contact">Contacto</a></li>
         </ul>
       </div>

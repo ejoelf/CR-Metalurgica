@@ -1,7 +1,9 @@
 .services {
-  padding: 6rem 1rem;
+  padding: 8rem 1rem;
   text-align: center;
-  background: rgba(255, 255, 255, 0.200);
+  background: rgba(255, 255, 255, 0.100);
+  backdrop-filter: blur(3px);
+  min-height: 90vh;
 }
 
 .services h2 {
@@ -21,6 +23,8 @@
 
 .service-card {
   background: #fff;
+  outline: 2px solid #FEBF00;
+  outline-offset: 3px;
   padding: 2rem 1rem;
   border-radius: 15px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.1);
@@ -34,9 +38,22 @@
 
 .service-card h3 {
   margin-bottom: 1rem;
-  color: #175457;
+  color: #000;
 }
 
 .service-card p {
   color: #000000;
 }
+
+.service-icon {
+  font-size: 3rem;
+  color: #000;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.service-card:hover .service-icon {
+  transform: scale(1.2);
+  color: #deaa0c;
+}
+

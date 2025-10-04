@@ -1,3 +1,4 @@
+import { FaHammer, FaPaintRoller, FaBorderStyle, FaBolt } from "react-icons/fa";
 import "./Services.css";
 
 function Services() {
@@ -6,18 +7,22 @@ function Services() {
       <h2>Nuestros Servicios</h2>
       <div className="services-grid container">
         <div className="service-card">
+          <FaHammer className="service-icon" />
           <h3>Metalúrgica</h3>
           <p>Trabajos en hierro, acero y estructuras metálicas.</p>
         </div>
         <div className="service-card">
+          <FaPaintRoller className="service-icon" />
           <h3>Pintura</h3>
           <p>Servicios de pintura interior y exterior.</p>
         </div>
         <div className="service-card">
+          <FaBorderStyle className="service-icon" />
           <h3>Durlock</h3>
           <p>Instalación de tabiques y revestimientos en durlock.</p>
         </div>
         <div className="service-card">
+          <FaBolt className="service-icon" />
           <h3>Electricidad</h3>
           <p>Instalaciones eléctricas generales y reparaciones.</p>
         </div>

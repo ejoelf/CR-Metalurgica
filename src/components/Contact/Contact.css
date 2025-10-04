@@ -24,6 +24,7 @@
   gap: 1rem;
   flex: 1;
   min-width: 300px;
+
 }
 
 .contact-form input,
@@ -54,7 +55,11 @@
 }
 
 .contact-info {
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(3px);
+  border-radius: 10px;
+  outline: 2px solid #FEBF00;
+  outline-offset: 3px;
   flex: 1;
   min-width: 300px;
   text-align: center;
