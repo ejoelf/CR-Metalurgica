@@ -7,7 +7,7 @@ function Navbar() {
       <div className="container navbar-container">
         <h1>
           <a href="#home" className="logo">
-            CR Metalúrgica
+            CF
           </a>
         </h1>
         <ul className="nav-links">

@@ -14,64 +14,12 @@
 
 .nosotros p {
   color: #fff;
+  font-size: 1.5rem;
   max-width: 900px;
   margin: 0 auto 1rem auto;
   line-height: 1.8;
 }
 
-/* Carrusel */
-.reviews-carousel {
-  margin-top: 3rem;
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-}
-
-.reviews-track {
-  display: flex;
-  gap: 1.5rem;
-  transition: transform 0.6s ease-in-out;
-}
-
-.review-card {
-  flex: 0 0 calc(33.333% - 1rem); /* 3 reseñas visibles a la vez */
-  background: #fff;
-  outline: 2px solid #FEBF00;
-  outline-offset: 3px;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-  text-align: left;
-  transition: transform 0.3s ease;
-}
-
-.review-card:hover {
-  transform: translateY(-5px);
-}
-
-.review-card p {
-  color: #000;
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  font-style: italic;
-}
-
-.review-card span {
-  display: block;
-  font-weight: bold;
-  color: #333;
-  font-size: 0.9rem;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-  .review-card {
-    flex: 0 0 calc(50% - 1rem); /* 2 reseñas en tablets */
-  }
-}
-
-@media (max-width: 600px) {
-  .review-card {
-    flex: 0 0 100%; /* 1 reseña en móvil */
-  }
+.nosotros p strong {
+  color: #deaa0c;
 }

@@ -17,7 +17,7 @@ function Footer() {
             <FaWhatsapp />
           </a>
         </div>
-        <p>© {new Date().getFullYear()} CR Metalúrgica - Todos los derechos reservados</p>
+        <p>© {new Date().getFullYear()} CF Metal Pintura - Todos los derechos reservados</p>
         <p className="credits">
           Creada por <a href="https://nexo-digital.tech" target="_blank" rel="noopener noreferrer" className="nexodigital">NexoDigital</a>
         </p>

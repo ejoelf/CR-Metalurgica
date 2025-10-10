@@ -9,7 +9,7 @@ function Home() {
     <>
       <section id="home" className="home">
         <div className="home-content">
-          <h1>CR Metalúrgica</h1>
+          <h1>CF Metal Pintura</h1>
           <h2>Soluciones integrales para tu obra</h2>
           <p>
             Especialistas en <strong>metalúrgica</strong>, servicios de{" "}
