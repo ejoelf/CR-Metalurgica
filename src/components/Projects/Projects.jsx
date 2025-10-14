@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
+import { Helmet } from "react-helmet";
 import "./Projects.css";
 
 function Projects() {
@@ -57,6 +58,18 @@ function Projects() {
   }, []);
 
   return (
+    <>
+    <Helmet>
+      <title>Trabajos realizados - CF Metal Pintura</title>
+      <meta
+        name="description"
+        content="Descubre nuestros trabajos en metalúrgica, pintura, durlock y electricidad. Ejemplos reales de trabajos realizados con calidad garantizada."
+      />
+      <meta property="og:title" content="Trabajos CF Metal Pintura" />
+      <meta property="og:description" content="Explora nuestros trabajos de metalúrgica, pintura, durlock y electricidad realizados para clientes satisfechos." />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content="/image/fondo.jpeg" />
+    </Helmet>
     <section id="projects" className="projects">
       <h2>Nuestros trabajos</h2>
       <div className="projects-carousel">
@@ -89,7 +102,7 @@ function Projects() {
         <div className="modal-overlay" onClick={() => setSelectedProject(null)}>
           <div
             className="modal-content"
-            onClick={(e) => e.stopPropagation()} // Evita cerrar si clickea dentro
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               className="modal-close"
@@ -102,7 +115,8 @@ function Projects() {
           </div>
         </div>
       )}
-    </section>
+      </section>
+      </>
   );
 }
 

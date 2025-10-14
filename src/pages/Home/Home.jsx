@@ -1,4 +1,5 @@
 import "./Home.css";
+import { Helmet } from "react-helmet";
 import Services from "../../components/Services/Services";
 import Projects from "../../components/Projects/Projects";
 import Nosotros from "../../components/Nosotros/Nosotros";
@@ -7,6 +8,19 @@ import Contact from "../../components/Contact/Contact";
 function Home() {
   return (
     <>
+      <Helmet>
+        <title>CF Metal Pintura - Soluciones integrales para tu obra</title>
+        <meta
+          name="description"
+          content="CF Metal Pintura ofrece servicios profesionales de metalúrgica, pintura, durlock y electricidad. Calidad y compromiso en cada proyecto."
+        />
+        <meta property="og:title" content="CF Metal Pintura" />
+        <meta property="og:description" content="Soluciones integrales para tu obra: metalúrgica, pintura, durlock y electricidad." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="/image/fondo.jpeg" />
+        <link rel="icon" href="public/logo/logo.jpg" />
+      </Helmet>
+
       <section id="home" className="home">
         <div className="home-content">
           <h1>CF Metal Pintura</h1>

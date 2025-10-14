@@ -1,10 +1,24 @@
 import "./Nosotros.css";
 import { useState } from "react";
+import { Helmet } from "react-helmet";
 
 function Nosotros() {
   const [current, setCurrent] = useState(0);
 
   return (
+    <>
+       <Helmet>
+      <title>Nosotros - CF Metal Pintura</title>
+      <meta
+        name="description"
+        content="Conoce CF Metal Pintura: nuestra misión, visión y el equipo de profesionales que trabaja día a día para ofrecer soluciones de calidad en metalúrgica, pintura, durlock y electricidad."
+      />
+      <meta property="og:title" content="Nosotros - CF Metal Pintura" />
+      <meta property="og:description" content="Descubre quiénes somos, nuestra misión y visión, y nuestro compromiso con la calidad y la innovación." />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content="/image/fondo.jpeg" />
+      </Helmet>
+      
     <section id="nosotros" className="nosotros">
       <div className="container">
         <h2>Nosotros</h2>
@@ -23,7 +37,8 @@ function Nosotros() {
           procedimientos que nos permiten ofrecer soluciones innovadoras y duraderas.
         </p>
       </div>
-    </section>
+      </section>
+      </>
   );
 }
 

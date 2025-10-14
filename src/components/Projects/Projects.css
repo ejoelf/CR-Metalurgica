@@ -26,29 +26,35 @@
   gap: 1.5rem;
   overflow-x: auto;
   scroll-behavior: smooth;
-  scrollbar-width: none; 
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .projects-container::-webkit-scrollbar {
-  display: none; 
+  display: none;
 }
 
 .project-card {
-  flex: 0 0 280px;
-  background-color: #fff;
-  background-size: cover;
-  background-position: center;
+  flex: 0 0 320px;
+  height: 250px;
   border-radius: 15px;
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  background-color: #000;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  scroll-snap-align: center;
   outline: 2px solid #FEBF00;
   outline-offset: 3px;
-  height: 180px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .project-card:hover {
   transform: scale(1.05);
   box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  outline-offset: 5px;
 }
 
 .carousel-btn {
@@ -78,6 +84,7 @@
   right: -2rem;
 }
 
+/* === MODAL === */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -123,4 +130,67 @@
 
 .modal-close:hover {
   color: #000;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .project-card {
+    flex: 0 0 240px;
+    height: 200px;
+  }
+
+  .carousel-btn.left {
+    left: -1rem;
+  }
+
+  .carousel-btn.right {
+    right: -1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .projects h2 {
+    font-size: 2rem;
+  }
+
+  .projects-carousel {
+    flex-direction: column; /* mantiene vertical solo para el título, el carousel sigue horizontal */
+  }
+
+  .projects-container {
+    width: 100%;
+    padding: 30px 10px; /* pequeño margen lateral */
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    flex: 0 0 90%; /* ocupa casi todo el ancho del viewport */
+    height: 220px;
+    scroll-snap-align: start; /* centra la card al inicio en vez de la mitad */
+  }
+
+  .carousel-btn {
+    display: none; /* ocultamos botones */
+  }
+}
+
+
+@media (max-width: 480px) {
+  .project-card {
+    flex: 0 0 90%; /* más grande en móvil */
+    height: 180px;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .modal-content h3 {
+    font-size: 1.3rem;
+  }
+
+  .modal-content p {
+    font-size: 0.95rem;
+  }
 }

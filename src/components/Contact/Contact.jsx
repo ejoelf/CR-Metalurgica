@@ -1,7 +1,21 @@
 import "./Contact.css";
+import { Helmet } from "react-helmet";
 
 function Contact() {
   return (
+    <>
+     <Helmet>
+      <title>Contacto - CF Metal Pintura</title>
+      <meta
+        name="description"
+        content="Ponte en contacto con CF Metal Pintura. Solicita presupuestos, consultas o información sobre nuestros servicios de metalúrgica, pintura, durlock y electricidad."
+      />
+      <meta property="og:title" content="Contacto - CF Metal Pintura" />
+      <meta property="og:description" content="Envía tu mensaje o consulta a CF Metal Pintura y recibe atención profesional y rápida." />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content="/image/fondo.jpeg" />
+    </Helmet>
+
     <section id="contact" className="contact">
       <h2>Contacto</h2>
       <div className="contact-container container">
@@ -26,7 +40,8 @@ function Contact() {
           ></iframe>
         </div>
       </div>
-    </section>
+      </section>
+      </>
   );
 }
 
