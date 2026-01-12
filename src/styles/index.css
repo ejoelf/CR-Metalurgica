@@ -1,4 +1,6 @@
-/* Reset */
+/* ===========================
+   RESET + BASE
+=========================== */
 * {
   margin: 0;
   padding: 0;
@@ -7,94 +9,126 @@
 
 html {
   scroll-behavior: smooth;
-  /* Para que los anchors no queden tapados por la navbar sticky */
+
+  /* ✅ Para que anchors no queden tapados por navbar sticky */
   scroll-padding-top: 90px;
 }
 
-/* Variables simples */
 :root {
   --accent: #deaa0c;
   --text: #e6e6e6;
-  --bg-dark: #111;
+  --muted: #cfcfcf;
+
+  --bg-dark: #0b0b0b;
+  --bg-mid: #141414;
+
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
-/* Body */
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: var(--text);
   line-height: 1.6;
   overflow-x: hidden;
 
-  /* Fondo desktop */
+  /* ✅ Desktop background con imagen */
   background-image: url("../assets/image/fondo.jpeg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+
+  /* ✅ mejora leve de render */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Contenedor global */
+/* ===========================
+   CONTAINER
+=========================== */
 .container {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Títulos */
+/* ===========================
+   TYPOGRAPHY
+=========================== */
 h1,
 h2,
 h3 {
-  font-weight: 700;
+  font-weight: 800;
   color: #fff;
+  letter-spacing: 0.02em;
 }
 
-/* Párrafos */
 p {
   color: var(--text);
   margin-bottom: 1rem;
 }
 
-/* Enlaces */
+/* ===========================
+   LINKS
+=========================== */
 a {
   text-decoration: none;
   color: inherit;
-  transition: color 0.3s ease;
+  transition: color 0.25s ease;
 }
 
 a:hover {
   color: var(--accent);
 }
 
-/* Botones */
+/* ===========================
+   BUTTONS (global base)
+=========================== */
 .btn-primary {
   padding: 0.8rem 1.6rem;
   border: 2px solid var(--accent);
   color: var(--accent);
   background: transparent;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border-radius: 8px;
+  font-weight: 700;
+  transition: transform 0.2s ease, background 0.25s ease, color 0.25s ease;
+  border-radius: 10px;
+  box-shadow: none;
 }
 
 .btn-primary:hover {
   background: var(--accent);
   color: #000;
+  transform: translateY(-1px);
 }
 
-/* ✅ IMPORTANTE:
-   NO tocar footer acá porque ya lo tenés en Footer.css con .footer
-   Si dejás un footer global, te pisa estilos. */
+.btn-primary:active {
+  transform: translateY(0px);
+}
 
-/* ====== RESPONSIVE ====== */
+/* ===========================
+   ACCESSIBILITY
+=========================== */
+:focus-visible {
+  outline: 3px solid rgba(222, 170, 12, 0.8);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ===========================
+   RESPONSIVE (TABLET/MOBILE)
+=========================== */
 @media (max-width: 768px) {
   html {
     scroll-padding-top: 80px;
   }
 
   body {
-    /* Fondo mobile (mejor que un color liso) */
-    background-image: url("../assets/image/fondocel.jpg");
+    /* ✅ MOBILE PRO: sin imagen, cero pixelado, aspecto premium */
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(222, 170, 12, 0.14) 0%, transparent 42%),
+      radial-gradient(circle at 80% 35%, rgba(255, 255, 255, 0.06) 0%, transparent 46%),
+      linear-gradient(180deg, #070707 0%, #141414 40%, #070707 100%);
     background-attachment: scroll;
   }
 
@@ -112,17 +146,92 @@ a:hover {
 
   p {
     font-size: 0.95rem;
+    color: var(--muted);
   }
 
   .btn-primary {
-    padding: 0.7rem 1.2rem;
-    font-size: 0.9rem;
+    padding: 0.75rem 1.2rem;
+    font-size: 0.95rem;
   }
 }
 
-/* Móviles chicos */
+/* ===========================
+   RESPONSIVE (SMALL PHONES)
+=========================== */
 @media (max-width: 480px) {
   html {
     scroll-padding-top: 75px;
+  }
+
+  h1 {
+    font-size: 1.85rem;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+  }
+
+  p {
+    font-size: 0.93rem;
+  }
+}
+
+/* ===========================
+   BACKGROUND ANIMATION (MOBILE PRO)
+=========================== */
+@media (max-width: 768px) {
+  body {
+    /* Necesario para animar gradientes */
+    background-size: 160% 160%;
+    animation: bgFlow 12s ease-in-out infinite;
+  }
+
+  @keyframes bgFlow {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 60%;
+    }
+    100% {
+      background-position: 0% 0%;
+    }
+  }
+}
+
+/* ✅ Respeta accesibilidad: reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none !important;
+  }
+}
+
+/* ===========================
+   BACKGROUND ANIMATION (MOBILE PRO)
+=========================== */
+@media (max-width: 768px) {
+  body {
+    /* Necesario para animar gradientes */
+    background-size: 160% 160%;
+    animation: bgFlow 12s ease-in-out infinite;
+  }
+
+  @keyframes bgFlow {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 60%;
+    }
+    100% {
+      background-position: 0% 0%;
+    }
+  }
+}
+
+/* ✅ Respeta accesibilidad: reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none !important;
   }
 }
