@@ -1,3 +1,4 @@
+/* Reset */
 * {
   margin: 0;
   padding: 0;
@@ -6,14 +7,30 @@
 
 html {
   scroll-behavior: smooth;
+  /* Para que los anchors no queden tapados por la navbar sticky */
+  scroll-padding-top: 90px;
 }
 
+/* Variables simples */
+:root {
+  --accent: #deaa0c;
+  --text: #e6e6e6;
+  --bg-dark: #111;
+}
+
+/* Body */
 body {
-  font-family: 'Poppins', sans-serif;
-  color: #2b2b2b;
-  background: url("/image/fondo.jpeg") center/cover no-repeat fixed;
+  font-family: "Poppins", sans-serif;
+  color: var(--text);
   line-height: 1.6;
   overflow-x: hidden;
+
+  /* Fondo desktop */
+  background-image: url("../assets/image/fondo.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 /* Contenedor global */
@@ -24,14 +41,16 @@ body {
 }
 
 /* Títulos */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-weight: 700;
   color: #fff;
 }
 
 /* Párrafos */
 p {
-  color: #ddd;
+  color: var(--text);
   margin-bottom: 1rem;
 }
 
@@ -43,14 +62,14 @@ a {
 }
 
 a:hover {
-  color: #deaa0c;
+  color: var(--accent);
 }
 
-/* Botón primario */
+/* Botones */
 .btn-primary {
   padding: 0.8rem 1.6rem;
-  border: 2px solid #deaa0c;
-  color: #deaa0c;
+  border: 2px solid var(--accent);
+  color: var(--accent);
   background: transparent;
   cursor: pointer;
   font-weight: 600;
@@ -59,24 +78,24 @@ a:hover {
 }
 
 .btn-primary:hover {
-  background: #deaa0c;
+  background: var(--accent);
   color: #000;
 }
 
-
-footer {
-  font-size: 0.9rem;
-  text-align: center;
-  padding: 2rem 0;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.85);
-}
+/* ✅ IMPORTANTE:
+   NO tocar footer acá porque ya lo tenés en Footer.css con .footer
+   Si dejás un footer global, te pisa estilos. */
 
 /* ====== RESPONSIVE ====== */
 @media (max-width: 768px) {
+  html {
+    scroll-padding-top: 80px;
+  }
+
   body {
+    /* Fondo mobile (mejor que un color liso) */
+    background-image: url("../assets/image/fondocel.jpg");
     background-attachment: scroll;
-    background: #2b2b2b
   }
 
   .container {
@@ -98,5 +117,12 @@ footer {
   .btn-primary {
     padding: 0.7rem 1.2rem;
     font-size: 0.9rem;
+  }
+}
+
+/* Móviles chicos */
+@media (max-width: 480px) {
+  html {
+    scroll-padding-top: 75px;
   }
 }

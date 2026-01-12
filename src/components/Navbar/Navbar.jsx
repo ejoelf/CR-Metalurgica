@@ -17,11 +17,18 @@ function Navbar() {
         </h1>
 
         {/* Botón hamburguesa */}
-        <div className={`menu-toggle ${menuOpen ? "open" : ""}`} onClick={toggleMenu}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
+        <button
+  type="button"
+  className={`menu-toggle ${menuOpen ? "open" : ""}`}
+  onClick={toggleMenu}
+  aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+  aria-expanded={menuOpen}
+>
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
 
         {/* Links de navegación */}
         <ul className={`nav-links ${menuOpen ? "active" : ""}`}>

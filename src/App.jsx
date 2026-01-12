@@ -4,14 +4,14 @@ import Footer from "./components/Footer/Footer.jsx";
 import Home from "./pages/Home/Home.jsx";
 
 function App() {
-   return (
+  return (
     <>
       <Header />
       <main>
-    <Routes>
-      <Route path="/" element={<Home />} />
-         </Routes>
-         </main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </main>
       <Footer />
     </>
   );

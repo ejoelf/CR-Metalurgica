@@ -8,18 +8,25 @@ import Contact from "../../components/Contact/Contact";
 function Home() {
   return (
     <>
-      <Helmet>
-        <title>CF Metal Pintura - Soluciones integrales para tu obra</title>
-        <meta
-          name="description"
-          content="CF Metal Pintura ofrece servicios profesionales de metalúrgica, pintura, durlock y electricidad. Calidad y compromiso en cada proyecto."
-        />
-        <meta property="og:title" content="CF Metal Pintura" />
-        <meta property="og:description" content="Soluciones integrales para tu obra: metalúrgica, pintura, durlock y electricidad." />
-        <meta property="og:type" content="website" />
+    <Helmet>
+  <title>CF Metal Pintura - Soluciones integrales para tu obra</title>
+  <meta
+    name="description"
+    content="CF Metal Pintura ofrece servicios profesionales de metalúrgica, pintura, durlock y electricidad. Calidad y compromiso en cada proyecto."
+  />
+  <meta property="og:title" content="CF Metal Pintura" />
+  <meta
+    property="og:description"
+    content="Soluciones integrales para tu obra: metalúrgica, pintura, durlock y electricidad."
+  />
+  <meta property="og:type" content="website" />
         <meta property="og:image" content="/image/fondo.jpeg" />
-        <link rel="icon" href="public/logo/logo.jpg" />
-      </Helmet>
+        
+  {/*<meta property="og:url" content="https://TUDOMINIO.COM/" />
+<link rel="canonical" href="https://TUDOMINIO.COM/" />*/}
+
+</Helmet>
+
 
       <section id="home" className="home">
         <div className="home-content">

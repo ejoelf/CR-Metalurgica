@@ -1,6 +1,9 @@
 import { useRef, useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
-import { Helmet } from "react-helmet";
+import PortonDoble from "../../assets/projects/PortonDoble.jpeg";
+import PortonEstandar from "../../assets/projects/PortonEstandar.jpeg";
+import CocheraGaleria from "../../assets/projects/CocheraGaleria.jpeg";
+import Carteleria from "../../assets/projects/Carteleria.jpeg";
 import "./Projects.css";
 
 function Projects() {
@@ -12,69 +15,72 @@ function Projects() {
   const projects = [
     {
       id: 1,
-      title: "Proyecto 1",
-      description: "Detalles del proyecto 1 realizado en metalúrgica.",
-      image: "https://via.placeholder.com/400x250?text=Proyecto+1",
+      title: "Porton Levadizo Doble",
+      description:
+        "Porton Levadizo Doble de 3 metros de ancho por 2 metros de alto, con revestimiento en madera.",
+      image: PortonDoble,
     },
     {
       id: 2,
-      title: "Proyecto 2",
-      description: "Detalles del proyecto 2 sobre pintura en general.",
-      image: "https://via.placeholder.com/400x250?text=Proyecto+2",
+      title: "Porton Levadizo Estandar",
+      description:
+        "Porton Levadizo Estandar de 2.8 metros de ancho por 2.05 metros de alto, con revestimiento en aluminio.",
+      image: PortonEstandar,
     },
     {
       id: 3,
-      title: "Proyecto 3",
-      description: "Detalles del proyecto 3 sobre colocación de durlock.",
-      image: "https://via.placeholder.com/400x250?text=Proyecto+3",
+      title: "Cochera Galeria",
+      description:
+        "Cochera Galeria de 8 metros de ancho por 5 metros de largo, con estructura metálica y chapa trapezoidal.",
+      image: CocheraGaleria,
     },
     {
       id: 4,
-      title: "Proyecto 4",
-      description: "Detalles del proyecto 4 en electricidad general.",
-      image: "https://via.placeholder.com/400x250?text=Proyecto+4",
+      title: "Carteleria",
+      description:
+        "Cartelería realizada en chapa del 18, corte lacer e iluminación led",
+      image: Carteleria,
     },
   ];
 
   const scrollLeft = () => {
-    carouselRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    carouselRef.current?.scrollBy({ left: -300, behavior: "smooth" });
   };
 
   const scrollRight = () => {
-    carouselRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    carouselRef.current?.scrollBy({ left: 300, behavior: "smooth" });
   };
 
   const handleScroll = () => {
-    const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+    const el = carouselRef.current;
+    if (!el) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = el;
     setShowLeft(scrollLeft > 0);
-    setShowRight(scrollLeft + clientWidth < scrollWidth);
+    setShowRight(scrollLeft + clientWidth < scrollWidth - 1); // tolerancia
   };
 
   useEffect(() => {
     const carousel = carouselRef.current;
+    if (!carousel) return;
+
     carousel.addEventListener("scroll", handleScroll);
     handleScroll();
     return () => carousel.removeEventListener("scroll", handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <>
-    <Helmet>
-      <title>Trabajos realizados - CF Metal Pintura</title>
-      <meta
-        name="description"
-        content="Descubre nuestros trabajos en metalúrgica, pintura, durlock y electricidad. Ejemplos reales de trabajos realizados con calidad garantizada."
-      />
-      <meta property="og:title" content="Trabajos CF Metal Pintura" />
-      <meta property="og:description" content="Explora nuestros trabajos de metalúrgica, pintura, durlock y electricidad realizados para clientes satisfechos." />
-      <meta property="og:type" content="website" />
-      <meta property="og:image" content="/image/fondo.jpeg" />
-    </Helmet>
     <section id="projects" className="projects">
       <h2>Nuestros trabajos</h2>
+
       <div className="projects-carousel">
         {showLeft && (
-          <button className="carousel-btn left" onClick={scrollLeft}>
+          <button
+            className="carousel-btn left"
+            onClick={scrollLeft}
+            aria-label="Ver trabajos anteriores"
+          >
             <FaChevronLeft />
           </button>
         )}
@@ -86,27 +92,34 @@ function Projects() {
               className="project-card"
               style={{ backgroundImage: `url(${project.image})` }}
               onClick={() => setSelectedProject(project)}
-            ></div>
+              role="button"
+              tabIndex={0}
+              aria-label={`Abrir detalle: ${project.title}`}
+              onKeyDown={(e) =>
+                e.key === "Enter" && setSelectedProject(project)
+              }
+            />
           ))}
         </div>
 
         {showRight && (
-          <button className="carousel-btn right" onClick={scrollRight}>
+          <button
+            className="carousel-btn right"
+            onClick={scrollRight}
+            aria-label="Ver trabajos siguientes"
+          >
             <FaChevronRight />
           </button>
         )}
       </div>
 
-      {/* Modal */}
       {selectedProject && (
         <div className="modal-overlay" onClick={() => setSelectedProject(null)}>
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button
               className="modal-close"
               onClick={() => setSelectedProject(null)}
+              aria-label="Cerrar"
             >
               <FaTimes />
             </button>
@@ -115,12 +128,8 @@ function Projects() {
           </div>
         </div>
       )}
-      </section>
-      </>
+    </section>
   );
 }
 
 export default Projects;
-
-
-
