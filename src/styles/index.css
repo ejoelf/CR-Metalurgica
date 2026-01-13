@@ -7,6 +7,14 @@
   box-sizing: border-box;
 }
 
+/* ✅ FIX iOS/Safari: que NO quede fondo blanco */
+html,
+body {
+  height: 100%;
+  min-height: 100%;
+  background-color: #070707; /* fallback anti-blanco */
+}
+
 html {
   scroll-behavior: smooth;
 
@@ -18,13 +26,13 @@ html {
   --accent: #deaa0c;
   --text: #e6e6e6;
   --muted: #cfcfcf;
-
-  --bg-dark: #0b0b0b;
+  --bg-dark: #070707;
   --bg-mid: #141414;
-
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
+/* ===========================
+   BODY
+=========================== */
 body {
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: var(--text);
@@ -82,7 +90,7 @@ a:hover {
 }
 
 /* ===========================
-   BUTTONS (global base)
+   BUTTONS
 =========================== */
 .btn-primary {
   padding: 0.8rem 1.6rem;
@@ -93,7 +101,6 @@ a:hover {
   font-weight: 700;
   transition: transform 0.2s ease, background 0.25s ease, color 0.25s ease;
   border-radius: 10px;
-  box-shadow: none;
 }
 
 .btn-primary:hover {
@@ -110,25 +117,39 @@ a:hover {
    ACCESSIBILITY
 =========================== */
 :focus-visible {
-  outline: 3px solid rgba(222, 170, 12, 0.8);
+  outline: 3px solid rgba(222, 170, 12, 0.85);
   outline-offset: 3px;
   border-radius: 8px;
 }
 
 /* ===========================
-   RESPONSIVE (TABLET/MOBILE)
+   MOBILE BACKGROUND (PRO)
+   ✅ Fondo sin imagen (cero pixelado)
+   ✅ Animación suave “metal light”
+   ✅ Safari iOS friendly: fondo en html
 =========================== */
 @media (max-width: 768px) {
   html {
     scroll-padding-top: 80px;
-  }
 
-  body {
-    /* ✅ MOBILE PRO: sin imagen, cero pixelado, aspecto premium */
+    /* ✅ Fondo premium (sin imagen) */
     background-image:
       radial-gradient(circle at 20% 10%, rgba(222, 170, 12, 0.14) 0%, transparent 42%),
       radial-gradient(circle at 80% 35%, rgba(255, 255, 255, 0.06) 0%, transparent 46%),
       linear-gradient(180deg, #070707 0%, #141414 40%, #070707 100%);
+
+    background-size: 160% 160%;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-color: #070707;
+
+    /* Animación suave */
+    animation: bgFlow 12s ease-in-out infinite;
+  }
+
+  /* ✅ body transparente para no pisar el fondo del html */
+  body {
+    background: transparent;
     background-attachment: scroll;
   }
 
@@ -155,9 +176,7 @@ a:hover {
   }
 }
 
-/* ===========================
-   RESPONSIVE (SMALL PHONES)
-=========================== */
+/* Móviles chicos */
 @media (max-width: 480px) {
   html {
     scroll-padding-top: 75px;
@@ -177,61 +196,23 @@ a:hover {
 }
 
 /* ===========================
-   BACKGROUND ANIMATION (MOBILE PRO)
+   KEYFRAMES
 =========================== */
-@media (max-width: 768px) {
-  body {
-    /* Necesario para animar gradientes */
-    background-size: 160% 160%;
-    animation: bgFlow 12s ease-in-out infinite;
+@keyframes bgFlow {
+  0% {
+    background-position: 0% 0%;
   }
-
-  @keyframes bgFlow {
-    0% {
-      background-position: 0% 0%;
-    }
-    50% {
-      background-position: 100% 60%;
-    }
-    100% {
-      background-position: 0% 0%;
-    }
+  50% {
+    background-position: 100% 60%;
+  }
+  100% {
+    background-position: 0% 0%;
   }
 }
 
 /* ✅ Respeta accesibilidad: reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  body {
-    animation: none !important;
-  }
-}
-
-/* ===========================
-   BACKGROUND ANIMATION (MOBILE PRO)
-=========================== */
-@media (max-width: 768px) {
-  body {
-    /* Necesario para animar gradientes */
-    background-size: 160% 160%;
-    animation: bgFlow 12s ease-in-out infinite;
-  }
-
-  @keyframes bgFlow {
-    0% {
-      background-position: 0% 0%;
-    }
-    50% {
-      background-position: 100% 60%;
-    }
-    100% {
-      background-position: 0% 0%;
-    }
-  }
-}
-
-/* ✅ Respeta accesibilidad: reduce motion */
-@media (prefers-reduced-motion: reduce) {
-  body {
+  html {
     animation: none !important;
   }
 }
