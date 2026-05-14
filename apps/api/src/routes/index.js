@@ -14,11 +14,14 @@ import contactMessagesRoutes from '../modules/contactMessages/contactMessages.ro
 import { contactMessagesController } from '../modules/contactMessages/contactMessages.controller.js';
 import notificationsRoutes from '../modules/notifications/notifications.routes.js';
 import settingsRoutes from '../modules/settings/settings.routes.js';
+import integrationsRoutes from '../modules/integrations/integrations.routes.js';
+import publicRoutes from '../modules/public/public.routes.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 
 const router = Router();
 
 router.post('/contact', asyncHandler(contactMessagesController.publicCreate));
+router.use('/public', publicRoutes);
 
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
@@ -34,5 +37,6 @@ router.use('/gallery', galleryRoutes);
 router.use('/contact-messages', contactMessagesRoutes);
 router.use('/notifications', notificationsRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/integrations', integrationsRoutes);
 
 export default router;
