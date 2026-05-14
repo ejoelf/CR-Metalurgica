@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getPublicGallery } from '../services/galleryService.js';
 import { featuredWorks } from '../data/siteData.js';
+import { resolveProjectImage } from '../data/projectImages.js';
 
 export function usePublicGallery() {
   const [items, setItems] = useState(featuredWorks);
@@ -20,7 +21,7 @@ export function usePublicGallery() {
           setItems(data.map((item) => ({
             title: item.title,
             category: item.category,
-            image: item.mainImageUrl,
+            image: resolveProjectImage(item.mainImageUrl),
             description: item.description,
           })));
         }
