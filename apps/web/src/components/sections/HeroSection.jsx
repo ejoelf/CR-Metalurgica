@@ -2,11 +2,12 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { businessInfo } from '../../data/siteData.js';
+import { projectImages } from '../../data/projectImages.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
 
 export default function HeroSection() {
   return (
-    <section className="hero-section">
+    <section className="hero-section" style={{ '--hero-image': `url(${projectImages.cocheraGaleria})` }}>
       <div className="hero-overlay" />
       <div className="container hero-grid">
         <motion.div
