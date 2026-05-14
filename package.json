@@ -1,31 +1,38 @@
 {
   "name": "cr-metalurgica",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "description": "CF Metal Pintura PRO - Web pública, CRM privado y API para gestión profesional de herrería, metalúrgica y pintura.",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:admin": "npm --prefix apps/admin run dev",
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev": "echo \"Ejecutá dev:web, dev:admin y dev:api en terminales separadas durante desarrollo.\"",
+    "build:web": "npm --prefix apps/web run build",
+    "build:admin": "npm --prefix apps/admin run build",
+    "build:api": "npm --prefix apps/api run build",
+    "build": "npm run build:web && npm run build:admin",
+    "start:api": "npm --prefix apps/api run start",
+    "install:all": "npm install && npm --prefix apps/web install && npm --prefix apps/admin install && npm --prefix apps/api install",
+    "prisma:generate": "npm --prefix apps/api run prisma:generate",
+    "prisma:migrate": "npm --prefix apps/api run prisma:migrate",
+    "prisma:deploy": "npm --prefix apps/api run prisma:deploy",
+    "prisma:seed": "npm --prefix apps/api run prisma:seed"
   },
-  "dependencies": {
-    "clsx": "^2.1.1",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-helmet": "^6.1.0",
-    "react-icons": "^5.5.0",
-    "react-router-dom": "^7.9.3"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.36.0",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9",
-    "@vitejs/plugin-react-swc": "^4.1.0",
-    "eslint": "^9.36.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.4.0",
-    "vite": "^7.1.7"
-  }
+  "keywords": [
+    "nexodigital",
+    "cf-metal-pintura",
+    "crm",
+    "herrería",
+    "metalúrgica",
+    "pintura",
+    "react",
+    "node",
+    "express",
+    "postgresql",
+    "prisma"
+  ],
+  "author": "NexoDigital",
+  "license": "UNLICENSED"
 }
