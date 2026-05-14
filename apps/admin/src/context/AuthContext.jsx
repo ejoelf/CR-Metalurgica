@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { authService } from '../services/authService.js';
 
 const AuthContext = createContext(null);
@@ -34,29 +34,49 @@ export function AuthProvider({ children }) {
 
   async function login(credentials) {
     const data = await authService.login(credentials);
+
     localStorage.setItem(ACCESS_KEY, data.accessToken);
     localStorage.setItem(REFRESH_KEY, data.refreshToken);
+
     setAccessToken(data.accessToken);
     setRefreshToken(data.refreshToken);
     setUser(data.user);
+
     return data;
   }
 
   function logout() {
     localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem(REFRESH_KEY);
+
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
+    setLoading(false);
   }
 
-  const value = useMemo(() => ({ user, accessToken, refreshToken, loading, isAuthenticated: Boolean(user && accessToken), login, logout }), [user, accessToken, refreshToken, loading]);
+  const value = useMemo(
+    () => ({
+      user,
+      accessToken,
+      refreshToken,
+      loading,
+      isAuthenticated: Boolean(user && accessToken),
+      login,
+      logout,
+    }),
+    [user, accessToken, refreshToken, loading]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth debe usarse dentro de AuthProvider');
+
+  if (!context) {
+    throw new Error('useAuth debe usarse dentro de AuthProvider');
+  }
+
   return context;
 }

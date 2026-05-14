@@ -1,3 +1,4 @@
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import PublicLayout from './components/layout/PublicLayout.jsx';
 import HomePage from './pages/HomePage.jsx';
