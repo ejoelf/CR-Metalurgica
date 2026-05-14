@@ -11,10 +11,14 @@ import financeRoutes from '../modules/finance/finance.routes.js';
 import agendaRoutes from '../modules/agenda/agenda.routes.js';
 import galleryRoutes from '../modules/gallery/gallery.routes.js';
 import contactMessagesRoutes from '../modules/contactMessages/contactMessages.routes.js';
+import { contactMessagesController } from '../modules/contactMessages/contactMessages.controller.js';
 import notificationsRoutes from '../modules/notifications/notifications.routes.js';
 import settingsRoutes from '../modules/settings/settings.routes.js';
+import { asyncHandler } from '../middlewares/asyncHandler.js';
 
 const router = Router();
+
+router.post('/contact', asyncHandler(contactMessagesController.publicCreate));
 
 router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
