@@ -1,0 +1,12 @@
+.hero-section {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.22), transparent 30%),
+    linear-gradient(135deg, rgba(8, 10, 15, 0.96), rgba(17, 24, 39, 0.92)),
+    var(--hero-image) center/cover;
+}
+
+.page-hero {
+  background:
+    radial-gradient(circle at 12% 10%, rgba(245, 158, 11, 0.18), transparent 30%),
+    linear-gradient(135deg, rgba(8, 10, 15, 0.98), rgba(17, 24, 39, 0.94));
+}
