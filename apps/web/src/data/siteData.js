@@ -1,4 +1,5 @@
 import { Hammer, PaintRoller, PanelsTopLeft, Zap, ShieldCheck, Ruler, Truck, Sparkles } from 'lucide-react';
+import { projectImages } from './projectImages.js';
 
 export const businessInfo = {
   name: 'CF Metal Pintura',
@@ -56,25 +57,25 @@ export const featuredWorks = [
   {
     title: 'Portón levadizo doble',
     category: 'Portones',
-    image: '/assets/projects/PortonDoble.jpeg',
+    image: projectImages.portonDoble,
     description: 'Portón levadizo doble con estructura metálica y terminación prolija.',
   },
   {
     title: 'Portón levadizo estándar',
     category: 'Portones',
-    image: '/assets/projects/PortonEstandar.jpeg',
+    image: projectImages.portonEstandar,
     description: 'Portón a medida con revestimiento y sistema levadizo.',
   },
   {
     title: 'Cochera galería',
     category: 'Estructuras',
-    image: '/assets/projects/CocheraGaleria.jpeg',
+    image: projectImages.cocheraGaleria,
     description: 'Estructura metálica amplia con chapa trapezoidal.',
   },
   {
     title: 'Cartelería metálica',
     category: 'Cartelería',
-    image: '/assets/projects/Carteleria.jpeg',
+    image: projectImages.carteleria,
     description: 'Cartelería en chapa con corte láser e iluminación LED.',
   },
 ];
