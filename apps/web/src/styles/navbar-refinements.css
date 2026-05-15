@@ -5,11 +5,6 @@
   -webkit-backdrop-filter: blur(10px) saturate(1.1) !important;
 }
 
-:root[data-theme='light'] .editorial-header {
-  background: rgba(235, 229, 218, .52) !important;
-  border-bottom-color: rgba(34, 33, 29, .08) !important;
-}
-
 .editorial-header-inner {
   display: grid !important;
   grid-template-columns: auto 1fr auto !important;
@@ -40,46 +35,23 @@
   display: none !important;
 }
 
-.theme-switch {
-  width: 76px;
-  height: 40px;
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  padding: 4px;
-  border-radius: 999px !important;
-  border: 1px solid var(--cf-line) !important;
-  background: rgba(0, 0, 0, .2) !important;
-  color: var(--cf-text) !important;
-  cursor: pointer;
-  box-shadow: none !important;
-  transition: background .2s ease, border-color .2s ease;
-}
-
-:root[data-theme='light'] .theme-switch {
-  background: rgba(255, 255, 255, .42) !important;
-}
-
-.theme-switch-thumb {
-  width: 30px;
-  height: 30px;
+.navbar-login-link {
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
+  color: var(--cf-text);
+  border: 1px solid var(--cf-line);
   border-radius: 999px;
-  background: var(--cf-text);
-  color: var(--cf-bg);
-  transform: translateX(0);
-  transition: transform .2s ease, background .2s ease, color .2s ease;
+  background: rgba(0, 0, 0, .16);
+  text-decoration: none;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
 }
 
-.theme-switch.is-light .theme-switch-thumb {
-  transform: translateX(36px);
-  background: var(--cf-text);
-  color: var(--cf-bg);
-}
-
-.theme-switch.is-dark .theme-switch-thumb {
-  transform: translateX(0);
+.navbar-login-link:hover {
+  transform: translateY(-1px);
+  background: rgba(215, 119, 53, .18);
+  border-color: rgba(215, 119, 53, .45);
 }
 
 .logo-brand-mark {
@@ -113,17 +85,8 @@
     padding: 12px 0 !important;
   }
 
-  .header-actions-mobile .theme-switch {
-    width: 66px;
-    height: 36px;
-  }
-
-  .header-actions-mobile .theme-switch-thumb {
-    width: 26px;
-    height: 26px;
-  }
-
-  .header-actions-mobile .theme-switch.is-light .theme-switch-thumb {
-    transform: translateX(30px);
+  .navbar-login-link {
+    width: 40px;
+    height: 40px;
   }
 }
