@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 106">
+  <defs>
+    <clipPath id="circle"><circle cx="60" cy="53" r="50"/></clipPath>
+  </defs>
+  <rect width="120" height="106" fill="#0b1f3f"/>
+  <circle cx="60" cy="53" r="50" fill="#064f75"/>
+  <path d="M21 54c8-24 30-38 56-32 20 5 32 21 32 37 0 17-13 32-32 37-27 7-51-8-56-42Z" fill="#001430" opacity=".92"/>
+  <path d="M45 24h30l10 15-4 37H42l-7-37 10-15Z" fill="#f7f7f2"/>
+  <path d="M48 31h24l6 10-3 27H47l-5-27 6-10Z" fill="#001430"/>
+  <path d="M50 36h23l3 7-3 14H48l-3-14 5-7Z" fill="#f7f7f2"/>
+  <path d="M51 43h22l-2 10H53l-2-10Z" fill="#001430"/>
+  <path d="M35 73c22-5 40-4 64 8" stroke="#f7f7f2" stroke-width="7" stroke-linecap="round"/>
+  <path d="M50 72c17 1 31 5 48 16" stroke="#001430" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="92" cy="78" r="12" fill="#ffffff"/>
+  <path d="M90 77 113 64M90 79l25-2M89 81l21 12M88 75l18-22" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <path d="M18 80c23 12 54 15 85-5" fill="none" stroke="#aeb4bd" stroke-width="5" opacity=".8"/>
+</svg>
