@@ -5,6 +5,7 @@ import App from './App.jsx';
 import './styles/global.css';
 import './styles/fixes.css';
 import './styles/neo-industrial.css';
+import './styles/layout-fixes.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
