@@ -1,0 +1,44 @@
+.foundry-hero {
+  align-items: start;
+}
+
+.foundry-hero-content {
+  align-items: end;
+  padding-top: clamp(96px, 10vw, 136px) !important;
+  padding-bottom: clamp(44px, 6vw, 74px) !important;
+}
+
+.foundry-hero-right {
+  transform: translateY(-26px);
+}
+
+.foundry-btn.primary {
+  gap: 0;
+}
+
+@media (min-width: 1280px) {
+  .foundry-hero-content {
+    padding-top: clamp(104px, 9vw, 128px) !important;
+  }
+
+  .foundry-hero-right {
+    transform: translateY(-42px);
+  }
+}
+
+@media (max-width: 1100px) {
+  .foundry-hero-content {
+    padding-top: 112px !important;
+  }
+
+  .foundry-hero-right {
+    transform: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .foundry-hero-content {
+    padding-top: 100px !important;
+    padding-bottom: 48px !important;
+  }
+}
