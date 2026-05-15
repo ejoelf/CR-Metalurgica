@@ -2,7 +2,7 @@ import { Hammer, PaintRoller, PanelsTopLeft, Zap, ShieldCheck, Ruler, Truck, Spa
 import { projectImages } from './projectImages.js';
 
 export const businessInfo = {
-  name: 'CF Metal Pintura',
+  name: 'CF Metal-Pintura',
   headline: 'Soluciones integrales para tu obra',
   description:
     'Especialistas en metalúrgica, pintura, durlock y electricidad. Trabajos a medida, terminaciones prolijas y atención directa en Las Higueras y Río Cuarto.',
