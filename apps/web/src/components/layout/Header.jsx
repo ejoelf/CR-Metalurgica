@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Menu, Moon, Sun, X } from 'lucide-react';
+import { LogIn, Menu, X } from 'lucide-react';
 import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
-import { useTheme } from '../../hooks/useTheme.js';
 
 const navItems = [
   { label: 'Inicio', to: '/' },
@@ -13,9 +12,10 @@ const navItems = [
   { label: 'Contacto', to: '/contacto' },
 ];
 
+const adminLoginUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174/login';
+
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const { isDark, toggleTheme } = useTheme();
 
   return (
     <header className="site-header editorial-header">
@@ -39,9 +39,9 @@ export default function Header() {
         </nav>
 
         <div className="header-actions-mobile navbar-actions">
-          <button className={`theme-switch ${isDark ? 'is-dark' : 'is-light'}`} type="button" onClick={toggleTheme} aria-label="Cambiar tema">
-            <span className="theme-switch-thumb">{isDark ? <Moon size={16} /> : <Sun size={16} />}</span>
-          </button>
+          <a className="navbar-login-link" href={adminLoginUrl} aria-label="Ingresar al panel CRM">
+            <LogIn size={19} />
+          </a>
           <button className="menu-button editorial-menu-button" type="button" onClick={() => setOpen((value) => !value)} aria-label="Abrir menú">
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
