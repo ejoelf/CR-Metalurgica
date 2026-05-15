@@ -1,0 +1,43 @@
+.about-grid-single {
+  display: block !important;
+}
+
+.about-copy-wide {
+  max-width: 1040px;
+}
+
+.about-copy-wide h2 {
+  max-width: 980px;
+}
+
+.about-copy-wide p {
+  max-width: 980px;
+}
+
+.map-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.map-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 18px;
+  background: var(--surface);
+  border-top: 1px solid #e5e7eb;
+}
+
+.map-card-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: .78rem;
+}
+
+.map-card-actions a:hover {
+  color: var(--accent-dark);
+}
