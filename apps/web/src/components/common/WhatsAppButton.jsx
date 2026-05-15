@@ -1,4 +1,4 @@
-import { MessageCircle } from 'lucide-react';
+import WhatsAppIcon from './WhatsAppIcon.jsx';
 import { businessInfo } from '../../data/siteData.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
 
@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
       rel="noreferrer"
       aria-label="Contactar por WhatsApp"
     >
-      <MessageCircle size={24} />
+      <WhatsAppIcon size={27} />
     </a>
   );
 }
