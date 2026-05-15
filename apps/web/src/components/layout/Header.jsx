@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Menu, Moon, Sun, X } from 'lucide-react';
+import { Menu, Moon, Phone, Sun, X } from 'lucide-react';
 import { businessInfo } from '../../data/siteData.js';
 import { useTheme } from '../../hooks/useTheme.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
@@ -20,10 +20,10 @@ export default function Header() {
   const { isDark, toggleTheme } = useTheme();
 
   return (
-    <header className="site-header">
-      <div className="container header-inner">
-        <Link className="brand" to="/" onClick={() => setOpen(false)}>
-          <span className="brand-mark">CF</span>
+    <header className="site-header editorial-header">
+      <div className="container header-inner editorial-header-inner">
+        <Link className="brand editorial-brand" to="/" onClick={() => setOpen(false)}>
+          <span className="brand-mark editorial-brand-mark">CF</span>
           <span>
             <strong>{businessInfo.name}</strong>
             <small>Metalúrgica · Pintura · Obra</small>
@@ -31,27 +31,26 @@ export default function Header() {
         </Link>
 
         <div className="header-actions-mobile">
-          <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label="Cambiar tema">
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            <span>{isDark ? 'Light' : 'Dark'}</span>
+          <button className="theme-toggle editorial-theme-toggle" type="button" onClick={toggleTheme} aria-label="Cambiar tema">
+            {isDark ? <Sun size={17} /> : <Moon size={17} />}
           </button>
-          <button className="menu-button" type="button" onClick={() => setOpen((value) => !value)} aria-label="Abrir menú">
-            {open ? <X size={24} /> : <Menu size={24} />}
+          <button className="menu-button editorial-menu-button" type="button" onClick={() => setOpen((value) => !value)} aria-label="Abrir menú">
+            {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
 
-        <nav className={`main-nav ${open ? 'is-open' : ''}`}>
+        <nav className={`main-nav editorial-nav ${open ? 'is-open' : ''}`}>
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>
               {item.label}
             </NavLink>
           ))}
-          <button className="theme-toggle desktop-theme-toggle" type="button" onClick={toggleTheme} aria-label="Cambiar tema">
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            <span>{isDark ? 'Light' : 'Dark'}</span>
+          <button className="theme-toggle editorial-theme-toggle desktop-theme-toggle" type="button" onClick={toggleTheme} aria-label="Cambiar tema">
+            {isDark ? <Sun size={17} /> : <Moon size={17} />}
+            <span>{isDark ? 'Claro' : 'Oscuro'}</span>
           </button>
-          <a className="nav-cta" href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer">
-            WhatsApp
+          <a className="nav-cta editorial-call" href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer">
+            <Phone size={16} /> Llamar ahora
           </a>
         </nav>
       </div>
