@@ -10,6 +10,7 @@ export const businessInfo = {
   whatsapp: import.meta.env.VITE_PUBLIC_WHATSAPP_PHONE || '5493585719450',
   email: 'cesarromanisio6@gmail.com',
   location: 'Las Higueras, Río Cuarto, Córdoba, Argentina',
+  mapsUrl: import.meta.env.VITE_PUBLIC_GOOGLE_MAPS_URL || 'https://maps.app.goo.gl/etKxF4gzr3Wg45W6A',
   instagram: import.meta.env.VITE_PUBLIC_INSTAGRAM_URL || 'https://www.instagram.com/cesarromanisio/',
   facebook: import.meta.env.VITE_PUBLIC_FACEBOOK_URL || 'https://www.facebook.com/CesarRomanisioHig',
 };
