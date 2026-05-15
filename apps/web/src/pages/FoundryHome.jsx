@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Hammer, MapPin, Ruler, ShieldCheck, Sparkles, Wrench } from 'lucide-react';
+import { ArrowRight, Check, Hammer, Ruler, ShieldCheck, Sparkles, Wrench } from 'lucide-react';
 import { businessInfo, processSteps, services } from '../data/siteData.js';
 import { projectImages } from '../data/projectImages.js';
 import { buildWhatsAppUrl, quoteMessage } from '../utils/whatsapp.js';
@@ -119,19 +119,6 @@ export default function FoundryHome() {
               </article>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="foundry-contact-band">
-        <div className="container foundry-contact-card">
-          <div>
-            <span className="foundry-kicker"><MapPin size={17} /> Las Higueras / Río Cuarto</span>
-            <h2>¿Tenés un trabajo para resolver?</h2>
-            <p>Mandanos medidas, fotos o una idea inicial y coordinamos el próximo paso.</p>
-          </div>
-          <a className="foundry-btn primary" href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer">
-            Hablar por WhatsApp
-          </a>
         </div>
       </section>
     </main>
