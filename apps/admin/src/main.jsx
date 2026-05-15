@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import './styles/global.css';
 import './styles/overrides.css';
 import './styles/editorial-crm.css';
+import './styles/crm-color-accents.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
