@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
+import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { businessInfo, services } from '../../data/siteData.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
 
@@ -7,9 +8,9 @@ export default function Footer() {
     <footer className="site-footer editorial-footer">
       <div className="container editorial-footer-top">
         <div className="editorial-footer-brand">
-          <span>CF</span>
+          <span className="footer-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
           <div>
-            <strong>CF Metal Pintura</strong>
+            <strong>{cfBrandName}</strong>
             <p>Metalúrgica, pintura, durlock y soluciones de obra a medida.</p>
           </div>
         </div>
@@ -42,7 +43,7 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom container editorial-footer-bottom">
-        <span>© {new Date().getFullYear()} CF Metal Pintura</span>
+        <span>© {new Date().getFullYear()} {cfBrandName}</span>
         <span>Desarrollado por <a href="https://nexo-digital.tech" target="_blank" rel="noreferrer">NexoDigital</a></span>
       </div>
     </footer>
