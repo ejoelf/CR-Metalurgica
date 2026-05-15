@@ -7,6 +7,7 @@ import './styles/global.css';
 import './styles/overrides.css';
 import './styles/editorial-crm.css';
 import './styles/crm-color-accents.css';
+import './styles/brand-logo.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
