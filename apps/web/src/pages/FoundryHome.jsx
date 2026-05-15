@@ -1,4 +1,4 @@
-import { ArrowRight, Check, Hammer, MapPin, MessageCircle, Ruler, ShieldCheck, Sparkles, Wrench } from 'lucide-react';
+import { ArrowRight, Check, Hammer, MapPin, Ruler, ShieldCheck, Sparkles, Wrench } from 'lucide-react';
 import { businessInfo, processSteps, services } from '../data/siteData.js';
 import { projectImages } from '../data/projectImages.js';
 import { buildWhatsAppUrl, quoteMessage } from '../utils/whatsapp.js';
@@ -30,7 +30,7 @@ export default function FoundryHome() {
           <div className="foundry-hero-right">
             <p>Portones, estructuras, pintura, durlock y electricidad para viviendas, comercios y obras en Las Higueras y Río Cuarto.</p>
             <a className="foundry-btn primary" href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer">
-              Pedir presupuesto <MessageCircle size={18} />
+              Pedir presupuesto
             </a>
           </div>
         </div>
@@ -130,7 +130,7 @@ export default function FoundryHome() {
             <p>Mandanos medidas, fotos o una idea inicial y coordinamos el próximo paso.</p>
           </div>
           <a className="foundry-btn primary" href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer">
-            Hablar por WhatsApp <MessageCircle size={18} />
+            Hablar por WhatsApp
           </a>
         </div>
       </section>
