@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import WhatsAppIcon from '../common/WhatsAppIcon.jsx';
 import { businessInfo, services } from '../../data/siteData.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
 
@@ -37,7 +38,7 @@ export default function Footer() {
           <div className="footer-socials editorial-socials">
             <a href={businessInfo.instagram} target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram /></a>
             <a href={businessInfo.facebook} target="_blank" rel="noreferrer" aria-label="Facebook"><Facebook /></a>
-            <a href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer" aria-label="WhatsApp"><Phone /></a>
+            <a href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer" aria-label="WhatsApp"><WhatsAppIcon size={22} /></a>
           </div>
         </div>
       </div>
