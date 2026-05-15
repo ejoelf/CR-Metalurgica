@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+
+const publicWebUrl = import.meta.env.VITE_PUBLIC_WEB_URL || 'http://localhost:5173/';
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
@@ -32,6 +35,10 @@ export default function LoginPage() {
 
   return (
     <main className="login-page">
+      <a className="login-back-link" href={publicWebUrl}>
+        <ArrowLeft size={18} /> Volver a la web
+      </a>
+
       <section className="login-card">
         <div className="login-brand">
           <span className="login-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
