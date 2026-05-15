@@ -1,0 +1,142 @@
+:root {
+  --cf-vivid-orange: #e87932;
+  --cf-vivid-orange-soft: rgba(232, 121, 50, .16);
+  --cf-vivid-orange-line: rgba(232, 121, 50, .44);
+}
+
+.eyebrow,
+.section-header .eyebrow,
+.page-hero .eyebrow,
+.service-card .eyebrow,
+.work-content .eyebrow,
+.contact-panel .eyebrow,
+.quote-step-card .eyebrow {
+  color: var(--cf-vivid-orange) !important;
+  letter-spacing: .16em !important;
+}
+
+.page-hero h1::selection,
+.section-header h2::selection,
+.about-copy h2::selection {
+  background: var(--cf-vivid-orange);
+  color: #fff7ec;
+}
+
+.page-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero::after {
+  content: '';
+  position: absolute;
+  left: clamp(22px, 6vw, 88px);
+  bottom: 0;
+  width: min(420px, 42vw);
+  height: 3px;
+  background: linear-gradient(90deg, var(--cf-vivid-orange), transparent);
+}
+
+.service-card,
+.work-card,
+.gallery-card,
+.benefit-card,
+.testimonial-card,
+.quote-step-card,
+.contact-panel,
+.contact-form,
+.map-card,
+.about-panel,
+.process-step {
+  transition: border-color .2s ease, transform .2s ease, background .2s ease;
+}
+
+.service-card:hover,
+.work-card:hover,
+.gallery-card:hover,
+.benefit-card:hover,
+.testimonial-card:hover,
+.quote-step-card:hover,
+.process-step:hover {
+  border-color: var(--cf-vivid-orange-line) !important;
+  transform: translateY(-3px);
+}
+
+.service-card svg,
+.benefit-card svg,
+.process-step svg,
+.quote-step-card svg,
+.contact-panel svg,
+.gallery-card svg {
+  color: var(--cf-vivid-orange) !important;
+}
+
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.section .btn-secondary:hover,
+.contact-form .btn-secondary:hover,
+.editorial-footer-cta:hover {
+  background: var(--cf-vivid-orange) !important;
+  border-color: var(--cf-vivid-orange) !important;
+  color: #fff7ec !important;
+  transform: translateY(-2px);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--cf-vivid-orange) !important;
+  box-shadow: 0 0 0 4px var(--cf-vivid-orange-soft) !important;
+  outline: none !important;
+}
+
+.contact-form,
+.quote-form,
+.form-card {
+  position: relative;
+}
+
+.contact-form::before,
+.quote-form::before,
+.form-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px auto -1px -1px;
+  width: 4px;
+  background: var(--cf-vivid-orange);
+  opacity: .9;
+}
+
+.contact-form button,
+.quote-form button,
+.form-card button {
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.footer-socials a:hover,
+.editorial-socials a:hover,
+.navbar-login-link:hover {
+  background: var(--cf-vivid-orange-soft) !important;
+  border-color: var(--cf-vivid-orange-line) !important;
+  color: var(--cf-vivid-orange) !important;
+}
+
+.gallery-card img,
+.work-card img {
+  transition: transform .45s ease, filter .45s ease;
+}
+
+.gallery-card:hover img,
+.work-card:hover img {
+  transform: scale(1.035);
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.map-card-actions a {
+  color: var(--cf-vivid-orange) !important;
+}
+
+.map-card-actions a:hover {
+  color: #fff7ec !important;
+}
