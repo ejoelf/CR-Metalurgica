@@ -1,0 +1,514 @@
+:root {
+  --foundry-bg: #111111;
+  --foundry-panel: #1c1c1b;
+  --foundry-panel-2: #24231f;
+  --foundry-text: #f8f3ea;
+  --foundry-muted: #b8afa1;
+  --foundry-line: rgba(248, 243, 234, .16);
+  --foundry-orange: #d77735;
+  --foundry-cream: #d8c3a1;
+  --foundry-shadow: 0 32px 80px rgba(0, 0, 0, .34);
+}
+
+:root[data-theme='light'] {
+  --foundry-bg: #f0e7d8;
+  --foundry-panel: #fff7ec;
+  --foundry-panel-2: #e2d5c2;
+  --foundry-text: #171717;
+  --foundry-muted: #655b50;
+  --foundry-line: rgba(23, 23, 23, .16);
+  --foundry-orange: #ad5d2d;
+  --foundry-cream: #7e664a;
+  --foundry-shadow: 0 28px 70px rgba(93, 70, 43, .14);
+}
+
+.foundry-page {
+  background: var(--foundry-bg);
+  color: var(--foundry-text);
+  overflow: hidden;
+}
+
+.foundry-page h1,
+.foundry-page h2,
+.foundry-page h3,
+.foundry-page p {
+  margin-top: 0;
+}
+
+.foundry-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--foundry-orange);
+  font-size: .76rem;
+  font-weight: 950;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.foundry-hero {
+  position: relative;
+  min-height: calc(100vh - 74px);
+  display: grid;
+  align-items: end;
+  isolation: isolate;
+  background: var(--foundry-bg);
+}
+
+.foundry-hero-image {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.foundry-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(.9) contrast(1.04);
+}
+
+.foundry-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.84), rgba(0,0,0,.42), rgba(0,0,0,.62)),
+    linear-gradient(180deg, transparent, var(--foundry-bg));
+}
+
+:root[data-theme='light'] .foundry-hero::after {
+  background:
+    linear-gradient(90deg, rgba(240,231,216,.92), rgba(240,231,216,.56), rgba(240,231,216,.78)),
+    linear-gradient(180deg, transparent, var(--foundry-bg));
+}
+
+.foundry-hero-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, .48fr);
+  gap: clamp(24px, 6vw, 90px);
+  align-items: end;
+  padding-top: clamp(120px, 15vw, 210px);
+  padding-bottom: clamp(52px, 8vw, 96px);
+}
+
+.foundry-hero-left h1 {
+  max-width: 1060px;
+  margin: 22px 0 0;
+  color: var(--foundry-text);
+  font-size: clamp(3.5rem, 9.4vw, 9.8rem);
+  line-height: .82;
+  letter-spacing: -.105em;
+}
+
+.foundry-hero-right {
+  padding: 24px;
+  border-left: 1px solid var(--foundry-line);
+  background: rgba(28, 28, 27, .52);
+  backdrop-filter: blur(10px);
+}
+
+:root[data-theme='light'] .foundry-hero-right {
+  background: rgba(255, 247, 236, .58);
+}
+
+.foundry-hero-right p {
+  color: var(--foundry-muted);
+  line-height: 1.8;
+  font-size: 1.02rem;
+}
+
+.foundry-btn {
+  min-height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px;
+  border: 1px solid var(--foundry-line);
+  color: var(--foundry-text);
+  font-size: .76rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.foundry-btn:hover {
+  transform: translateY(-2px);
+}
+
+.foundry-btn.primary {
+  margin-top: 20px;
+  background: var(--foundry-orange);
+  border-color: var(--foundry-orange);
+  color: #fff7ec;
+}
+
+.foundry-btn.secondary {
+  background: transparent;
+}
+
+.foundry-stats {
+  background: var(--foundry-panel);
+  border-top: 1px solid var(--foundry-line);
+  border-bottom: 1px solid var(--foundry-line);
+}
+
+.foundry-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.foundry-stats article {
+  min-height: 150px;
+  padding: 26px;
+  border-right: 1px solid var(--foundry-line);
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.foundry-stats article:last-child {
+  border-right: 0;
+}
+
+.foundry-stats strong {
+  color: var(--foundry-orange);
+  font-size: clamp(2.4rem, 5vw, 5rem);
+  letter-spacing: -.08em;
+  line-height: .8;
+}
+
+.foundry-stats span {
+  max-width: 140px;
+  color: var(--foundry-muted);
+  text-align: right;
+  line-height: 1.45;
+}
+
+.foundry-section {
+  padding: clamp(72px, 10vw, 145px) 0;
+}
+
+.foundry-split,
+.foundry-feature-grid,
+.foundry-process-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 430px) minmax(0, 1fr);
+  gap: clamp(28px, 7vw, 98px);
+  align-items: start;
+}
+
+.foundry-title-block {
+  position: sticky;
+  top: 106px;
+}
+
+.foundry-title-block h2,
+.foundry-feature-copy h2,
+.foundry-work-head h2,
+.foundry-contact-card h2 {
+  margin: 16px 0 18px;
+  color: var(--foundry-text);
+  font-size: clamp(2.45rem, 5.7vw, 6rem);
+  line-height: .86;
+  letter-spacing: -.09em;
+}
+
+.foundry-title-block p,
+.foundry-feature-copy li,
+.foundry-contact-card p,
+.foundry-service-card p,
+.foundry-steps p {
+  color: var(--foundry-muted);
+  line-height: 1.75;
+}
+
+.foundry-service-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--foundry-line);
+  background: var(--foundry-panel);
+}
+
+.foundry-service-card {
+  min-height: 270px;
+  padding: 28px;
+  border-right: 1px solid var(--foundry-line);
+  border-bottom: 1px solid var(--foundry-line);
+}
+
+.foundry-service-card:nth-child(even) {
+  border-right: 0;
+}
+
+.foundry-service-card:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.foundry-service-card svg {
+  color: var(--foundry-orange);
+  margin-bottom: 34px;
+}
+
+.foundry-service-card h3,
+.foundry-steps h3 {
+  color: var(--foundry-text);
+  font-size: 1.45rem;
+  letter-spacing: -.045em;
+}
+
+.foundry-feature {
+  background: var(--foundry-panel);
+  border-top: 1px solid var(--foundry-line);
+  border-bottom: 1px solid var(--foundry-line);
+}
+
+.foundry-feature-photo {
+  min-height: 620px;
+  overflow: hidden;
+}
+
+.foundry-feature-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.foundry-feature-copy {
+  align-self: center;
+}
+
+.foundry-feature-copy ul {
+  display: grid;
+  gap: 14px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.foundry-feature-copy li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--foundry-line);
+}
+
+.foundry-feature-copy li svg {
+  color: var(--foundry-orange);
+  flex: 0 0 auto;
+}
+
+.foundry-work-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 34px;
+}
+
+.foundry-work-grid {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  grid-template-rows: 310px 310px;
+  gap: 18px;
+}
+
+.foundry-work-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--foundry-panel);
+  box-shadow: var(--foundry-shadow);
+}
+
+.work-1 {
+  grid-row: span 2;
+}
+
+.foundry-work-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .45s ease;
+}
+
+.foundry-work-card:hover img {
+  transform: scale(1.045);
+}
+
+.foundry-work-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 42%, rgba(0,0,0,.78));
+}
+
+.foundry-work-card div {
+  position: absolute;
+  z-index: 2;
+  left: 24px;
+  right: 24px;
+  bottom: 22px;
+}
+
+.foundry-work-card span {
+  color: #f7b479;
+  font-size: .74rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+}
+
+.foundry-work-card h3 {
+  margin: 8px 0 0;
+  color: #fff7ec;
+  font-size: clamp(1.35rem, 2.4vw, 2.55rem);
+  letter-spacing: -.06em;
+}
+
+.foundry-process {
+  background: var(--foundry-panel-2);
+  border-top: 1px solid var(--foundry-line);
+  border-bottom: 1px solid var(--foundry-line);
+}
+
+.foundry-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--foundry-line);
+}
+
+.foundry-steps article {
+  padding: 26px;
+  min-height: 210px;
+  border-right: 1px solid var(--foundry-line);
+  border-bottom: 1px solid var(--foundry-line);
+  background: var(--foundry-panel);
+}
+
+.foundry-steps article:nth-child(even) {
+  border-right: 0;
+}
+
+.foundry-steps article:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.foundry-steps span {
+  color: var(--foundry-orange);
+  font-size: 2rem;
+  font-weight: 950;
+  letter-spacing: -.07em;
+}
+
+.foundry-contact-band {
+  padding: clamp(60px, 8vw, 110px) 0;
+}
+
+.foundry-contact-card {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: clamp(28px, 5vw, 64px);
+  background: var(--foundry-orange);
+  color: #fff7ec;
+}
+
+.foundry-contact-card .foundry-kicker,
+.foundry-contact-card h2,
+.foundry-contact-card p {
+  color: #fff7ec;
+}
+
+.foundry-contact-card p {
+  max-width: 620px;
+}
+
+.foundry-contact-card .foundry-btn.primary {
+  background: #fff7ec;
+  border-color: #fff7ec;
+  color: #171717;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1100px) {
+  .foundry-hero-content,
+  .foundry-split,
+  .foundry-feature-grid,
+  .foundry-process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .foundry-title-block {
+    position: static;
+  }
+
+  .foundry-feature-photo {
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 820px) {
+  .foundry-hero {
+    min-height: auto;
+  }
+
+  .foundry-hero-content {
+    padding-top: 120px;
+  }
+
+  .foundry-hero-left h1 {
+    font-size: clamp(3.05rem, 15vw, 5.1rem);
+  }
+
+  .foundry-hero-right {
+    border-left: 0;
+    border-top: 1px solid var(--foundry-line);
+    padding: 22px 0 0;
+    background: transparent;
+  }
+
+  .foundry-stats-grid,
+  .foundry-service-grid,
+  .foundry-steps,
+  .foundry-work-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .foundry-stats article,
+  .foundry-service-card,
+  .foundry-steps article {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--foundry-line) !important;
+  }
+
+  .foundry-stats article:last-child,
+  .foundry-service-card:last-child,
+  .foundry-steps article:last-child {
+    border-bottom: 0 !important;
+  }
+
+  .foundry-work-card,
+  .work-1 {
+    min-height: 360px;
+    grid-row: auto;
+  }
+
+  .foundry-work-head,
+  .foundry-contact-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .foundry-btn,
+  .foundry-contact-card .foundry-btn.primary {
+    width: 100%;
+  }
+}
