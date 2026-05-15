@@ -77,7 +77,7 @@ body::before {
 }
 
 .editorial-header {
-  background: rgba(36, 35, 31, .72) !important;
+  background:transparent !important;
   border-bottom: 1px solid var(--cf-line) !important;
   backdrop-filter: blur(18px);
 }
@@ -129,7 +129,7 @@ body::before {
   color: var(--cf-muted) !important;
   text-transform: uppercase;
   letter-spacing: .08em;
-  font-size: .68rem;
+  font-size: .86rem;
 }
 
 .editorial-nav a:hover,
