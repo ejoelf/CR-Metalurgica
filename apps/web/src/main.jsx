@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './styles/global.css';
 import './styles/fixes.css';
+import './styles/neo-industrial.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
