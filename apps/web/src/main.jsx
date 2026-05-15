@@ -13,6 +13,7 @@ import './styles/brand-logo.css';
 import './styles/navbar-refinements.css';
 import './styles/hero-refinements.css';
 import './styles/about-contact-refinements.css';
+import './styles/whatsapp-float-refinements.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
