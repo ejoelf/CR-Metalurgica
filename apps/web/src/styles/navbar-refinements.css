@@ -12,28 +12,32 @@
 
 .editorial-header-inner {
   display: grid !important;
-  grid-template-columns: auto 1fr !important;
-  gap: clamp(22px, 5vw, 70px) !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  gap: clamp(22px, 4vw, 54px) !important;
 }
 
 .editorial-nav {
   width: 100% !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
-  gap: 24px !important;
+  justify-content: center !important;
+  gap: clamp(14px, 2.4vw, 34px) !important;
 }
 
-.editorial-nav-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(14px, 2.4vw, 34px);
-  flex: 1 1 auto;
-}
-
-.editorial-nav-links a {
+.editorial-nav a {
   padding: 0 !important;
+}
+
+.navbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+}
+
+.navbar-actions .editorial-menu-button {
+  display: none !important;
 }
 
 .theme-switch {
@@ -78,20 +82,6 @@
   transform: translateX(0);
 }
 
-.header-actions-mobile .theme-switch {
-  width: 66px;
-  height: 36px;
-}
-
-.header-actions-mobile .theme-switch-thumb {
-  width: 26px;
-  height: 26px;
-}
-
-.header-actions-mobile .theme-switch.is-light .theme-switch-thumb {
-  transform: translateX(30px);
-}
-
 .logo-brand-mark {
   border-radius: 999px !important;
 }
@@ -105,24 +95,35 @@
     display: flex !important;
   }
 
+  .navbar-actions .editorial-menu-button {
+    display: grid !important;
+  }
+
+  .editorial-nav {
+    justify-content: flex-start !important;
+  }
+
   .editorial-nav.is-open {
     width: min(420px, calc(100vw - 32px)) !important;
     right: 16px !important;
     left: auto !important;
   }
 
-  .editorial-nav-links {
-    width: 100%;
-    align-items: stretch;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .editorial-nav-links a {
+  .editorial-nav a {
     padding: 12px 0 !important;
   }
 
-  .desktop-theme-toggle {
-    display: none !important;
+  .header-actions-mobile .theme-switch {
+    width: 66px;
+    height: 36px;
+  }
+
+  .header-actions-mobile .theme-switch-thumb {
+    width: 26px;
+    height: 26px;
+  }
+
+  .header-actions-mobile .theme-switch.is-light .theme-switch-thumb {
+    transform: translateX(30px);
   }
 }
