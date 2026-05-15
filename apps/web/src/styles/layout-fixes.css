@@ -1,0 +1,326 @@
+.neo-hero {
+  min-height: auto;
+  padding: clamp(54px, 7vw, 96px) 0 clamp(64px, 8vw, 104px);
+}
+
+.neo-hero-layout {
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, .78fr) minmax(260px, .58fr);
+  gap: clamp(18px, 3vw, 34px);
+}
+
+.neo-hero-copy h1 {
+  max-width: 680px;
+  font-size: clamp(3rem, 6.4vw, 6.2rem);
+  line-height: .92;
+}
+
+.hero-specimen {
+  min-height: auto;
+  height: clamp(440px, 60vw, 610px);
+  align-self: stretch;
+}
+
+.hero-specimen img {
+  min-height: 0;
+  height: 100%;
+  display: block;
+}
+
+.specimen-ruler.top {
+  top: 14px;
+  left: 34px;
+  right: 34px;
+}
+
+.specimen-ruler.left {
+  top: 34px;
+  bottom: 34px;
+  left: 14px;
+}
+
+.label-one {
+  top: 48px;
+  left: 34px;
+}
+
+.label-two {
+  right: 34px;
+  bottom: 42px;
+}
+
+.technical-sheet {
+  align-self: center;
+  padding: clamp(20px, 2.2vw, 26px);
+}
+
+.sheet-metrics {
+  grid-template-columns: 1fr;
+}
+
+.sheet-metrics strong,
+.sheet-metrics small {
+  margin: 0;
+  border-radius: 16px;
+  border: 1px solid var(--nd-line);
+}
+
+.sheet-metrics small {
+  margin-top: -6px;
+}
+
+.split-section-heading,
+.portfolio-header,
+.fabrication-header {
+  grid-template-columns: minmax(0, .85fr) minmax(260px, .48fr);
+  align-items: start;
+}
+
+.split-section-heading h2,
+.portfolio-header h2,
+.fabrication-header h2 {
+  font-size: clamp(2.2rem, 4.4vw, 4.55rem);
+  line-height: .96;
+}
+
+.technical-services-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.technical-service-card {
+  min-height: 0;
+  padding: clamp(20px, 2.2vw, 26px);
+}
+
+.technical-service-card h3 {
+  margin-top: 30px;
+}
+
+.portfolio-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+  align-items: stretch;
+}
+
+.portfolio-featured-card {
+  min-height: 0;
+  height: min(66vw, 620px);
+}
+
+.portfolio-featured-card img {
+  height: 100%;
+  min-height: 0;
+  display: block;
+}
+
+.portfolio-side-stack {
+  align-content: stretch;
+}
+
+.portfolio-spec-card {
+  padding: 22px;
+}
+
+.portfolio-mini-card {
+  min-height: 132px;
+}
+
+.fabrication-line {
+  grid-template-columns: repeat(5, minmax(180px, 1fr));
+  border: 1px solid var(--nd-line);
+  border-radius: 28px;
+  background: var(--nd-card);
+  box-shadow: var(--nd-shadow);
+  overflow: hidden;
+}
+
+.fabrication-line::before {
+  left: 22px;
+  right: 22px;
+}
+
+.fabrication-step {
+  min-width: 0;
+  padding: 76px 18px 24px;
+}
+
+.fabrication-step p {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1280px) {
+  .neo-hero-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, .82fr);
+  }
+
+  .technical-sheet {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: .45fr 1fr .35fr;
+    gap: 18px;
+    align-items: center;
+  }
+
+  .technical-sheet h2 {
+    margin: 8px 0 0;
+  }
+
+  .sheet-list {
+    margin: 0;
+  }
+}
+
+@media (max-width: 1080px) {
+  .neo-hero-layout,
+  .portfolio-layout,
+  .split-section-heading,
+  .portfolio-header,
+  .fabrication-header {
+    grid-template-columns: 1fr;
+  }
+
+  .technical-sheet {
+    grid-template-columns: 1fr;
+  }
+
+  .technical-services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .technical-service-card {
+    border-right: 0;
+    border-bottom: 1px solid var(--nd-line);
+  }
+
+  .technical-service-card:nth-child(odd) {
+    border-right: 1px solid var(--nd-line);
+  }
+
+  .technical-service-card:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .portfolio-featured-card {
+    height: 560px;
+  }
+
+  .fabrication-line {
+    grid-template-columns: 1fr;
+  }
+
+  .fabrication-line::before {
+    top: 0;
+    bottom: 0;
+    left: 31px;
+    width: 1px;
+    height: auto;
+    right: auto;
+    background: linear-gradient(180deg, transparent, var(--nd-accent), transparent);
+  }
+
+  .fabrication-step {
+    border-right: 0;
+    border-bottom: 1px solid var(--nd-line);
+    padding: 24px 24px 24px 78px;
+  }
+
+  .fabrication-step:last-child {
+    border-bottom: 0;
+  }
+
+  .step-number {
+    top: 22px;
+    left: 24px;
+    font-size: 1.35rem;
+  }
+
+  .step-pin {
+    top: 62px;
+    left: 25px;
+  }
+}
+
+@media (max-width: 720px) {
+  .neo-hero {
+    padding-top: 38px;
+  }
+
+  .neo-hero-copy h1 {
+    font-size: clamp(2.55rem, 13vw, 4rem);
+    letter-spacing: -.07em;
+  }
+
+  .neo-hero-actions,
+  .blueprint-action {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .neo-hero-actions .btn,
+  .blueprint-action .btn {
+    width: 100%;
+  }
+
+  .hero-specimen {
+    height: 390px;
+    border-radius: 26px;
+  }
+
+  .hero-specimen img {
+    border-radius: 18px;
+  }
+
+  .specimen-label {
+    max-width: calc(100% - 44px);
+    font-size: .68rem;
+  }
+
+  .label-one {
+    left: 22px;
+    top: 34px;
+  }
+
+  .label-two {
+    right: 22px;
+    bottom: 28px;
+  }
+
+  .technical-services-grid {
+    grid-template-columns: 1fr;
+    border-radius: 26px;
+  }
+
+  .technical-service-card,
+  .technical-service-card:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .technical-service-card:nth-last-child(-n + 2) {
+    border-bottom: 1px solid var(--nd-line);
+  }
+
+  .technical-service-card:last-child {
+    border-bottom: 0;
+  }
+
+  .portfolio-featured-card {
+    height: 460px;
+    border-radius: 26px;
+  }
+
+  .portfolio-featured-info {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .portfolio-mini-card {
+    grid-template-columns: 92px 1fr;
+  }
+
+  .portfolio-mini-card img {
+    width: 92px;
+    height: 88px;
+  }
+}
