@@ -12,6 +12,7 @@ import './styles/foundry.css';
 import './styles/brand-logo.css';
 import './styles/navbar-refinements.css';
 import './styles/hero-refinements.css';
+import './styles/about-contact-refinements.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
