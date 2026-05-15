@@ -14,6 +14,7 @@ import './styles/navbar-refinements.css';
 import './styles/hero-refinements.css';
 import './styles/about-contact-refinements.css';
 import './styles/whatsapp-float-refinements.css';
+import './styles/inner-pages-life.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
