@@ -1,0 +1,84 @@
+:root {
+  --crm-orange: #d8843f;
+  --crm-gold: #d7b36a;
+  --crm-green: #7ea66a;
+  --crm-blue: #6d91aa;
+  --crm-red: #c76a5e;
+}
+
+:root[data-theme='light'] {
+  --crm-orange: #b56631;
+  --crm-gold: #9f793c;
+  --crm-green: #55794c;
+  --crm-blue: #476f87;
+  --crm-red: #a34f46;
+}
+
+.kpi-card.green {
+  border-left: 4px solid var(--crm-green) !important;
+}
+
+.kpi-card.red {
+  border-left: 4px solid var(--crm-red) !important;
+}
+
+.kpi-card.blue {
+  border-left: 4px solid var(--crm-blue) !important;
+}
+
+.kpi-card.orange {
+  border-left: 4px solid var(--crm-orange) !important;
+}
+
+.kpi-card.purple {
+  border-left: 4px solid var(--crm-gold) !important;
+}
+
+.kpi-card.green svg,
+.record-card:nth-child(4n + 1) .record-icon {
+  background: color-mix(in srgb, var(--crm-green) 24%, transparent) !important;
+  color: var(--crm-green) !important;
+}
+
+.kpi-card.red svg,
+.record-card:nth-child(4n + 2) .record-icon {
+  background: color-mix(in srgb, var(--crm-red) 24%, transparent) !important;
+  color: var(--crm-red) !important;
+}
+
+.kpi-card.blue svg,
+.record-card:nth-child(4n + 3) .record-icon {
+  background: color-mix(in srgb, var(--crm-blue) 24%, transparent) !important;
+  color: var(--crm-blue) !important;
+}
+
+.kpi-card.orange svg,
+.record-card:nth-child(4n) .record-icon {
+  background: color-mix(in srgb, var(--crm-orange) 24%, transparent) !important;
+  color: var(--crm-orange) !important;
+}
+
+.status-pill,
+.status-list b,
+.simple-list b,
+.quote-totals-preview b {
+  color: var(--crm-gold) !important;
+}
+
+.notification-item.unread {
+  border-left: 4px solid var(--crm-orange) !important;
+  background: color-mix(in srgb, var(--crm-orange) 9%, var(--crm-panel)) !important;
+}
+
+.primary-button:hover {
+  background: var(--crm-orange) !important;
+}
+
+.sidebar-nav a.active svg {
+  color: var(--crm-orange) !important;
+}
+
+.page-header span,
+.modal-eyebrow {
+  color: var(--crm-orange) !important;
+}
