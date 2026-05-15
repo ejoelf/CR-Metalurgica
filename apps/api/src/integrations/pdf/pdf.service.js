@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import PDFDocument from 'pdfkit';
+import { cfBrandName } from '../../../../../packages/branding/cfLogo.js';
+import { cfLogoPdfBuffer } from '../../../../../packages/branding/cfLogoPdf.js';
 import { prisma } from '../../config/prisma.js';
 import { notFound } from '../../utils/ApiError.js';
 import { buildQuotePdfContent, formatDate, formatMoney } from './quotePdfTemplate.js';
@@ -30,10 +32,17 @@ export async function generateQuotePdf(quoteId) {
 
     doc.pipe(stream);
 
-    doc.fontSize(20).fillColor('#111827').text(content.company.name, { align: 'left' });
-    doc.fontSize(10).fillColor('#64748b').text(content.company.address);
-    doc.text(`Tel: ${content.company.phone} | Email: ${content.company.email}`);
-    doc.moveDown(1.4);
+    try {
+      doc.image(cfLogoPdfBuffer, 48, 42, { width: 62 });
+    } catch {
+      doc.rect(48, 42, 62, 52).stroke('#d1d5db');
+    }
+
+    doc.fontSize(20).fillColor('#111827').text(cfBrandName, 122, 48, { align: 'left' });
+    doc.fontSize(10).fillColor('#64748b').text(content.company.address || '-', 122, 76);
+    doc.text(`Tel: ${content.company.phone || '-'} | Email: ${content.company.email || '-'}`, 122, 90);
+    doc.moveTo(48, 118).lineTo(547, 118).strokeColor('#e5e7eb').stroke();
+    doc.y = 140;
 
     doc.fontSize(18).fillColor('#111827').text(content.title);
     doc.fontSize(10).fillColor('#64748b').text(`Fecha: ${formatDate(content.quote.createdAt)} | Validez: ${formatDate(content.quote.validUntil)}`);
@@ -67,7 +76,7 @@ export async function generateQuotePdf(quoteId) {
     doc.fontSize(15).fillColor('#111827').text(`TOTAL: ${formatMoney(content.quote.total)}`, { align: 'right' });
 
     doc.moveDown(1.5);
-    doc.fontSize(9).fillColor('#64748b').text('Presupuesto generado por CF Metal Pintura PRO. Los precios y condiciones están sujetos a revisión según medidas finales, materiales y disponibilidad.', { align: 'left' });
+    doc.fontSize(9).fillColor('#64748b').text(`Presupuesto generado por ${cfBrandName} PRO. Los precios y condiciones están sujetos a revisión según medidas finales, materiales y disponibilidad.`, { align: 'left' });
 
     doc.end();
     stream.on('finish', resolve);
