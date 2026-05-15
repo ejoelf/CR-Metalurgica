@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { ShieldCheck } from 'lucide-react';
+import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function LoginPage() {
@@ -34,9 +34,9 @@ export default function LoginPage() {
     <main className="login-page">
       <section className="login-card">
         <div className="login-brand">
-          <span><ShieldCheck size={28} /></span>
+          <span className="login-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
           <div>
-            <strong>CF Metal Pintura PRO</strong>
+            <strong>{cfBrandName} PRO</strong>
             <small>Panel CRM privado</small>
           </div>
         </div>
