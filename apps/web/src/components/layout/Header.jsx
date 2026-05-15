@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { Menu, Moon, Phone, Sun, X } from 'lucide-react';
-import { businessInfo } from '../../data/siteData.js';
+import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { useTheme } from '../../hooks/useTheme.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
 
@@ -23,9 +23,11 @@ export default function Header() {
     <header className="site-header editorial-header">
       <div className="container header-inner editorial-header-inner">
         <Link className="brand editorial-brand" to="/" onClick={() => setOpen(false)}>
-          <span className="brand-mark editorial-brand-mark">CF</span>
+          <span className="brand-mark editorial-brand-mark logo-brand-mark">
+            <img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} />
+          </span>
           <span>
-            <strong>{businessInfo.name}</strong>
+            <strong>{cfBrandName}</strong>
             <small>Metalúrgica · Pintura · Obra</small>
           </span>
         </Link>
@@ -49,7 +51,7 @@ export default function Header() {
             {isDark ? <Sun size={17} /> : <Moon size={17} />}
             <span>{isDark ? 'Claro' : 'Oscuro'}</span>
           </button>
-          <a className="nav-cta editorial-call" href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer">
+          <a className="nav-cta editorial-call" href={buildWhatsAppUrl('5493585719450', quoteMessage())} target="_blank" rel="noreferrer">
             <Phone size={16} /> Llamar ahora
           </a>
         </nav>
