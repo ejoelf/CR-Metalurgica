@@ -167,6 +167,37 @@
   gap: 12px;
 }
 
+.settings-stack,
+.settings-section {
+  display: grid;
+  gap: 22px;
+}
+
+.settings-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  backdrop-filter: var(--blur);
+}
+
+.settings-section-header h2 {
+  margin: 8px 0 8px;
+  color: var(--heading);
+  letter-spacing: -.04em;
+}
+
+.settings-section-header p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
 button:disabled {
   cursor: not-allowed;
   opacity: .62;
@@ -196,5 +227,12 @@ button:disabled {
     width: auto;
     height: auto;
     padding: 12px 14px;
+  }
+}
+
+@media (max-width: 720px) {
+  .settings-section-header {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
