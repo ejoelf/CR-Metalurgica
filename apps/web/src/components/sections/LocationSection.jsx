@@ -1,4 +1,6 @@
+import { ExternalLink } from 'lucide-react';
 import SectionHeader from '../common/SectionHeader.jsx';
+import { businessInfo } from '../../data/siteData.js';
 
 export default function LocationSection() {
   return (
@@ -12,8 +14,8 @@ export default function LocationSection() {
 
         <div className="map-card">
           <iframe
-            title="Ubicación CF Metal Pintura"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d366.21330387745667!2d-64.28639438422339!3d-33.0929642821964!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95cdfe5393651ee1%3A0x9dbd07aa672c0ef4!2sLas%20Higueras%2C%20X5805%20R%C3%ADo%20Cuarto%2C%20C%C3%B3rdoba%2C%20Argentina!5e1!3m2!1ses!2sit!4v1759479662335!5m2!1ses!2sit"
+            title="Ubicación CF Metal-Pintura"
+            src="https://www.google.com/maps?q=CF%20Metal%20Pintura%20Las%20Higueras%20Rio%20Cuarto%20Cordoba%20Argentina&output=embed"
             width="100%"
             height="360"
             style={{ border: 0 }}
@@ -21,6 +23,11 @@ export default function LocationSection() {
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           />
+          <div className="map-card-actions">
+            <a href={businessInfo.mapsUrl} target="_blank" rel="noreferrer">
+              Abrir ubicación exacta <ExternalLink size={16} />
+            </a>
+          </div>
         </div>
       </div>
     </section>
