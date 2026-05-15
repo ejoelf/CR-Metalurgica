@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Bell, CalendarDays, GalleryHorizontal, Home, Inbox, LayoutDashboard, Menu, Receipt, Settings, Users, WalletCards, Wrench } from 'lucide-react';
+import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 
 const items = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
@@ -19,9 +20,9 @@ export default function Sidebar({ collapsed = false, onToggle }) {
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`}>
       <div className="sidebar-brand-row">
         <div className="sidebar-brand">
-          <span>CF</span>
+          <span className="sidebar-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
           <div className="sidebar-label">
-            <strong>CF Metal</strong>
+            <strong>{cfBrandName}</strong>
             <small>CRM PRO</small>
           </div>
         </div>
