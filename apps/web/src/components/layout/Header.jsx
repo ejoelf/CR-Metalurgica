@@ -30,7 +30,15 @@ export default function Header() {
           </span>
         </Link>
 
-        <div className="header-actions-mobile">
+        <nav className={`main-nav editorial-nav ${open ? 'is-open' : ''}`}>
+          {navItems.map((item) => (
+            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="header-actions-mobile navbar-actions">
           <button className={`theme-switch ${isDark ? 'is-dark' : 'is-light'}`} type="button" onClick={toggleTheme} aria-label="Cambiar tema">
             <span className="theme-switch-thumb">{isDark ? <Moon size={16} /> : <Sun size={16} />}</span>
           </button>
@@ -38,19 +46,6 @@ export default function Header() {
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
-
-        <nav className={`main-nav editorial-nav ${open ? 'is-open' : ''}`}>
-          <div className="editorial-nav-links">
-            {navItems.map((item) => (
-              <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
-          <button className={`theme-switch desktop-theme-toggle ${isDark ? 'is-dark' : 'is-light'}`} type="button" onClick={toggleTheme} aria-label="Cambiar tema">
-            <span className="theme-switch-thumb">{isDark ? <Moon size={16} /> : <Sun size={16} />}</span>
-          </button>
-        </nav>
       </div>
     </header>
   );
