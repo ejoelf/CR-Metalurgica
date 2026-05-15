@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import AtelierHome from './AtelierHome.jsx';
+import FoundryHome from './FoundryHome.jsx';
 import { updateSeo } from '../utils/seo.js';
 
 export default function HomePage() {
@@ -10,5 +10,5 @@ export default function HomePage() {
     });
   }, []);
 
-  return <AtelierHome />;
+  return <FoundryHome />;
 }
