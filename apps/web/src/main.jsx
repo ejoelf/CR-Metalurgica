@@ -7,6 +7,7 @@ import './styles/fixes.css';
 import './styles/neo-industrial.css';
 import './styles/layout-fixes.css';
 import './styles/atelier.css';
+import './styles/editorial-industrial.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
