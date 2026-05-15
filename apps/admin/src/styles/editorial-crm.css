@@ -1,0 +1,284 @@
+:root {
+  --crm-bg: #24231f;
+  --crm-panel: #2b2a26;
+  --crm-panel-2: #1f1f1c;
+  --crm-text: #f5f0e7;
+  --crm-muted: #b8b0a2;
+  --crm-line: rgba(245, 240, 231, .18);
+  --crm-accent: #b9aa92;
+  --crm-accent-2: #d2c1a5;
+  --bg: var(--crm-bg);
+  --bg-soft: var(--crm-panel-2);
+  --surface: rgba(245, 240, 231, .055);
+  --surface-strong: rgba(245, 240, 231, .095);
+  --card: var(--crm-panel);
+  --card-solid: var(--crm-panel);
+  --text: var(--crm-text);
+  --heading: var(--crm-text);
+  --muted: var(--crm-muted);
+  --line: var(--crm-line);
+  --line-strong: rgba(210, 193, 165, .34);
+  --accent: var(--crm-accent);
+  --accent-2: var(--crm-accent-2);
+  --shadow: none;
+  --radius-lg: 0;
+  --radius-md: 0;
+}
+
+:root[data-theme='light'] {
+  --crm-bg: #ebe5da;
+  --crm-panel: #f6f1e8;
+  --crm-panel-2: #ded5c7;
+  --crm-text: #22211d;
+  --crm-muted: #766f63;
+  --crm-line: rgba(34, 33, 29, .18);
+  --crm-accent: #8f7659;
+  --crm-accent-2: #6e5b45;
+  --bg: var(--crm-bg);
+  --bg-soft: var(--crm-panel-2);
+  --surface: rgba(255, 255, 255, .46);
+  --surface-strong: rgba(255, 255, 255, .78);
+  --card: var(--crm-panel);
+  --card-solid: var(--crm-panel);
+  --text: var(--crm-text);
+  --heading: var(--crm-text);
+  --muted: var(--crm-muted);
+  --line: var(--crm-line);
+  --line-strong: rgba(143, 118, 89, .34);
+  --accent: var(--crm-accent);
+  --accent-2: var(--crm-accent-2);
+}
+
+html,
+body,
+#root {
+  background: var(--crm-bg) !important;
+  color: var(--crm-text) !important;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: .2;
+  background:
+    linear-gradient(90deg, var(--crm-line) 1px, transparent 1px),
+    linear-gradient(180deg, var(--crm-line) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.login-page {
+  background:
+    linear-gradient(rgba(0, 0, 0, .38), rgba(0, 0, 0, .42)),
+    var(--crm-bg) !important;
+}
+
+:root[data-theme='light'] .login-page {
+  background: var(--crm-bg) !important;
+}
+
+.login-card {
+  border-radius: 0 !important;
+  background: var(--crm-panel) !important;
+  border: 1px solid var(--crm-line) !important;
+  box-shadow: none !important;
+  max-width: 520px;
+}
+
+.login-brand span,
+.sidebar-brand span,
+.record-icon {
+  border-radius: 0 !important;
+  background: var(--crm-accent) !important;
+  color: var(--crm-bg) !important;
+  box-shadow: none !important;
+}
+
+.login-card h1,
+.login-brand strong,
+.sidebar-brand strong,
+.page-header h1,
+.panel-card h2,
+.record-card h3,
+.timeline-item h3,
+.kanban-card h3,
+.gallery-admin-card h3,
+.kpi-card strong {
+  color: var(--crm-text) !important;
+}
+
+.login-card p,
+.login-brand small,
+.sidebar-brand small,
+.page-header p,
+.record-card p,
+.timeline-item p,
+.kanban-card p,
+.gallery-admin-card p,
+.panel-card p,
+.muted {
+  color: var(--crm-muted) !important;
+}
+
+.admin-shell {
+  background: var(--crm-bg) !important;
+}
+
+.sidebar {
+  background: var(--crm-panel-2) !important;
+  border-right: 1px solid var(--crm-line) !important;
+  backdrop-filter: none !important;
+}
+
+.sidebar-nav a,
+.sidebar-public-link {
+  border-radius: 0 !important;
+  color: var(--crm-muted) !important;
+  text-transform: uppercase;
+  letter-spacing: .055em;
+  font-size: .74rem;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active,
+.sidebar-public-link:hover {
+  color: var(--crm-text) !important;
+  background: transparent !important;
+  box-shadow: inset 3px 0 0 var(--crm-accent) !important;
+}
+
+.sidebar-public-link {
+  border: 1px solid var(--crm-line) !important;
+  background: transparent !important;
+}
+
+.sidebar-toggle,
+.theme-toggle,
+.ghost-button,
+.topbar-user button {
+  border-radius: 0 !important;
+  border: 1px solid var(--crm-line) !important;
+  background: transparent !important;
+  color: var(--crm-text) !important;
+  box-shadow: none !important;
+}
+
+.topbar {
+  background: rgba(36, 35, 31, .74) !important;
+  border-bottom: 1px solid var(--crm-line) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+:root[data-theme='light'] .topbar {
+  background: rgba(235, 229, 218, .78) !important;
+}
+
+.topbar-search,
+.topbar-user {
+  border-radius: 0 !important;
+  background: var(--crm-panel) !important;
+  border: 1px solid var(--crm-line) !important;
+}
+
+.topbar-search input {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.admin-content {
+  padding: clamp(20px, 3vw, 38px) !important;
+}
+
+.page-header {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--crm-line);
+}
+
+.page-header span {
+  color: var(--crm-accent) !important;
+}
+
+.page-header h1 {
+  font-size: clamp(2.4rem, 5.5vw, 5.6rem) !important;
+  line-height: .88 !important;
+  letter-spacing: -.085em !important;
+}
+
+.kpi-card,
+.panel-card,
+.record-card,
+.toolbar-card,
+.kanban-column,
+.timeline-item,
+.gallery-admin-card,
+.settings-section-header,
+.modal-card {
+  border-radius: 0 !important;
+  background: var(--crm-panel) !important;
+  border: 1px solid var(--crm-line) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.kpi-card svg,
+.service-icon-box {
+  border-radius: 0 !important;
+}
+
+.primary-button {
+  border-radius: 0 !important;
+  background: var(--crm-accent) !important;
+  color: var(--crm-bg) !important;
+  box-shadow: none !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .74rem;
+}
+
+input,
+select,
+textarea {
+  border-radius: 0 !important;
+  background: var(--crm-panel-2) !important;
+  color: var(--crm-text) !important;
+  border: 1px solid var(--crm-line) !important;
+}
+
+label {
+  color: var(--crm-muted) !important;
+}
+
+.status-list span,
+.simple-list span,
+.quote-totals-preview span,
+.quote-totals-preview b,
+.detail-list span,
+.method-step,
+.kanban-card {
+  border-radius: 0 !important;
+  background: var(--crm-panel-2) !important;
+  border: 1px solid var(--crm-line) !important;
+}
+
+.modal-backdrop {
+  background: rgba(0, 0, 0, .66) !important;
+}
+
+.modal-close-button {
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.success-box,
+.warning-box,
+.error-box {
+  border-radius: 0 !important;
+}
+
+@media (max-width: 1100px) {
+  .sidebar {
+    border-bottom: 1px solid var(--crm-line);
+  }
+}
