@@ -4,9 +4,16 @@ import { badRequest, unauthorized } from '../../utils/ApiError.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../../utils/token.js';
 
 export const authService = {
-  async login({ email, password }) {
-    const user = await prisma.user.findUnique({
-      where: { email },
+  async login({ identifier, email, password }) {
+    const loginValue = String(identifier || email || '').trim();
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: loginValue, mode: 'insensitive' } },
+          { name: { equals: loginValue, mode: 'insensitive' } },
+        ],
+      },
       include: { role: true },
     });
 
