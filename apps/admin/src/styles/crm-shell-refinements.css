@@ -58,11 +58,21 @@
   width: 100% !important;
 }
 
+.sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+}
+
+.sidebar-nav {
+  flex: 0 0 auto !important;
+}
+
 .sidebar-public-link.sidebar-logout-link {
   appearance: none !important;
   width: calc(100% - 48px) !important;
   min-height: 52px !important;
-  margin: 0 24px 24px !important;
+  margin: auto 24px 24px !important;
   padding: 0 18px !important;
   display: flex !important;
   align-items: center !important;
@@ -72,17 +82,18 @@
   font-weight: 900 !important;
   text-align: left !important;
   cursor: pointer !important;
-  border: 1px solid var(--crm-line) !important;
+  border: 0 !important;
+  box-shadow: none !important;
   background: transparent !important;
   color: var(--crm-muted) !important;
   text-transform: uppercase !important;
   letter-spacing: .055em !important;
-  transition: color .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease !important;
+  transition: color .2s ease, background .2s ease, box-shadow .2s ease !important;
 }
 
 .sidebar-public-link.sidebar-logout-link:hover {
   color: var(--crm-orange, #d8843f) !important;
-  border-color: color-mix(in srgb, var(--crm-orange, #d8843f) 58%, transparent) !important;
+  border: 0 !important;
   background: color-mix(in srgb, var(--crm-orange, #d8843f) 10%, transparent) !important;
   box-shadow: inset 3px 0 0 var(--crm-orange, #d8843f) !important;
 }
@@ -97,7 +108,7 @@
   min-width: 52px !important;
   justify-content: center !important;
   padding: 0 !important;
-  margin: 0 auto 24px !important;
+  margin: auto auto 24px !important;
 }
 
 .admin-shell.sidebar-collapsed .sidebar-logout-link .sidebar-label {
