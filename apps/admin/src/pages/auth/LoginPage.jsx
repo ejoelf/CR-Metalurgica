@@ -8,7 +8,7 @@ const publicWebUrl = import.meta.env.VITE_PUBLIC_WEB_URL || 'http://localhost:51
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ identifier: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -44,7 +44,6 @@ export default function LoginPage() {
           <span className="login-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
           <div>
             <strong>{cfBrandName} PRO</strong>
-            <small>Panel CRM privado</small>
           </div>
         </div>
 
@@ -53,12 +52,12 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <label>
-            Email
-            <input name="email" type="email" value={form.email} onChange={handleChange} required placeholder="admin@cfmetalpintura.com" />
+            Usuario
+            <input name="identifier" type="text" value={form.identifier} onChange={handleChange} required placeholder="Tu usuario" autoComplete="username" />
           </label>
           <label>
             Contraseña
-            <input name="password" type="password" value={form.password} onChange={handleChange} required placeholder="Tu contraseña" />
+            <input name="password" type="password" value={form.password} onChange={handleChange} required placeholder="Tu contraseña" autoComplete="current-password" />
           </label>
           <button className="primary-button" type="submit" disabled={loading}>{loading ? 'Ingresando...' : 'Ingresar'}</button>
           {error && <p className="error-box">{error}</p>}
