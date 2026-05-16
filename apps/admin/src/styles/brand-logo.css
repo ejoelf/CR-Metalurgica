@@ -13,6 +13,8 @@
   width: 82px !important;
   height: 82px !important;
   border-radius: 999px !important;
+  background: transparent !important;
+  clip-path: circle(50% at 50% 50%);
 }
 
 .sidebar-logo-mark {
@@ -25,7 +27,7 @@
 .sidebar-logo-mark img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
   border-radius: 999px;
 }
@@ -45,6 +47,10 @@
 
 .login-brand {
   align-items: center;
+}
+
+.login-brand small {
+  display: none !important;
 }
 
 .login-back-link {
