@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { Bell, CalendarDays, GalleryHorizontal, Home, Inbox, LayoutDashboard, Menu, Receipt, Settings, Users, WalletCards, Wrench } from 'lucide-react';
+import { Bell, CalendarDays, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench } from 'lucide-react';
 import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const items = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
@@ -16,6 +17,8 @@ const items = [
 ];
 
 export default function Sidebar({ collapsed = false, onToggle }) {
+  const { logout } = useAuth();
+
   return (
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`}>
       <div className="sidebar-brand-row">
@@ -23,7 +26,6 @@ export default function Sidebar({ collapsed = false, onToggle }) {
           <span className="sidebar-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
           <div className="sidebar-label">
             <strong>{cfBrandName}</strong>
-            <small>CRM PRO</small>
           </div>
         </div>
         <button className="sidebar-toggle" type="button" onClick={onToggle} aria-label="Alternar menú lateral">
@@ -43,9 +45,9 @@ export default function Sidebar({ collapsed = false, onToggle }) {
         })}
       </nav>
 
-      <a className="sidebar-public-link" href="/" target="_blank" rel="noreferrer" title={collapsed ? 'Ver web pública' : undefined}>
-        <Home size={18} /> <span className="sidebar-label">Ver web pública</span>
-      </a>
+      <button className="sidebar-public-link sidebar-logout-link" type="button" onClick={logout} title={collapsed ? 'Cerrar sesión' : undefined}>
+        <LogOut size={18} /> <span className="sidebar-label">Cerrar sesión</span>
+      </button>
     </aside>
   );
 }
