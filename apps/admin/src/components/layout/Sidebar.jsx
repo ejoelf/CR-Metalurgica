@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { Bell, CalendarDays, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench } from 'lucide-react';
 import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useSidebarCounts } from '../../hooks/useSidebarCounts.js';
 
 const items = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
@@ -11,13 +12,21 @@ const items = [
   { label: 'Finanzas', to: '/finanzas', icon: WalletCards },
   { label: 'Agenda', to: '/agenda', icon: CalendarDays },
   { label: 'Galería', to: '/galeria', icon: GalleryHorizontal },
-  { label: 'Mensajes', to: '/mensajes', icon: Inbox },
-  { label: 'Notificaciones', to: '/notificaciones', icon: Bell },
+  { label: 'Mensajes', to: '/mensajes', icon: Inbox, countKey: 'unreadMessages' },
+  { label: 'Notificaciones', to: '/notificaciones', icon: Bell, countKey: 'unreadNotifications' },
   { label: 'Configuración', to: '/configuracion', icon: Settings },
 ];
 
+function SidebarBadge({ value }) {
+  const numericValue = Number(value || 0);
+  if (numericValue <= 0) return null;
+
+  return <span className="sidebar-count-badge" aria-label={`${numericValue} pendientes`}>{numericValue > 99 ? '99+' : numericValue}</span>;
+}
+
 export default function Sidebar({ collapsed = false, onToggle }) {
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
+  const { counts } = useSidebarCounts({ enabled: isAuthenticated });
 
   return (
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`}>
@@ -36,10 +45,15 @@ export default function Sidebar({ collapsed = false, onToggle }) {
       <nav className="sidebar-nav">
         {items.map((item) => {
           const Icon = item.icon;
+          const count = item.countKey ? counts[item.countKey] : 0;
           return (
             <NavLink key={item.to} to={item.to} title={collapsed ? item.label : undefined}>
-              <Icon size={18} />
+              <span className="sidebar-icon-wrap">
+                <Icon size={18} />
+                {collapsed && <SidebarBadge value={count} />}
+              </span>
               <span className="sidebar-label">{item.label}</span>
+              {!collapsed && <SidebarBadge value={count} />}
             </NavLink>
           );
         })}
