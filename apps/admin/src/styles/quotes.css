@@ -133,7 +133,8 @@
   font: inherit;
 }
 
-.quote-autosave-banner {
+.quote-autosave-banner,
+.quote-pdf-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -144,17 +145,26 @@
   background: color-mix(in srgb, var(--crm-orange, #d8843f) 10%, transparent);
 }
 
+.quote-pdf-banner {
+  border-color: rgba(59, 130, 246, .42);
+  background: rgba(59, 130, 246, .09);
+}
+
 .quote-autosave-banner strong,
-.quote-autosave-banner span {
+.quote-autosave-banner span,
+.quote-pdf-banner strong,
+.quote-pdf-banner span {
   display: block;
 }
 
-.quote-autosave-banner strong {
+.quote-autosave-banner strong,
+.quote-pdf-banner strong {
   color: var(--crm-text);
   font-size: .86rem;
 }
 
-.quote-autosave-banner span {
+.quote-autosave-banner span,
+.quote-pdf-banner span {
   color: var(--crm-muted);
   font-size: .78rem;
 }
@@ -256,7 +266,8 @@
     grid-column: 1 / -1;
   }
 
-  .quote-autosave-banner {
+  .quote-autosave-banner,
+  .quote-pdf-banner {
     align-items: flex-start;
     flex-direction: column;
   }
