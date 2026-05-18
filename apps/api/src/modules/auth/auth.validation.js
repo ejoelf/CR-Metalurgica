@@ -24,6 +24,7 @@ export const refreshSchema = z.object({
 export const updateProfileSchema = z.object({
   body: z.object({
     name: z.string().trim().min(1).max(120),
+    username: z.string().trim().min(1, 'Usuario requerido').max(80, 'Usuario demasiado largo').optional(),
     email: z.string().trim().email(),
   }),
   params: z.object({}).optional(),
