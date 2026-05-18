@@ -8,5 +8,6 @@ const router = Router();
 
 router.use(requireAuth);
 router.get('/', requirePermission(MODULES.audit, ACTIONS.read), asyncHandler(auditController.list));
+router.get('/:id', requirePermission(MODULES.audit, ACTIONS.read), asyncHandler(auditController.detail));
 
 export default router;
