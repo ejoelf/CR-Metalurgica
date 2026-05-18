@@ -139,49 +139,55 @@ model RefreshToken {
 }
 
 model BusinessSettings {
-  id               String   @id @default(uuid())
-  businessName     String   @default("CF Metal-Pintura")
-  legalName        String?
-  taxId            String?
-  email            String?
-  phone            String?
-  whatsapp         String?
-  address          String?
-  city             String?
-  province         String?
-  country          String?  @default("Argentina")
-  website          String?
-  logoUrl          String?
-  defaultTaxRate   Decimal  @default(21)
-  defaultMargin    Decimal  @default(15)
-  quoteValidityDays Int     @default(15)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                       String   @id @default(uuid())
+  businessName             String   @default("CF Metal-Pintura")
+  publicName               String?  @default("CF Metal Pintura")
+  legalName                String?
+  taxId                    String?
+  email                    String?
+  phone                    String?
+  whatsapp                 String?
+  address                  String?
+  city                     String?
+  province                 String?
+  country                  String?  @default("Argentina")
+  website                  String?
+  logoUrl                  String?
+  instagramUrl             String?
+  facebookUrl              String?
+  googleMapsUrl            String?
+  defaultTaxRate           Decimal  @default(21)
+  defaultMargin            Decimal  @default(15)
+  defaultProfitMargin      Decimal  @default(15)
+  quoteValidityDays        Int      @default(15)
+  quoteDefaultValidityDays Int      @default(15)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 
   @@map("business_settings")
 }
 
 model Client {
-  id          String       @id @default(uuid())
-  fullName    String
-  phone       String
-  email       String?
-  address     String?
-  city        String?
-  taxId       String?
-  clientType  String?      @default("particular")
-  source      String?
-  notes       String?
-  status      ClientStatus @default(lead)
-  jobs        Job[]
-  quotes      Quote[]
-  incomes     Income[]
-  expenses    Expense[]
-  agendaEvents AgendaEvent[]
+  id              String           @id @default(uuid())
+  fullName        String
+  phone           String
+  email           String?
+  address         String?
+  city            String?
+  taxId           String?
+  clientType      String?          @default("particular")
+  source          String?
+  notes           String?
+  status          ClientStatus     @default(lead)
+  jobs            Job[]
+  quotes          Quote[]
+  incomes         Income[]
+  expenses        Expense[]
+  agendaEvents    AgendaEvent[]
   contactMessages ContactMessage[]
-  files       File[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  files           File[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@map("clients")
 }
@@ -406,22 +412,22 @@ model GalleryItem {
 }
 
 model File {
-  id          String   @id @default(uuid())
-  fileName    String
-  fileUrl     String
-  mimeType    String?
-  sizeBytes   Int?
-  entityType  String?
-  entityId    String?
-  clientId    String?
-  client      Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  jobId       String?
-  job         Job?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
-  quoteId     String?
-  quote       Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  id           String   @id @default(uuid())
+  fileName     String
+  fileUrl      String
+  mimeType     String?
+  sizeBytes    Int?
+  entityType   String?
+  entityId     String?
+  clientId     String?
+  client       Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  jobId        String?
+  job          Job?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  quoteId      String?
+  quote        Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
   uploadedById String?
-  uploadedBy   User?   @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now())
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
 
   @@map("files")
 }
