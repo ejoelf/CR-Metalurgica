@@ -10,6 +10,7 @@ import './styles/crm-color-accents.css';
 import './styles/brand-logo.css';
 import './styles/crm-shell-refinements.css';
 import './styles/crm-components.css';
+import './styles/sidebar-badges.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
