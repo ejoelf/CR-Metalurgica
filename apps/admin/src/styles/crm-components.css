@@ -310,6 +310,18 @@
   max-width: 420px;
 }
 
+.settings-grid-wide {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: start;
+}
+
+.settings-help-text {
+  margin: 8px 0 0;
+  color: var(--crm-muted);
+  font-size: .84rem;
+  line-height: 1.55;
+}
+
 .crm-loader {
   width: 34px;
   height: 34px;
