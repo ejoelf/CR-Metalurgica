@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma.js';
 import { env } from '../config/env.js';
-import { unauthorized } from '../utils/ApiError.js';
+import { forbidden, unauthorized } from '../utils/ApiError.js';
+import { can } from '../config/permissions.js';
 
 export async function requireAuth(req, res, next) {
   try {
@@ -33,4 +34,16 @@ export async function requireAuth(req, res, next) {
   } catch (error) {
     next(unauthorized('Sesion invalida o expirada'));
   }
+}
+
+export function requirePermission(moduleName, action) {
+  return (req, res, next) => {
+    const role = req.user?.role;
+
+    if (!role || !can(role, moduleName, action)) {
+      return next(forbidden('No tenés permisos para realizar esta acción'));
+    }
+
+    return next();
+  };
 }
