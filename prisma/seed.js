@@ -5,8 +5,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL || 'admin@cfmetalpintura.com';
+const ADMIN_USERNAME = process.env.SEED_ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'ChangeMeAdmin123';
 const SUPPORT_EMAIL = process.env.SEED_SUPPORT_EMAIL || 'soporte@nexodigital.tech';
+const SUPPORT_USERNAME = process.env.SEED_SUPPORT_USERNAME || 'soporte';
 const SUPPORT_PASSWORD = process.env.SEED_SUPPORT_PASSWORD || 'ChangeMeSupport123';
 
 async function main() {
@@ -27,9 +29,10 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: ADMIN_EMAIL },
-    update: { name: 'Administrador CF Metal Pintura', roleId: adminRole.id, isActive: true },
+    update: { name: 'Administrador CF Metal Pintura', username: ADMIN_USERNAME, roleId: adminRole.id, isActive: true },
     create: {
       name: 'Administrador CF Metal Pintura',
+      username: ADMIN_USERNAME,
       email: ADMIN_EMAIL,
       passwordHash: await bcrypt.hash(ADMIN_PASSWORD, 12),
       roleId: adminRole.id,
@@ -39,9 +42,10 @@ async function main() {
 
   await prisma.user.upsert({
     where: { email: SUPPORT_EMAIL },
-    update: { name: 'Soporte NexoDigital', roleId: superAdminRole.id, isActive: true },
+    update: { name: 'Soporte NexoDigital', username: SUPPORT_USERNAME, roleId: superAdminRole.id, isActive: true },
     create: {
       name: 'Soporte NexoDigital',
+      username: SUPPORT_USERNAME,
       email: SUPPORT_EMAIL,
       passwordHash: await bcrypt.hash(SUPPORT_PASSWORD, 12),
       roleId: superAdminRole.id,
