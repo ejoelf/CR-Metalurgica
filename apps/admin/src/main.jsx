@@ -17,6 +17,7 @@ import './styles/jobs.css';
 import './styles/quotes.css';
 import './styles/finance.css';
 import './styles/agenda.css';
+import './styles/gallery.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
