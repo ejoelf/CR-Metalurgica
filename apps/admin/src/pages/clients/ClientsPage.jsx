@@ -1,50 +1,151 @@
-import { useMemo, useState } from 'react';
-import { Plus, Search, UserRound } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Plus, Search, UsersRound } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader.jsx';
-import { useApiResource } from '../../hooks/useApiResource.js';
-import { clientsService } from '../../services/resourceService.js';
-
-const fallbackClients = [
-  { id: '1', fullName: 'Cliente de ejemplo', phone: '3580000000', email: 'cliente@ejemplo.com', status: 'lead', city: 'Las Higueras' },
-];
+import EmptyState from '../../components/common/EmptyState.jsx';
+import LoadingState from '../../components/common/LoadingState.jsx';
+import ClientCard from './ClientCard.jsx';
+import ClientFormDrawer from './ClientFormDrawer.jsx';
+import { clientsService } from '../../services/clientsService.js';
 
 export default function ClientsPage() {
-  const { items, loading, error } = useApiResource(clientsService, fallbackClients);
+  const [clients, setClients] = useState([]);
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [drawerMode, setDrawerMode] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
 
-  const filtered = useMemo(() => {
-    return items.filter((client) => `${client.fullName} ${client.phone} ${client.email || ''}`.toLowerCase().includes(search.toLowerCase()));
-  }, [items, search]);
+  async function loadClients(searchValue = search) {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await clientsService.list({ search: searchValue });
+      setClients(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message || 'No se pudieron cargar los clientes');
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      loadClients(search);
+    }, 280);
+
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  const activeClients = useMemo(() => clients.filter((client) => client.status !== 'archived'), [clients]);
+
+  async function openClient(client) {
+    try {
+      setLoading(true);
+      const detail = await clientsService.getById(client.id);
+      setSelectedClient(detail);
+      setDrawerMode('edit');
+    } catch (err) {
+      setError(err.message || 'No se pudo abrir el cliente');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function openCreate() {
+    setSelectedClient(null);
+    setDrawerMode('create');
+  }
+
+  function closeDrawer() {
+    setDrawerMode(null);
+    setSelectedClient(null);
+  }
+
+  async function handleSave(payload) {
+    try {
+      setSaving(true);
+      if (drawerMode === 'create') {
+        const created = await clientsService.create(payload);
+        setSelectedClient(created);
+        setDrawerMode('edit');
+      } else if (selectedClient?.id) {
+        const updated = await clientsService.update(selectedClient.id, payload);
+        setSelectedClient(updated);
+      }
+      await loadClients();
+    } catch (err) {
+      setError(err.message || 'No se pudo guardar el cliente');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(client) {
+    if (!client?.id) return;
+    try {
+      setSaving(true);
+      await clientsService.archive(client.id);
+      closeDrawer();
+      await loadClients();
+    } catch (err) {
+      setError(err.message || 'No se pudo eliminar el cliente');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div>
       <PageHeader
         eyebrow="CRM"
         title="Clientes"
-        description="Listado, búsqueda, historial, notas y relación con trabajos y presupuestos."
-        action={<button className="primary-button"><Plus size={18} /> Nuevo cliente</button>}
+        description="Alta, búsqueda, contacto rápido, historial y relación con trabajos y presupuestos."
+        action={<button className="primary-button" type="button" onClick={openCreate}><Plus size={18} /> Nuevo cliente</button>}
       />
 
-      <div className="toolbar-card">
-        <div className="search-input"><Search size={18} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nombre, teléfono o email" /></div>
+      <div className="toolbar-card clients-toolbar">
+        <div className="search-input">
+          <Search size={18} />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Buscar por nombre, apellido, inicial, teléfono o email"
+          />
+        </div>
+        <span>{activeClients.length} clientes activos</span>
       </div>
 
-      {loading && <p className="muted">Cargando clientes...</p>}
-      {error && <p className="warning-box">Mostrando datos de ejemplo. API: {error}</p>}
+      {error && <p className="warning-box">{error}</p>}
+      {loading && <LoadingState label="Cargando clientes..." />}
 
-      <div className="data-grid">
-        {filtered.map((client) => (
-          <article className="record-card" key={client.id}>
-            <div className="record-icon"><UserRound size={22} /></div>
-            <div>
-              <h3>{client.fullName}</h3>
-              <p>{client.phone}</p>
-              <span>{client.email || 'Sin email'} · {client.city || 'Sin ciudad'}</span>
-            </div>
-            <strong className={`status-pill ${client.status}`}>{client.status}</strong>
-          </article>
-        ))}
-      </div>
+      {!loading && !activeClients.length && (
+        <EmptyState
+          icon={UsersRound}
+          title="Todavía no hay clientes"
+          description="Creá el primer cliente desde el botón Nuevo cliente."
+          action={<button className="crm-button primary" type="button" onClick={openCreate}><Plus size={16} /> Nuevo cliente</button>}
+        />
+      )}
+
+      {!loading && activeClients.length > 0 && (
+        <div className="clients-grid">
+          {activeClients.map((client) => (
+            <ClientCard key={client.id} client={client} onOpen={openClient} />
+          ))}
+        </div>
+      )}
+
+      <ClientFormDrawer
+        isOpen={Boolean(drawerMode)}
+        mode={drawerMode || 'create'}
+        client={selectedClient}
+        saving={saving}
+        onClose={closeDrawer}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }
