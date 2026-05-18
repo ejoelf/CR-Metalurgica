@@ -161,6 +161,70 @@ export const quotesService = {
     return quote;
   },
 
+  async convertToJob(id, user = null) {
+    const quote = await this.findById(id);
+
+    if (!quote.clientId) throw badRequest('El presupuesto necesita un cliente asociado para convertirse en trabajo');
+
+    if (quote.jobId) {
+      const job = await prisma.job.update({
+        where: { id: quote.jobId },
+        data: {
+          status: 'approved',
+          finalPrice: quote.total,
+          internalNotes: quote.internalNotes || quote.description || undefined,
+        },
+        include: {
+          client: true,
+          quotes: true,
+          incomes: true,
+          expenses: true,
+          agendaEvents: true,
+          files: true,
+        },
+      });
+
+      const updatedQuote = await prisma.quote.update({
+        where: { id },
+        data: { status: 'approved', approvedAt: new Date() },
+        include: quoteInclude(),
+      });
+
+      return { job, quote: updatedQuote, created: false };
+    }
+
+    const job = await prisma.job.create({
+      data: {
+        clientId: quote.clientId,
+        title: quote.title,
+        description: quote.description,
+        serviceType: 'Trabajo desde presupuesto',
+        status: 'approved',
+        priority: 'normal',
+        estimatedPrice: quote.total,
+        finalPrice: quote.total,
+        internalNotes: quote.internalNotes || quote.description || null,
+        createdById: user?.id || quote.createdById || null,
+      },
+      include: {
+        client: true,
+        quotes: true,
+        incomes: true,
+        expenses: true,
+        agendaEvents: true,
+        files: true,
+      },
+    });
+
+    const updatedQuote = await prisma.quote.update({
+      where: { id },
+      data: { jobId: job.id, status: 'approved', approvedAt: new Date() },
+      include: quoteInclude(),
+    });
+
+    return { job, quote: updatedQuote, created: true };
+  },
+
   async addItem(quoteId, data) {
     await this.findById(quoteId);
     const item = await prisma.quoteItem.create({
