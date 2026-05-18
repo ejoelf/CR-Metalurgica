@@ -15,6 +15,7 @@ import './styles/activity.css';
 import './styles/clients.css';
 import './styles/jobs.css';
 import './styles/quotes.css';
+import './styles/finance.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
