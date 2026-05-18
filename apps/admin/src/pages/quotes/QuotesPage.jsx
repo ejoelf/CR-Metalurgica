@@ -160,6 +160,21 @@ export default function QuotesPage() {
     }
   }
 
+  async function handleConvertToJob(quote) {
+    if (!quote?.id) return;
+    try {
+      setSaving(true);
+      const result = await quotesService.convertToJob(quote.id);
+      const detail = await quotesService.getById(result.quote?.id || quote.id);
+      setSelectedQuote(detail);
+      await Promise.all([loadQuotes(), loadRelatedData()]);
+    } catch (err) {
+      setError(err.message || 'No se pudo convertir el presupuesto en trabajo');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const activeQuotes = quotes.filter((quote) => quote.status !== 'cancelled');
 
   return (
@@ -217,6 +232,7 @@ export default function QuotesPage() {
         onDelete={handleDelete}
         onMarkSent={handleMarkSent}
         onGeneratePdf={handleGeneratePdf}
+        onConvertToJob={handleConvertToJob}
       />
     </div>
   );
