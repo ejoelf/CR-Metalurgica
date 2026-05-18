@@ -15,6 +15,7 @@ router.get('/movements/:type/:id', requirePermission(MODULES.finances, ACTIONS.r
 router.post('/movements', requirePermission(MODULES.finances, ACTIONS.create), asyncHandler(financeController.createMovement));
 router.put('/movements/:type/:id', requirePermission(MODULES.finances, ACTIONS.update), asyncHandler(financeController.updateMovement));
 router.delete('/movements/:type/:id', requirePermission(MODULES.finances, ACTIONS.delete), asyncHandler(financeController.deleteMovement));
+router.get('/report/pdf', requirePermission(MODULES.finances, ACTIONS.export), asyncHandler(financeController.reportPdf));
 router.get('/by-job/:jobId', requirePermission(MODULES.finances, ACTIONS.read), asyncHandler(financeController.byJob));
 router.get('/profitability', requirePermission(MODULES.finances, ACTIONS.read), asyncHandler(financeController.profitability));
 
