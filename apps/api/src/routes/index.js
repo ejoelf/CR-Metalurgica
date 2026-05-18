@@ -16,6 +16,7 @@ import notificationsRoutes from '../modules/notifications/notifications.routes.j
 import settingsRoutes from '../modules/settings/settings.routes.js';
 import integrationsRoutes from '../modules/integrations/integrations.routes.js';
 import publicRoutes from '../modules/public/public.routes.js';
+import crmRoutes from '../modules/crm/crm.routes.js';
 import { asyncHandler } from '../middlewares/asyncHandler.js';
 
 const router = Router();
@@ -38,5 +39,6 @@ router.use('/contact-messages', contactMessagesRoutes);
 router.use('/notifications', notificationsRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/integrations', integrationsRoutes);
+router.use('/crm', crmRoutes);
 
 export default router;
