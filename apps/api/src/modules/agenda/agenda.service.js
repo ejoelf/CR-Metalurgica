@@ -1,6 +1,6 @@
 import { prisma } from '../../config/prisma.js';
 import { badRequest, notFound } from '../../utils/ApiError.js';
-import { notificationService } from '../../services/notification.service.js';
+import { notificationsService } from '../notifications/notifications.service.js';
 
 const allowedStatuses = ['scheduled', 'completed', 'cancelled', 'postponed'];
 const allowedTypes = ['visit', 'delivery', 'meeting', 'task', 'reminder', 'other'];
@@ -98,12 +98,13 @@ export const agendaService = {
     const payload = normalizePayload(data, user);
     const event = await prisma.agendaEvent.create({ data: payload, include: includeRelations() });
 
-    await notificationService.create({
+    await notificationsService.createSystemNotification({
       title: 'Nuevo evento de agenda',
       message: `Se agendó: ${event.title}`,
-      type: 'agenda',
+      type: 'reminder',
       entityType: 'agendaEvent',
       entityId: event.id,
+      userId: event.assignedToId || null,
     });
 
     return event;
