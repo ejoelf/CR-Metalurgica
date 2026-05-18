@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Mail, MessageCircle, Plus, Save, Trash2, X } from 'lucide-react';
+import { Mail, MessageCircle, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
 import BaseDrawer from '../../components/common/BaseDrawer.jsx';
 import ConfirmModal from '../../components/common/ConfirmModal.jsx';
 import ActionModal from '../../components/common/ActionModal.jsx';
 import MoneyInput from '../../components/common/MoneyInput.jsx';
 import PercentInput from '../../components/common/PercentInput.jsx';
-import DateInput from '../../components/common/DateInput.jsx';
 import StatusBadge from '../../components/common/StatusBadge.jsx';
 import { QUOTE_STATUS_LABELS } from '../../utils/statusLabels.js';
-import { formatDate, formatMoney, toInputDate } from '../../utils/formatters.js';
+import { formatDate, formatDateTime, formatMoney, toInputDate } from '../../utils/formatters.js';
 
+const LOCAL_DRAFT_KEY = 'cf-metal-quote-local-draft-v1';
 const EMPTY_ITEM = { name: '', description: '', quantity: 1, unitPrice: 0 };
 const EMPTY_FORM = {
   clientId: '',
@@ -56,14 +56,76 @@ function calculateTotals(form) {
   return { itemsTotal, subtotal, marginAmount, total };
 }
 
+function hasUsefulDraftData(form) {
+  return Boolean(
+    form.title ||
+    form.description ||
+    form.clientId ||
+    form.jobId ||
+    form.internalNotes ||
+    Number(form.materialsCost || 0) > 0 ||
+    Number(form.laborCost || 0) > 0 ||
+    Number(form.paintCost || 0) > 0 ||
+    Number(form.extraCost || 0) > 0 ||
+    (form.items || []).some((item) => item.name || item.description || Number(item.unitPrice || 0) > 0)
+  );
+}
+
+function readLocalDraft() {
+  try {
+    const raw = window.localStorage.getItem(LOCAL_DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalDraft(form) {
+  window.localStorage.setItem(LOCAL_DRAFT_KEY, JSON.stringify({ form, savedAt: new Date().toISOString() }));
+}
+
+function clearLocalDraft() {
+  window.localStorage.removeItem(LOCAL_DRAFT_KEY);
+}
+
 export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, clients = [], jobs = [], saving = false, onClose, onSave, onDelete, onMarkSent }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [sendAction, setSendAction] = useState(null);
+  const [draftPrompt, setDraftPrompt] = useState(null);
+  const [localSavedAt, setLocalSavedAt] = useState(null);
+  const [localDraftStatus, setLocalDraftStatus] = useState('');
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    if (mode === 'create') {
+      const draft = readLocalDraft();
+      if (draft?.form && hasUsefulDraftData(draft.form)) {
+        setDraftPrompt(draft);
+      } else {
+        setForm(EMPTY_FORM);
+      }
+      return;
+    }
+
     setForm(toForm(quote));
-  }, [quote, isOpen]);
+  }, [quote, isOpen, mode]);
+
+  useEffect(() => {
+    if (!isOpen || mode !== 'create') return undefined;
+    if (!hasUsefulDraftData(form)) return undefined;
+
+    setLocalDraftStatus('Guardando borrador local...');
+    const timer = window.setTimeout(() => {
+      writeLocalDraft(form);
+      const savedAt = new Date().toISOString();
+      setLocalSavedAt(savedAt);
+      setLocalDraftStatus('Borrador local guardado');
+    }, 650);
+
+    return () => window.clearTimeout(timer);
+  }, [form, isOpen, mode]);
 
   const original = useMemo(() => JSON.stringify(toForm(quote)), [quote]);
   const current = useMemo(() => JSON.stringify(form), [form]);
@@ -74,6 +136,22 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
     if (!form.clientId) return jobs;
     return jobs.filter((job) => job.clientId === form.clientId || job.client?.id === form.clientId);
   }, [jobs, form.clientId]);
+
+  function recoverDraft() {
+    if (draftPrompt?.form) {
+      setForm(draftPrompt.form);
+      setLocalSavedAt(draftPrompt.savedAt || null);
+    }
+    setDraftPrompt(null);
+  }
+
+  function discardDraft() {
+    clearLocalDraft();
+    setDraftPrompt(null);
+    setLocalSavedAt(null);
+    setLocalDraftStatus('');
+    setForm(EMPTY_FORM);
+  }
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -95,9 +173,14 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
     setForm((state) => ({ ...state, items: state.items.filter((_, itemIndex) => itemIndex !== index) }));
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    onSave?.(form);
+    await onSave?.(form);
+    if (mode === 'create') {
+      clearLocalDraft();
+      setLocalSavedAt(null);
+      setLocalDraftStatus('');
+    }
   }
 
   function openSendActions() {
@@ -120,6 +203,7 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
 
   const footer = (
     <>
+      {mode === 'create' && hasUsefulDraftData(form) && <button className="crm-button" type="button" onClick={discardDraft}><RotateCcw size={16} /> Descartar borrador</button>}
       {mode === 'edit' && <button className="crm-button" type="button" onClick={openSendActions}>Enviar</button>}
       {mode === 'edit' && <button className="crm-button danger" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={16} /> Eliminar</button>}
       <button className="crm-button ghost" type="button" onClick={onClose}>Cancelar</button>
@@ -139,6 +223,13 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
         size="xl"
         footer={footer}
       >
+        {mode === 'create' && (
+          <div className="quote-autosave-banner">
+            <strong>{localDraftStatus || 'Autoguardado local activo'}</strong>
+            <span>{localSavedAt ? `Último guardado: ${formatDateTime(localSavedAt)}` : 'El borrador se guarda en este navegador mientras lo completás.'}</span>
+          </div>
+        )}
+
         <form id="quote-form" className="quote-detail-grid" onSubmit={handleSubmit}>
           <section className="quote-panel">
             <h3>Datos generales</h3>
@@ -203,6 +294,16 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
           </section>
         </form>
       </BaseDrawer>
+
+      <ConfirmModal
+        isOpen={Boolean(draftPrompt)}
+        title="Borrador encontrado"
+        description={`Encontramos un presupuesto no guardado completamente${draftPrompt?.savedAt ? ` del ${formatDateTime(draftPrompt.savedAt)}` : ''}. ¿Querés recuperarlo?`}
+        confirmLabel="Sí, recuperar"
+        cancelLabel="No, descartar"
+        onConfirm={recoverDraft}
+        onClose={discardDraft}
+      />
 
       <ConfirmModal
         isOpen={deleteOpen}
