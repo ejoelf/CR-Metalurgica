@@ -40,4 +40,8 @@ export const financeService = {
       method: 'DELETE',
     });
   },
+
+  async generateReportPdf(params = {}) {
+    return apiClient(`/finance/report/pdf${buildQuery(params)}`);
+  },
 };
