@@ -1,4 +1,5 @@
 import { prisma } from '../../config/prisma.js';
+import { badRequest, notFound } from '../../utils/ApiError.js';
 
 function getMonthRange(query = {}) {
   const now = new Date();
@@ -7,6 +8,46 @@ function getMonthRange(query = {}) {
   const start = new Date(year, month - 1, 1);
   const end = new Date(year, month, 1);
   return { start, end, year, month };
+}
+
+function getDateRange(query = {}) {
+  if (query.date) {
+    const start = new Date(`${query.date}T00:00:00`);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 1);
+    return { start, end };
+  }
+  return getMonthRange(query);
+}
+
+function blockFutureDate(value) {
+  if (!value) return;
+  const date = new Date(value);
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  if (date > today) throw badRequest('No se pueden registrar movimientos financieros con fecha futura');
+}
+
+function normalizeType(type) {
+  if (type === 'income' || type === 'ingreso') return 'income';
+  if (type === 'expense' || type === 'egreso') return 'expense';
+  throw badRequest('Tipo de movimiento inválido');
+}
+
+function mapIncome(item) {
+  return {
+    ...item,
+    movementType: 'income',
+    movementDate: item.paidAt || item.createdAt,
+  };
+}
+
+function mapExpense(item) {
+  return {
+    ...item,
+    movementType: 'expense',
+    movementDate: item.expenseDate || item.createdAt,
+  };
 }
 
 export const financeService = {
@@ -49,6 +90,160 @@ export const financeService = {
 
   async monthly(query) {
     return this.summary(query);
+  },
+
+  async movements(query = {}) {
+    const { start, end } = getDateRange(query);
+    const type = query.type ? normalizeType(query.type) : null;
+
+    const [incomes, expenses] = await Promise.all([
+      type === 'expense'
+        ? []
+        : prisma.income.findMany({
+            where: {
+              OR: [
+                { paidAt: { gte: start, lt: end } },
+                { paidAt: null, createdAt: { gte: start, lt: end } },
+              ],
+              ...(query.clientId ? { clientId: query.clientId } : {}),
+              ...(query.jobId ? { jobId: query.jobId } : {}),
+              ...(query.quoteId ? { quoteId: query.quoteId } : {}),
+            },
+            include: { client: true, job: true, quote: true },
+            orderBy: { createdAt: 'desc' },
+          }),
+      type === 'income'
+        ? []
+        : prisma.expense.findMany({
+            where: {
+              expenseDate: { gte: start, lt: end },
+              ...(query.clientId ? { clientId: query.clientId } : {}),
+              ...(query.jobId ? { jobId: query.jobId } : {}),
+              ...(query.quoteId ? { quoteId: query.quoteId } : {}),
+            },
+            include: { client: true, job: true, quote: true },
+            orderBy: { expenseDate: 'desc' },
+          }),
+    ]);
+
+    return [...incomes.map(mapIncome), ...expenses.map(mapExpense)].sort((a, b) => new Date(b.movementDate) - new Date(a.movementDate));
+  },
+
+  async movementDetail(type, id) {
+    const movementType = normalizeType(type);
+    if (movementType === 'income') {
+      const item = await prisma.income.findUnique({ where: { id }, include: { client: true, job: true, quote: true } });
+      if (!item) throw notFound('Ingreso no encontrado');
+      return mapIncome(item);
+    }
+
+    const item = await prisma.expense.findUnique({ where: { id }, include: { client: true, job: true, quote: true } });
+    if (!item) throw notFound('Egreso no encontrado');
+    return mapExpense(item);
+  },
+
+  async createMovement(data = {}, user = null) {
+    const type = normalizeType(data.type || data.movementType);
+    const amount = Number(data.amount || 0);
+    if (amount <= 0) throw badRequest('El monto debe ser mayor a cero');
+    if (!data.title) throw badRequest('El título del movimiento es requerido');
+
+    if (type === 'income') {
+      const paidAt = data.paidAt || data.movementDate || new Date();
+      blockFutureDate(paidAt);
+      return mapIncome(await prisma.income.create({
+        data: {
+          title: String(data.title).trim(),
+          description: data.description ? String(data.description).trim() : null,
+          amount,
+          status: data.status || 'paid',
+          paymentMethod: data.paymentMethod || null,
+          paidAt: new Date(paidAt),
+          clientId: data.clientId || null,
+          jobId: data.jobId || null,
+          quoteId: data.quoteId || null,
+          createdById: user?.id || null,
+        },
+        include: { client: true, job: true, quote: true },
+      }));
+    }
+
+    const expenseDate = data.expenseDate || data.movementDate || new Date();
+    blockFutureDate(expenseDate);
+    return mapExpense(await prisma.expense.create({
+      data: {
+        title: String(data.title).trim(),
+        description: data.description ? String(data.description).trim() : null,
+        amount,
+        category: data.category || 'general',
+        paymentMethod: data.paymentMethod || null,
+        expenseDate: new Date(expenseDate),
+        supplierName: data.supplierName || null,
+        clientId: data.clientId || null,
+        jobId: data.jobId || null,
+        quoteId: data.quoteId || null,
+        createdById: user?.id || null,
+      },
+      include: { client: true, job: true, quote: true },
+    }));
+  },
+
+  async updateMovement(type, id, data = {}) {
+    const movementType = normalizeType(type);
+    const amount = data.amount !== undefined ? Number(data.amount || 0) : undefined;
+    if (amount !== undefined && amount <= 0) throw badRequest('El monto debe ser mayor a cero');
+
+    if (movementType === 'income') {
+      await this.movementDetail('income', id);
+      const paidAt = data.paidAt || data.movementDate;
+      blockFutureDate(paidAt);
+      return mapIncome(await prisma.income.update({
+        where: { id },
+        data: {
+          title: data.title !== undefined ? String(data.title).trim() : undefined,
+          description: data.description !== undefined ? String(data.description || '').trim() || null : undefined,
+          amount,
+          status: data.status,
+          paymentMethod: data.paymentMethod,
+          paidAt: paidAt ? new Date(paidAt) : undefined,
+          clientId: data.clientId !== undefined ? data.clientId || null : undefined,
+          jobId: data.jobId !== undefined ? data.jobId || null : undefined,
+          quoteId: data.quoteId !== undefined ? data.quoteId || null : undefined,
+        },
+        include: { client: true, job: true, quote: true },
+      }));
+    }
+
+    await this.movementDetail('expense', id);
+    const expenseDate = data.expenseDate || data.movementDate;
+    blockFutureDate(expenseDate);
+    return mapExpense(await prisma.expense.update({
+      where: { id },
+      data: {
+        title: data.title !== undefined ? String(data.title).trim() : undefined,
+        description: data.description !== undefined ? String(data.description || '').trim() || null : undefined,
+        amount,
+        category: data.category,
+        paymentMethod: data.paymentMethod,
+        expenseDate: expenseDate ? new Date(expenseDate) : undefined,
+        supplierName: data.supplierName !== undefined ? data.supplierName || null : undefined,
+        clientId: data.clientId !== undefined ? data.clientId || null : undefined,
+        jobId: data.jobId !== undefined ? data.jobId || null : undefined,
+        quoteId: data.quoteId !== undefined ? data.quoteId || null : undefined,
+      },
+      include: { client: true, job: true, quote: true },
+    }));
+  },
+
+  async deleteMovement(type, id) {
+    const movementType = normalizeType(type);
+    if (movementType === 'income') {
+      await this.movementDetail('income', id);
+      return mapIncome(await prisma.income.update({ where: { id }, data: { status: 'cancelled' }, include: { client: true, job: true, quote: true } }));
+    }
+
+    await this.movementDetail('expense', id);
+    return mapExpense(await prisma.expense.delete({ where: { id }, include: { client: true, job: true, quote: true } }));
   },
 
   async byJob(jobId) {
