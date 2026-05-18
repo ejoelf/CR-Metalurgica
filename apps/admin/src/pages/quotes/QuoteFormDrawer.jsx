@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Mail, MessageCircle, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
+import { Download, ExternalLink, FileText, Mail, MessageCircle, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
 import BaseDrawer from '../../components/common/BaseDrawer.jsx';
 import ConfirmModal from '../../components/common/ConfirmModal.jsx';
 import ActionModal from '../../components/common/ActionModal.jsx';
@@ -9,6 +9,7 @@ import StatusBadge from '../../components/common/StatusBadge.jsx';
 import { QUOTE_STATUS_LABELS } from '../../utils/statusLabels.js';
 import { formatDate, formatDateTime, formatMoney, toInputDate } from '../../utils/formatters.js';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const LOCAL_DRAFT_KEY = 'cf-metal-quote-local-draft-v1';
 const EMPTY_ITEM = { name: '', description: '', quantity: 1, unitPrice: 0 };
 const EMPTY_FORM = {
@@ -88,7 +89,13 @@ function clearLocalDraft() {
   window.localStorage.removeItem(LOCAL_DRAFT_KEY);
 }
 
-export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, clients = [], jobs = [], saving = false, onClose, onSave, onDelete, onMarkSent }) {
+function buildPublicPdfUrl(pdfUrl) {
+  if (!pdfUrl) return '';
+  if (pdfUrl.startsWith('http')) return pdfUrl;
+  return `${API_BASE}${pdfUrl}`;
+}
+
+export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, clients = [], jobs = [], saving = false, onClose, onSave, onDelete, onMarkSent, onGeneratePdf }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [sendAction, setSendAction] = useState(null);
@@ -131,6 +138,7 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
   const current = useMemo(() => JSON.stringify(form), [form]);
   const hasChanges = mode === 'create' ? true : original !== current;
   const totals = useMemo(() => calculateTotals(form), [form]);
+  const pdfUrl = buildPublicPdfUrl(quote?.pdfUrl);
 
   const filteredJobs = useMemo(() => {
     if (!form.clientId) return jobs;
@@ -183,13 +191,17 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
     }
   }
 
+  function openPdf() {
+    if (pdfUrl) window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+  }
+
   function openSendActions() {
     const client = clients.find((item) => item.id === form.clientId) || quote?.client;
     const email = client?.email;
     const phone = String(client?.phone || '').replace(/[^0-9]/g, '');
     const subject = encodeURIComponent(`Presupuesto ${quote?.quoteNumber || ''} - CF Metal-Pintura`);
-    const body = encodeURIComponent(`Hola ${client?.fullName || ''}, te enviamos el presupuesto solicitado.\n\nSaludos, CF Metal-Pintura.`);
-    const whatsappText = encodeURIComponent(`Hola ${client?.fullName || ''}, te enviamos el presupuesto solicitado de CF Metal-Pintura.`);
+    const body = encodeURIComponent(`Hola ${client?.fullName || ''}, te enviamos el presupuesto solicitado.\n\n${pdfUrl ? `PDF: ${pdfUrl}\n\n` : ''}Saludos, CF Metal-Pintura.`);
+    const whatsappText = encodeURIComponent(`Hola ${client?.fullName || ''}, te enviamos el presupuesto solicitado de CF Metal-Pintura.${pdfUrl ? `\nPDF: ${pdfUrl}` : ''}`);
 
     setSendAction({
       title: 'Enviar presupuesto',
@@ -204,6 +216,9 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
   const footer = (
     <>
       {mode === 'create' && hasUsefulDraftData(form) && <button className="crm-button" type="button" onClick={discardDraft}><RotateCcw size={16} /> Descartar borrador</button>}
+      {mode === 'edit' && <button className="crm-button" type="button" onClick={() => onGeneratePdf?.(quote)}><FileText size={16} /> Generar PDF</button>}
+      {mode === 'edit' && pdfUrl && <button className="crm-button" type="button" onClick={openPdf}><ExternalLink size={16} /> Ver PDF</button>}
+      {mode === 'edit' && pdfUrl && <a className="crm-button" href={pdfUrl} download><Download size={16} /> Descargar</a>}
       {mode === 'edit' && <button className="crm-button" type="button" onClick={openSendActions}>Enviar</button>}
       {mode === 'edit' && <button className="crm-button danger" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={16} /> Eliminar</button>}
       <button className="crm-button ghost" type="button" onClick={onClose}>Cancelar</button>
@@ -227,6 +242,13 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
           <div className="quote-autosave-banner">
             <strong>{localDraftStatus || 'Autoguardado local activo'}</strong>
             <span>{localSavedAt ? `Último guardado: ${formatDateTime(localSavedAt)}` : 'El borrador se guarda en este navegador mientras lo completás.'}</span>
+          </div>
+        )}
+
+        {mode === 'edit' && (
+          <div className="quote-pdf-banner">
+            <strong>{pdfUrl ? 'PDF disponible' : 'PDF pendiente de generación'}</strong>
+            <span>{pdfUrl ? 'Podés verlo, descargarlo o enviarlo al cliente.' : 'Generá el PDF cuando el presupuesto esté listo.'}</span>
           </div>
         )}
 
