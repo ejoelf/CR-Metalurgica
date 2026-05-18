@@ -5,7 +5,7 @@ import { accountService } from '../../services/accountService.js';
 
 export default function AccountSettingsPanel() {
   const { user, logout } = useAuth();
-  const [profile, setProfile] = useState({ name: user?.name || '', email: user?.email || '' });
+  const [profile, setProfile] = useState({ name: user?.name || '', username: user?.username || user?.name || '', email: user?.email || '' });
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [feedback, setFeedback] = useState(null);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -23,7 +23,6 @@ export default function AccountSettingsPanel() {
     event.preventDefault();
     setSavingProfile(true);
     setFeedback(null);
-
     try {
       await accountService.updateProfile(profile);
       setFeedback('Perfil actualizado correctamente. Volvé a iniciar sesión para refrescar los datos del panel.');
@@ -38,13 +37,12 @@ export default function AccountSettingsPanel() {
     event.preventDefault();
     setSavingPassword(true);
     setFeedback(null);
-
     try {
       await accountService.changePassword(passwords);
-      setFeedback('Contraseña actualizada. Por seguridad se cerrará la sesión.');
+      setFeedback('Clave actualizada. Por seguridad se cerrará la sesión.');
       setTimeout(() => logout(), 1200);
     } catch (error) {
-      setFeedback(`No se pudo cambiar la contraseña: ${error.message}`);
+      setFeedback(`No se pudo cambiar la clave: ${error.message}`);
     } finally {
       setSavingPassword(false);
     }
@@ -56,7 +54,7 @@ export default function AccountSettingsPanel() {
         <div>
           <span className="modal-eyebrow">Cuenta</span>
           <h2>Usuario y seguridad</h2>
-          <p>Actualizá los datos del usuario activo y la contraseña de acceso al CRM.</p>
+          <p>Actualizá el usuario de acceso, los datos visibles y la clave del CRM.</p>
         </div>
       </div>
 
@@ -65,7 +63,9 @@ export default function AccountSettingsPanel() {
       <div className="settings-grid">
         <form className="panel-card" onSubmit={handleProfileSubmit}>
           <h2>Perfil</h2>
-          <label>Nombre<input name="name" value={profile.name} onChange={handleProfileChange} /></label>
+          <label>Nombre visible<input name="name" value={profile.name} onChange={handleProfileChange} placeholder="César" /></label>
+          <label>Usuario de acceso<input name="username" value={profile.username} onChange={handleProfileChange} placeholder="Tu usuario" /></label>
+          <p className="settings-help-text">El usuario puede ser libre, por ejemplo Jorge, Cesar o CFMetal.</p>
           <label>Email<input name="email" type="email" value={profile.email} onChange={handleProfileChange} /></label>
           <button className="primary-button" type="submit" disabled={savingProfile}>
             <Save size={18} /> {savingProfile ? 'Guardando...' : 'Guardar perfil'}
@@ -73,12 +73,13 @@ export default function AccountSettingsPanel() {
         </form>
 
         <form className="panel-card" onSubmit={handlePasswordSubmit}>
-          <h2>Cambiar contraseña</h2>
-          <label>Contraseña actual<input name="currentPassword" type="password" value={passwords.currentPassword} onChange={handlePasswordChange} /></label>
-          <label>Nueva contraseña<input name="newPassword" type="password" value={passwords.newPassword} onChange={handlePasswordChange} /></label>
-          <label>Confirmar nueva contraseña<input name="confirmPassword" type="password" value={passwords.confirmPassword} onChange={handlePasswordChange} /></label>
+          <h2>Cambiar clave</h2>
+          <label>Clave actual<input name="currentPassword" type="password" value={passwords.currentPassword} onChange={handlePasswordChange} /></label>
+          <label>Nueva clave<input name="newPassword" type="password" value={passwords.newPassword} onChange={handlePasswordChange} placeholder="Tu nueva clave" /></label>
+          <p className="settings-help-text">La clave es libre. Se recomienda usar una combinación difícil de adivinar.</p>
+          <label>Confirmar nueva clave<input name="confirmPassword" type="password" value={passwords.confirmPassword} onChange={handlePasswordChange} /></label>
           <button className="primary-button" type="submit" disabled={savingPassword}>
-            <KeyRound size={18} /> {savingPassword ? 'Actualizando...' : 'Cambiar contraseña'}
+            <KeyRound size={18} /> {savingPassword ? 'Actualizando...' : 'Cambiar clave'}
           </button>
         </form>
       </div>
