@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Download, ExternalLink, FileText, Mail, MessageCircle, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
+import { Download, ExternalLink, FileText, Mail, MessageCircle, Plus, RotateCcw, Save, Trash2, Wrench, X } from 'lucide-react';
 import BaseDrawer from '../../components/common/BaseDrawer.jsx';
 import ConfirmModal from '../../components/common/ConfirmModal.jsx';
 import ActionModal from '../../components/common/ActionModal.jsx';
@@ -95,7 +95,7 @@ function buildPublicPdfUrl(pdfUrl) {
   return `${API_BASE}${pdfUrl}`;
 }
 
-export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, clients = [], jobs = [], saving = false, onClose, onSave, onDelete, onMarkSent, onGeneratePdf }) {
+export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, clients = [], jobs = [], saving = false, onClose, onSave, onDelete, onMarkSent, onGeneratePdf, onConvertToJob }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [sendAction, setSendAction] = useState(null);
@@ -217,6 +217,7 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
     <>
       {mode === 'create' && hasUsefulDraftData(form) && <button className="crm-button" type="button" onClick={discardDraft}><RotateCcw size={16} /> Descartar borrador</button>}
       {mode === 'edit' && <button className="crm-button" type="button" onClick={() => onGeneratePdf?.(quote)}><FileText size={16} /> Generar PDF</button>}
+      {mode === 'edit' && <button className="crm-button" type="button" onClick={() => onConvertToJob?.(quote)}><Wrench size={16} /> Convertir en trabajo</button>}
       {mode === 'edit' && pdfUrl && <button className="crm-button" type="button" onClick={openPdf}><ExternalLink size={16} /> Ver PDF</button>}
       {mode === 'edit' && pdfUrl && <a className="crm-button" href={pdfUrl} download><Download size={16} /> Descargar</a>}
       {mode === 'edit' && <button className="crm-button" type="button" onClick={openSendActions}>Enviar</button>}
