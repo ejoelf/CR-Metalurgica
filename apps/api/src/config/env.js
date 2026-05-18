@@ -9,6 +9,7 @@ export const env = {
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   webUrl: process.env.WEB_URL || 'http://localhost:5173',
   adminUrl: process.env.ADMIN_URL || 'http://localhost:5174',
+  pdfStoragePath: process.env.PDF_STORAGE_PATH || 'storage/pdfs',
 };
 
 export function isProduction() {
