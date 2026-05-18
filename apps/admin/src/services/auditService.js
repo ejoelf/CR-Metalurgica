@@ -1,13 +1,19 @@
 import { apiClient } from './apiClient.js';
 
+function buildQuery(params = {}) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') query.set(key, value);
+  });
+  return query.toString() ? `?${query.toString()}` : '';
+}
+
 export const auditService = {
   async list(params = {}) {
-    const query = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') query.set(key, value);
-    });
+    return apiClient(`/audit${buildQuery(params)}`);
+  },
 
-    const suffix = query.toString() ? `?${query.toString()}` : '';
-    return apiClient(`/audit${suffix}`);
+  async getById(id) {
+    return apiClient(`/audit/${id}`);
   },
 };
