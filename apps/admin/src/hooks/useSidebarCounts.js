@@ -6,7 +6,7 @@ const EMPTY_COUNTS = {
   unreadMessages: 0,
 };
 
-export function useSidebarCounts({ enabled = true, intervalMs = 60000 } = {}) {
+export function useSidebarCounts({ enabled = true, intervalMs = 15000 } = {}) {
   const [counts, setCounts] = useState(EMPTY_COUNTS);
   const [loading, setLoading] = useState(false);
 
