@@ -6,6 +6,7 @@ function sanitizeUser(user) {
   return {
     id: user.id,
     name: user.name,
+    username: user.username || user.name,
     email: user.email,
     role: user.role?.name || user.role,
     isActive: user.isActive,
@@ -16,6 +17,8 @@ function sanitizeUser(user) {
 
 export const accountService = {
   async updateProfile(userId, payload) {
+    const username = String(payload.username || payload.name || '').trim();
+
     const existingEmail = await prisma.user.findFirst({
       where: {
         email: payload.email,
@@ -27,10 +30,24 @@ export const accountService = {
       throw badRequest('El email ya está siendo usado por otro usuario');
     }
 
+    const existingUsername = username
+      ? await prisma.user.findFirst({
+          where: {
+            username,
+            NOT: { id: userId },
+          },
+        })
+      : null;
+
+    if (existingUsername) {
+      throw badRequest('El usuario ya está siendo usado por otro usuario');
+    }
+
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         name: payload.name,
+        username,
         email: payload.email,
       },
       include: { role: true },
