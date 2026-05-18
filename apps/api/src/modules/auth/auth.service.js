@@ -11,6 +11,7 @@ export const authService = {
       where: {
         OR: [
           { email: { equals: loginValue, mode: 'insensitive' } },
+          { username: { equals: loginValue, mode: 'insensitive' } },
           { name: { equals: loginValue, mode: 'insensitive' } },
         ],
       },
@@ -103,6 +104,7 @@ export const authService = {
     return {
       id: user.id,
       name: user.name,
+      username: user.username || user.name,
       email: user.email,
       role: user.role?.name || user.role,
       isActive: user.isActive,
