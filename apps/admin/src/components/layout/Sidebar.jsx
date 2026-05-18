@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Bell, CalendarDays, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench } from 'lucide-react';
+import { Bell, CalendarDays, FileClock, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench } from 'lucide-react';
 import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useSidebarCounts } from '../../hooks/useSidebarCounts.js';
@@ -14,6 +14,7 @@ const items = [
   { label: 'Galería', to: '/galeria', icon: GalleryHorizontal },
   { label: 'Mensajes', to: '/mensajes', icon: Inbox, countKey: 'unreadMessages' },
   { label: 'Notificaciones', to: '/notificaciones', icon: Bell, countKey: 'unreadNotifications' },
+  { label: 'Auditoría', to: '/auditoria', icon: FileClock },
   { label: 'Configuración', to: '/configuracion', icon: Settings },
 ];
 
