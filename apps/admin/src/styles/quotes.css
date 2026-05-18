@@ -133,6 +133,32 @@
   font: inherit;
 }
 
+.quote-autosave-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border: 1px solid color-mix(in srgb, var(--crm-orange, #d8843f) 42%, transparent);
+  background: color-mix(in srgb, var(--crm-orange, #d8843f) 10%, transparent);
+}
+
+.quote-autosave-banner strong,
+.quote-autosave-banner span {
+  display: block;
+}
+
+.quote-autosave-banner strong {
+  color: var(--crm-text);
+  font-size: .86rem;
+}
+
+.quote-autosave-banner span {
+  color: var(--crm-muted);
+  font-size: .78rem;
+}
+
 .quote-detail-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -228,5 +254,10 @@
   .quotes-toolbar .search-input,
   .quotes-toolbar > span {
     grid-column: 1 / -1;
+  }
+
+  .quote-autosave-banner {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
