@@ -21,13 +21,13 @@ export default function GalleryPage() {
         <div className="container">
           <span className="eyebrow">Galería</span>
           <h1>Una vidriera visual para los trabajos de CF Metal Pintura</h1>
-          <p>Esta galería queda preparada para ser administrada desde el CRM en los próximos bloques.</p>
+          <p>Trabajos publicados y administrados desde el CRM privado, con imágenes, categorías y descripción de cada proyecto.</p>
         </div>
       </section>
 
       <section className="section">
         <div className="container">
-          <SectionHeader title="Trabajos destacados" description="Filtrá por categoría y revisá los trabajos cargados." />
+          <SectionHeader title="Trabajos destacados" description="Filtrá por categoría y revisá los trabajos visibles en la web pública." />
 
           <div className="filter-pills">
             {categories.map((item) => (
@@ -41,7 +41,7 @@ export default function GalleryPage() {
 
           <div className="gallery-grid">
             {filteredItems.map((work) => (
-              <article className="gallery-card" key={work.title}>
+              <article className="gallery-card" key={work.id || work.title}>
                 <img src={work.image} alt={work.title} loading="lazy" />
                 <div>
                   <span>{work.category}</span>
