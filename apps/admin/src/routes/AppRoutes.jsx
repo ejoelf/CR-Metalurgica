@@ -12,6 +12,7 @@ import GalleryPage from '../pages/gallery/GalleryPage.jsx';
 import MessagesPage from '../pages/messages/MessagesPage.jsx';
 import NotificationsPage from '../pages/notifications/NotificationsPage.jsx';
 import SettingsPage from '../pages/settings/SettingsPage.jsx';
+import AuditPage from '../pages/audit/AuditPage.jsx';
 
 export default function AppRoutes() {
   return (
@@ -29,6 +30,7 @@ export default function AppRoutes() {
           <Route path="/galeria" element={<GalleryPage />} />
           <Route path="/mensajes" element={<MessagesPage />} />
           <Route path="/notificaciones" element={<NotificationsPage />} />
+          <Route path="/auditoria" element={<AuditPage />} />
           <Route path="/configuracion" element={<SettingsPage />} />
         </Route>
       </Route>
