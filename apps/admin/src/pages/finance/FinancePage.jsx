@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowDownCircle, ArrowUpCircle, CalendarDays, Plus, Search, WalletCards } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, CalendarDays, Download, Plus, Search, WalletCards } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import LoadingState from '../../components/common/LoadingState.jsx';
@@ -10,6 +10,8 @@ import { jobsService } from '../../services/jobsService.js';
 import { quotesService } from '../../services/quotesService.js';
 import { formatDate, formatMoney } from '../../utils/formatters.js';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
 function currentMonth() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -18,6 +20,12 @@ function currentMonth() {
 function parseMonth(value) {
   const [year, month] = String(value || currentMonth()).split('-');
   return { year, month };
+}
+
+function buildPublicPdfUrl(pdfUrl) {
+  if (!pdfUrl) return '';
+  if (pdfUrl.startsWith('http')) return pdfUrl;
+  return `${API_BASE}${pdfUrl}`;
 }
 
 export default function FinancePage() {
@@ -33,6 +41,7 @@ export default function FinancePage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
   const [error, setError] = useState('');
   const [drawerMode, setDrawerMode] = useState(null);
   const [selectedMovement, setSelectedMovement] = useState(null);
@@ -153,6 +162,20 @@ export default function FinancePage() {
     }
   }
 
+  async function handleDownloadReport() {
+    try {
+      setReportLoading(true);
+      setError('');
+      const data = await financeService.generateReportPdf(queryParams);
+      const url = buildPublicPdfUrl(data.publicUrl);
+      if (url) window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (err) {
+      setError(err.message || 'No se pudo generar el reporte PDF');
+    } finally {
+      setReportLoading(false);
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -183,6 +206,9 @@ export default function FinancePage() {
           <Search size={18} />
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar movimiento" />
         </div>
+        <button className="crm-button finance-report-button" type="button" onClick={handleDownloadReport} disabled={reportLoading}>
+          <Download size={16} /> {reportLoading ? 'Generando...' : 'Descargar PDF'}
+        </button>
       </section>
 
       {error && <p className="warning-box">{error}</p>}
