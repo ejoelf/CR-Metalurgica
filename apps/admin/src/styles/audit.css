@@ -1,0 +1,212 @@
+.audit-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 210px 210px;
+  gap: 12px;
+  align-items: center;
+}
+
+.audit-toolbar select {
+  min-height: 44px;
+  border: 1px solid var(--crm-line);
+  background: rgba(255,255,255,.035);
+  color: var(--crm-text);
+  padding: 0 12px;
+  font: inherit;
+}
+
+.audit-layout {
+  display: grid;
+  grid-template-columns: minmax(340px, 480px) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.audit-list-card,
+.audit-detail-card {
+  min-height: 560px;
+  border: 1px solid var(--crm-line);
+  background: linear-gradient(145deg, rgba(255,255,255,.05), rgba(255,255,255,.018));
+  padding: 14px;
+}
+
+.audit-list-card {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.audit-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  border: 1px solid var(--crm-line);
+  background: rgba(0,0,0,.08);
+  color: var(--crm-text);
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.audit-row:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--crm-orange, #d8843f) 46%, transparent);
+  background: rgba(255,255,255,.045);
+}
+
+.audit-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--crm-orange, #d8843f);
+  background: color-mix(in srgb, var(--crm-orange, #d8843f) 13%, transparent);
+}
+
+.audit-row strong,
+.audit-row small,
+.audit-row em {
+  display: block;
+}
+
+.audit-row small {
+  margin-top: 4px;
+  color: var(--crm-muted);
+  font-size: .76rem;
+}
+
+.audit-row em {
+  margin-top: 6px;
+  overflow: hidden;
+  color: var(--crm-muted);
+  font-size: .82rem;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audit-empty-detail {
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--crm-muted);
+}
+
+.audit-empty-detail h2,
+.audit-empty-detail p {
+  margin: 0;
+}
+
+.audit-detail-card article {
+  position: relative;
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.audit-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--crm-line);
+  color: var(--crm-text);
+  background: rgba(255,255,255,.035);
+  cursor: pointer;
+}
+
+.audit-close:hover {
+  color: #fff7ec;
+  background: var(--crm-orange, #d8843f);
+}
+
+.audit-pill {
+  width: fit-content;
+  color: #fed7aa;
+  border: 1px solid color-mix(in srgb, var(--crm-orange, #d8843f) 36%, transparent);
+  background: color-mix(in srgb, var(--crm-orange, #d8843f) 12%, transparent);
+  padding: 7px 10px;
+  font-size: .72rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.audit-detail-card h2,
+.audit-detail-card h3 {
+  margin: 0;
+}
+
+.audit-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.audit-info-grid span {
+  border: 1px solid var(--crm-line);
+  background: rgba(255,255,255,.03);
+  padding: 12px;
+  color: var(--crm-muted);
+  font-size: .86rem;
+  word-break: break-word;
+}
+
+.audit-info-grid b {
+  display: block;
+  color: var(--crm-text);
+  margin-bottom: 4px;
+}
+
+.audit-json-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.audit-json-grid > div {
+  border: 1px solid var(--crm-line);
+  background: rgba(0,0,0,.12);
+  padding: 12px;
+  min-width: 0;
+}
+
+.audit-json-grid h3 {
+  margin-bottom: 10px;
+  font-size: .86rem;
+}
+
+.audit-json-grid pre {
+  max-height: 360px;
+  overflow: auto;
+  margin: 0;
+  color: var(--crm-muted);
+  font-size: .76rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 1080px) {
+  .audit-layout,
+  .audit-toolbar,
+  .audit-json-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .audit-info-grid,
+  .audit-row {
+    grid-template-columns: 1fr;
+  }
+}
