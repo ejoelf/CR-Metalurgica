@@ -1,5 +1,6 @@
 import { quotesService } from './quotes.service.js';
 import { auditService } from '../../services/audit.service.js';
+import { quotePdfService } from '../../services/quotePdf.service.js';
 import { sendSuccess } from '../../utils/responses.js';
 
 export const quotesController = {
@@ -56,9 +57,10 @@ export const quotesController = {
     return sendSuccess(res, data, 'Ítem eliminado');
   },
 
-  async pdfPlaceholder(req, res) {
-    const quote = await quotesService.findById(req.params.id);
-    return sendSuccess(res, { quoteId: quote.id, pdfUrl: quote.pdfUrl, status: quote.pdfUrl ? 'available' : 'pending_generation' }, 'PDF pendiente de generación profesional');
+  async generatePdf(req, res) {
+    const data = await quotePdfService.generate(req.params.id);
+    await auditService.log({ req, action: 'pdf_generated', entityType: 'quote', entityId: req.params.id, newValue: { pdfUrl: data.publicUrl } });
+    return sendSuccess(res, { quoteId: data.quote.id, pdfUrl: data.publicUrl, fileName: data.fileName, status: 'available' }, 'PDF generado correctamente');
   },
 
   async sendPlaceholder(req, res) {
