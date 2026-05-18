@@ -19,6 +19,7 @@ import './styles/finance.css';
 import './styles/agenda.css';
 import './styles/gallery.css';
 import './styles/messages.css';
+import './styles/notifications.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
