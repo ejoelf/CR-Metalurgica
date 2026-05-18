@@ -13,6 +13,7 @@ router.get('/:id', requirePermission(MODULES.quotes, ACTIONS.read), asyncHandler
 router.post('/', requirePermission(MODULES.quotes, ACTIONS.create), asyncHandler(quotesController.create));
 router.put('/:id', requirePermission(MODULES.quotes, ACTIONS.update), asyncHandler(quotesController.update));
 router.patch('/:id/status', requirePermission(MODULES.quotes, ACTIONS.update), asyncHandler(quotesController.updateStatus));
+router.post('/:id/convert-to-job', requirePermission(MODULES.quotes, ACTIONS.update), asyncHandler(quotesController.convertToJob));
 router.post('/:id/items', requirePermission(MODULES.quotes, ACTIONS.update), asyncHandler(quotesController.addItem));
 router.put('/:id/items/:itemId', requirePermission(MODULES.quotes, ACTIONS.update), asyncHandler(quotesController.updateItem));
 router.delete('/:id/items/:itemId', requirePermission(MODULES.quotes, ACTIONS.update), asyncHandler(quotesController.deleteItem));
