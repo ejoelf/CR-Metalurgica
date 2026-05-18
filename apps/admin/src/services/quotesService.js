@@ -38,7 +38,7 @@ export const quotesService = {
     });
   },
 
-  async getPdfStatus(id) {
+  async generatePdf(id) {
     return apiClient(`/quotes/${id}/pdf`);
   },
 
