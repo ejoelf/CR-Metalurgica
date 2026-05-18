@@ -1,5 +1,6 @@
 import { financeService } from './finance.service.js';
 import { auditService } from '../../services/audit.service.js';
+import { financePdfService } from '../../services/financePdf.service.js';
 import { sendSuccess } from '../../utils/responses.js';
 
 export const financeController = {
@@ -41,6 +42,12 @@ export const financeController = {
     const data = await financeService.deleteMovement(req.params.type, req.params.id);
     await auditService.log({ req, action: 'delete', entityType: 'finance_movement', entityId: data.id, oldValue, newValue: data });
     return sendSuccess(res, data, 'Movimiento financiero eliminado');
+  },
+
+  async reportPdf(req, res) {
+    const data = await financePdfService.generate(req.query);
+    await auditService.log({ req, action: 'pdf_generated', entityType: 'finance_report', entityId: data.fileName, newValue: { pdfUrl: data.publicUrl, movementsCount: data.movementsCount } });
+    return sendSuccess(res, data, 'Reporte financiero PDF generado');
   },
 
   async byJob(req, res) {
