@@ -1,14 +1,13 @@
-import { auditService } from '../../services/audit.service.js';
+import { auditModuleService } from './audit.service.js';
 
 export const auditController = {
   async list(req, res) {
-    const take = Math.min(Number(req.query.take || 50), 100);
-    const data = await auditService.listRecent({
-      take,
-      entityType: req.query.entityType,
-      entityId: req.query.entityId,
-    });
+    const data = await auditModuleService.findMany(req.query);
+    return res.json({ success: true, data });
+  },
 
+  async detail(req, res) {
+    const data = await auditModuleService.findById(req.params.id);
     return res.json({ success: true, data });
   },
 };
