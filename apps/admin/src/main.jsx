@@ -13,6 +13,7 @@ import './styles/crm-components.css';
 import './styles/sidebar-badges.css';
 import './styles/activity.css';
 import './styles/clients.css';
+import './styles/jobs.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
