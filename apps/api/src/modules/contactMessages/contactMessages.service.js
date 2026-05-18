@@ -1,7 +1,7 @@
 import { prisma } from '../../config/prisma.js';
 import { createCrudService } from '../../utils/crudFactory.js';
 import { badRequest, notFound } from '../../utils/ApiError.js';
-import { notificationsService } from '../notifications/notifications.service.js';
+import { systemActionsService } from '../../services/systemActions.service.js';
 
 const allowedStatuses = ['new', 'contacted', 'converted_to_client', 'dismissed'];
 
@@ -68,12 +68,14 @@ export const contactMessagesService = {
       },
     });
 
-    await notificationsService.createSystemNotification({
+    await systemActionsService.notify({
+      name: 'contact_message_created',
       title: 'Nueva consulta web',
       message: `Nueva consulta de ${message.fullName}`,
       type: 'info',
       entityType: 'contactMessage',
       entityId: message.id,
+      payload: { phone: message.phone, email: message.email, serviceInterest: message.serviceInterest },
     });
 
     return message;
@@ -110,12 +112,14 @@ export const contactMessagesService = {
 
     await prisma.contactMessage.update({ where: { id }, data: { status: 'converted_to_client', clientId: client.id } });
 
-    await notificationsService.createSystemNotification({
+    await systemActionsService.notify({
+      name: 'contact_message_converted_to_client',
       title: 'Consulta convertida en cliente',
       message: `${client.fullName} fue agregado a clientes desde mensajes.`,
       type: 'success',
       entityType: 'client',
       entityId: client.id,
+      payload: { contactMessageId: id },
     });
 
     return client;
