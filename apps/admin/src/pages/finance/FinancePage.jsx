@@ -1,54 +1,235 @@
-import { ArrowDownCircle, ArrowUpCircle, Plus, WalletCards } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowDownCircle, ArrowUpCircle, CalendarDays, Plus, Search, WalletCards } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader.jsx';
-import { useApiResource } from '../../hooks/useApiResource.js';
-import { expensesService, incomesService } from '../../services/resourceService.js';
+import EmptyState from '../../components/common/EmptyState.jsx';
+import LoadingState from '../../components/common/LoadingState.jsx';
+import MovementDrawer from './MovementDrawer.jsx';
+import { financeService } from '../../services/financeService.js';
+import { clientsService } from '../../services/clientsService.js';
+import { jobsService } from '../../services/jobsService.js';
+import { quotesService } from '../../services/quotesService.js';
+import { formatDate, formatMoney } from '../../utils/formatters.js';
 
-const fallbackIncomes = [
-  { id: '1', title: 'Seña portón', amount: 80000, status: 'paid', paymentMethod: 'transfer' },
-];
+function currentMonth() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
 
-const fallbackExpenses = [
-  { id: '1', title: 'Materiales hierro', amount: 45000, category: 'materials', paymentMethod: 'cash' },
-];
+function parseMonth(value) {
+  const [year, month] = String(value || currentMonth()).split('-');
+  return { year, month };
+}
 
 export default function FinancePage() {
-  const incomes = useApiResource(incomesService, fallbackIncomes);
-  const expenses = useApiResource(expensesService, fallbackExpenses);
+  const [summary, setSummary] = useState(null);
+  const [movements, setMovements] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  const [quotes, setQuotes] = useState([]);
+  const [viewMode, setViewMode] = useState('month');
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth());
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [typeFilter, setTypeFilter] = useState('');
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [drawerMode, setDrawerMode] = useState(null);
+  const [selectedMovement, setSelectedMovement] = useState(null);
 
-  const totalIncome = incomes.items.filter((item) => item.status === 'paid').reduce((acc, item) => acc + Number(item.amount || 0), 0);
-  const totalExpenses = expenses.items.reduce((acc, item) => acc + Number(item.amount || 0), 0);
+  const queryParams = useMemo(() => {
+    if (viewMode === 'day') return { date: selectedDate, type: typeFilter };
+    const { year, month } = parseMonth(selectedMonth);
+    return { year, month, type: typeFilter };
+  }, [viewMode, selectedMonth, selectedDate, typeFilter]);
+
+  async function loadFinance() {
+    try {
+      setLoading(true);
+      setError('');
+      const [summaryData, movementsData] = await Promise.all([
+        financeService.summary(queryParams),
+        financeService.movements(queryParams),
+      ]);
+      setSummary(summaryData);
+      setMovements(Array.isArray(movementsData) ? movementsData : []);
+    } catch (err) {
+      setError(err.message || 'No se pudieron cargar las finanzas');
+      setSummary(null);
+      setMovements([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadRelated() {
+    try {
+      const [clientsData, jobsData, quotesData] = await Promise.all([
+        clientsService.list(),
+        jobsService.list(),
+        quotesService.list(),
+      ]);
+      setClients(Array.isArray(clientsData) ? clientsData.filter((client) => client.status !== 'archived') : []);
+      setJobs(Array.isArray(jobsData) ? jobsData.filter((job) => job.status !== 'cancelled') : []);
+      setQuotes(Array.isArray(quotesData) ? quotesData.filter((quote) => quote.status !== 'cancelled') : []);
+    } catch {
+      setClients([]);
+      setJobs([]);
+      setQuotes([]);
+    }
+  }
+
+  useEffect(() => {
+    loadRelated();
+  }, []);
+
+  useEffect(() => {
+    loadFinance();
+  }, [queryParams]);
+
+  const visibleMovements = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return movements;
+    return movements.filter((item) => {
+      return [item.title, item.description, item.client?.fullName, item.job?.title, item.quote?.title, item.paymentMethod, item.category]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(term));
+    });
+  }, [movements, search]);
+
+  function openCreate() {
+    setSelectedMovement(null);
+    setDrawerMode('create');
+  }
+
+  async function openMovement(movement) {
+    try {
+      setLoading(true);
+      const detail = await financeService.movementDetail(movement.movementType, movement.id);
+      setSelectedMovement(detail);
+      setDrawerMode('edit');
+    } catch (err) {
+      setError(err.message || 'No se pudo abrir el movimiento');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function closeDrawer() {
+    setDrawerMode(null);
+    setSelectedMovement(null);
+  }
+
+  async function handleSave(payload) {
+    try {
+      setSaving(true);
+      if (drawerMode === 'create') {
+        const created = await financeService.createMovement(payload);
+        setSelectedMovement(created);
+        setDrawerMode('edit');
+      } else if (selectedMovement?.id) {
+        const updated = await financeService.updateMovement(selectedMovement.movementType, selectedMovement.id, payload);
+        setSelectedMovement(updated);
+      }
+      await loadFinance();
+    } catch (err) {
+      setError(err.message || 'No se pudo guardar el movimiento');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(movement) {
+    if (!movement?.id) return;
+    try {
+      setSaving(true);
+      await financeService.deleteMovement(movement.movementType, movement.id);
+      closeDrawer();
+      await loadFinance();
+    } catch (err) {
+      setError(err.message || 'No se pudo eliminar el movimiento');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div>
       <PageHeader
         eyebrow="Finanzas"
         title="Ingresos, egresos y balance"
-        description="Control básico de caja, movimientos, métodos de pago, filtros por fecha y rentabilidad futura por trabajo."
-        action={<button className="primary-button"><Plus size={18} /> Nuevo movimiento</button>}
+        description="Control de caja, pagos parciales, señas, gastos, filtros por fecha y relación con clientes, trabajos y presupuestos."
+        action={<button className="primary-button" type="button" onClick={openCreate}><Plus size={18} /> Nuevo movimiento</button>}
       />
 
       <section className="kpi-grid finance-kpis">
-        <article className="kpi-card green"><ArrowUpCircle size={24} /><div><span>Ingresos cobrados</span><strong>$ {totalIncome.toLocaleString('es-AR')}</strong></div></article>
-        <article className="kpi-card red"><ArrowDownCircle size={24} /><div><span>Egresos</span><strong>$ {totalExpenses.toLocaleString('es-AR')}</strong></div></article>
-        <article className="kpi-card blue"><WalletCards size={24} /><div><span>Balance</span><strong>$ {(totalIncome - totalExpenses).toLocaleString('es-AR')}</strong></div></article>
+        <article className="kpi-card green"><ArrowUpCircle size={24} /><div><span>Ingresos cobrados</span><strong>{formatMoney(summary?.totalIncome || 0)}</strong></div></article>
+        <article className="kpi-card red"><ArrowDownCircle size={24} /><div><span>Egresos</span><strong>{formatMoney(summary?.totalExpenses || 0)}</strong></div></article>
+        <article className="kpi-card blue"><WalletCards size={24} /><div><span>Balance</span><strong>{formatMoney(summary?.balance || 0)}</strong></div></article>
       </section>
 
-      <section className="dashboard-grid">
-        <article className="panel-card">
-          <h2>Ingresos</h2>
-          {incomes.error && <p className="warning-box">Datos de ejemplo. API: {incomes.error}</p>}
-          <div className="simple-list">
-            {incomes.items.map((item) => <span key={item.id}>{item.title}<b>$ {Number(item.amount).toLocaleString('es-AR')}</b></span>)}
-          </div>
-        </article>
-        <article className="panel-card">
-          <h2>Egresos</h2>
-          {expenses.error && <p className="warning-box">Datos de ejemplo. API: {expenses.error}</p>}
-          <div className="simple-list">
-            {expenses.items.map((item) => <span key={item.id}>{item.title}<b>$ {Number(item.amount).toLocaleString('es-AR')}</b></span>)}
-          </div>
-        </article>
+      <section className="toolbar-card finance-toolbar-v2">
+        <div className="finance-mode-toggle">
+          <button className={viewMode === 'month' ? 'is-active' : ''} type="button" onClick={() => setViewMode('month')}>Mensual</button>
+          <button className={viewMode === 'day' ? 'is-active' : ''} type="button" onClick={() => setViewMode('day')}>Diario</button>
+        </div>
+        {viewMode === 'month' ? <input type="month" value={selectedMonth} max={currentMonth()} onChange={(event) => setSelectedMonth(event.target.value)} /> : <input type="date" value={selectedDate} max={new Date().toISOString().slice(0, 10)} onChange={(event) => setSelectedDate(event.target.value)} />}
+        <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
+          <option value="">Ingresos y egresos</option>
+          <option value="income">Solo ingresos</option>
+          <option value="expense">Solo egresos</option>
+        </select>
+        <div className="search-input">
+          <Search size={18} />
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar movimiento" />
+        </div>
       </section>
+
+      {error && <p className="warning-box">{error}</p>}
+      {loading && <LoadingState label="Cargando finanzas..." />}
+
+      {!loading && !visibleMovements.length && (
+        <EmptyState
+          icon={CalendarDays}
+          title="No hay movimientos en este período"
+          description="Registrá ingresos o egresos desde el botón Nuevo movimiento."
+          action={<button className="crm-button primary" type="button" onClick={openCreate}><Plus size={16} /> Nuevo movimiento</button>}
+        />
+      )}
+
+      {!loading && visibleMovements.length > 0 && (
+        <section className="finance-list-card">
+          <header>
+            <h2>Movimientos</h2>
+            <span>{visibleMovements.length} registros</span>
+          </header>
+          <div className="finance-movement-list">
+            {visibleMovements.map((item) => (
+              <button key={`${item.movementType}-${item.id}`} className={`finance-movement-row is-${item.movementType}`} type="button" onClick={() => openMovement(item)}>
+                <span className="finance-type-dot" />
+                <span>
+                  <strong>{item.title}</strong>
+                  <small>{formatDate(item.movementDate)} · {item.client?.fullName || 'Sin cliente'} {item.job?.title ? `· ${item.job.title}` : ''}</small>
+                </span>
+                <b>{item.movementType === 'income' ? '+' : '-'} {formatMoney(item.amount)}</b>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <MovementDrawer
+        isOpen={Boolean(drawerMode)}
+        mode={drawerMode || 'create'}
+        movement={selectedMovement}
+        clients={clients}
+        jobs={jobs}
+        quotes={quotes}
+        saving={saving}
+        onClose={closeDrawer}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }
