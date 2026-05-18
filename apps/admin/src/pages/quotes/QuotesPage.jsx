@@ -145,6 +145,21 @@ export default function QuotesPage() {
     }
   }
 
+  async function handleGeneratePdf(quote) {
+    if (!quote?.id) return;
+    try {
+      setSaving(true);
+      const result = await quotesService.generatePdf(quote.id);
+      const detail = await quotesService.getById(result.quoteId || quote.id);
+      setSelectedQuote(detail);
+      await loadQuotes();
+    } catch (err) {
+      setError(err.message || 'No se pudo generar el PDF');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const activeQuotes = quotes.filter((quote) => quote.status !== 'cancelled');
 
   return (
@@ -201,6 +216,7 @@ export default function QuotesPage() {
         onSave={handleSave}
         onDelete={handleDelete}
         onMarkSent={handleMarkSent}
+        onGeneratePdf={handleGeneratePdf}
       />
     </div>
   );
