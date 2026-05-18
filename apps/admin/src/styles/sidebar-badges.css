@@ -1,0 +1,46 @@
+.sidebar-nav a {
+  position: relative;
+}
+
+.sidebar-icon-wrap {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.sidebar-count-badge {
+  min-width: 21px;
+  height: 21px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff7ec;
+  background: var(--crm-orange, #d8843f);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--crm-orange, #d8843f) 35%, transparent);
+  font-size: .66rem;
+  font-weight: 1000;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+
+.sidebar-nav a > .sidebar-count-badge {
+  margin-left: auto;
+}
+
+.admin-shell.sidebar-collapsed .sidebar-icon-wrap .sidebar-count-badge,
+.sidebar.is-collapsed .sidebar-icon-wrap .sidebar-count-badge {
+  position: absolute;
+  top: -11px;
+  right: -13px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: .58rem;
+}
+
+.admin-shell.sidebar-collapsed .sidebar-nav a > .sidebar-count-badge,
+.sidebar.is-collapsed .sidebar-nav a > .sidebar-count-badge {
+  display: none;
+}
