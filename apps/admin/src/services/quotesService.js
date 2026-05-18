@@ -38,6 +38,12 @@ export const quotesService = {
     });
   },
 
+  async convertToJob(id) {
+    return apiClient(`/quotes/${id}/convert-to-job`, {
+      method: 'POST',
+    });
+  },
+
   async generatePdf(id) {
     return apiClient(`/quotes/${id}/pdf`);
   },
