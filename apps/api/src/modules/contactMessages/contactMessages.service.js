@@ -3,7 +3,7 @@ import { createCrudService } from '../../utils/crudFactory.js';
 import { badRequest, notFound } from '../../utils/ApiError.js';
 import { notificationsService } from '../notifications/notifications.service.js';
 
-const allowedStatuses = ['new', 'read', 'archived', 'deleted', 'converted_to_client'];
+const allowedStatuses = ['new', 'contacted', 'converted_to_client', 'dismissed'];
 
 const crud = createCrudService('contactMessage', {
   include: { client: true },
@@ -15,23 +15,20 @@ function normalizeStatus(status) {
   return status;
 }
 
+function folderWhere(folder = 'inbox') {
+  if (folder === 'converted') return { status: 'converted_to_client' };
+  if (folder === 'archived') return { status: 'dismissed' };
+  if (folder === 'sent' || folder === 'drafts') return null;
+  return { status: { in: ['new', 'contacted', 'converted_to_client'] } };
+}
+
 export const contactMessagesService = {
   ...crud,
 
   async findMany(query = {}) {
     const searchValue = String(query.search || '').trim();
-    const folder = query.folder || 'inbox';
-
-    const statusWhere = (() => {
-      if (query.status) return { status: normalizeStatus(query.status) };
-      if (folder === 'deleted') return { status: 'deleted' };
-      if (folder === 'archived') return { status: 'archived' };
-      if (folder === 'converted') return { status: 'converted_to_client' };
-      if (folder === 'sent' || folder === 'drafts') return { status: '__none__' };
-      return { status: { notIn: ['deleted', 'archived'] } };
-    })();
-
-    if (statusWhere.status === '__none__') return [];
+    const statusWhere = query.status ? { status: normalizeStatus(query.status) } : folderWhere(query.folder);
+    if (!statusWhere) return [];
 
     return prisma.contactMessage.findMany({
       where: {
@@ -74,7 +71,7 @@ export const contactMessagesService = {
     await notificationsService.createSystemNotification({
       title: 'Nueva consulta web',
       message: `Nueva consulta de ${message.fullName}`,
-      type: 'message',
+      type: 'info',
       entityType: 'contactMessage',
       entityId: message.id,
     });
@@ -85,29 +82,18 @@ export const contactMessagesService = {
   async markAsRead(id) {
     const message = await this.findById(id);
     if (message.status !== 'new') return message;
-    return prisma.contactMessage.update({
-      where: { id },
-      data: { status: 'read' },
-      include: { client: true },
-    });
+    return prisma.contactMessage.update({ where: { id }, data: { status: 'contacted' }, include: { client: true } });
   },
 
   async updateStatus(id, status) {
-    return prisma.contactMessage.update({
-      where: { id },
-      data: { status: normalizeStatus(status) },
-      include: { client: true },
-    });
+    return prisma.contactMessage.update({ where: { id }, data: { status: normalizeStatus(status) }, include: { client: true } });
   },
 
   async convertToClient(id) {
     const message = await this.findById(id);
 
     if (message.clientId) {
-      await prisma.contactMessage.update({
-        where: { id },
-        data: { status: 'converted_to_client' },
-      });
+      await prisma.contactMessage.update({ where: { id }, data: { status: 'converted_to_client' } });
       return prisma.client.findUnique({ where: { id: message.clientId } });
     }
 
@@ -122,10 +108,7 @@ export const contactMessagesService = {
       },
     });
 
-    await prisma.contactMessage.update({
-      where: { id },
-      data: { status: 'converted_to_client', clientId: client.id },
-    });
+    await prisma.contactMessage.update({ where: { id }, data: { status: 'converted_to_client', clientId: client.id } });
 
     await notificationsService.createSystemNotification({
       title: 'Consulta convertida en cliente',
@@ -140,11 +123,7 @@ export const contactMessagesService = {
 
   async remove(id) {
     await this.findById(id);
-    return prisma.contactMessage.update({
-      where: { id },
-      data: { status: 'deleted' },
-      include: { client: true },
-    });
+    return prisma.contactMessage.update({ where: { id }, data: { status: 'dismissed' }, include: { client: true } });
   },
 
   async unreadCount() {
