@@ -3,6 +3,12 @@ import { auditService } from '../../services/audit.service.js';
 import { quotePdfService } from '../../services/quotePdf.service.js';
 import { sendSuccess } from '../../utils/responses.js';
 
+async function generateQuotePdf(req, res) {
+  const data = await quotePdfService.generate(req.params.id);
+  await auditService.log({ req, action: 'pdf_generated', entityType: 'quote', entityId: req.params.id, newValue: { pdfUrl: data.publicUrl } });
+  return sendSuccess(res, { quoteId: data.quote.id, pdfUrl: data.publicUrl, fileName: data.fileName, status: 'available' }, 'PDF generado correctamente');
+}
+
 export const quotesController = {
   async list(req, res) {
     const data = await quotesService.findMany({
@@ -57,11 +63,8 @@ export const quotesController = {
     return sendSuccess(res, data, 'Ítem eliminado');
   },
 
-  async generatePdf(req, res) {
-    const data = await quotePdfService.generate(req.params.id);
-    await auditService.log({ req, action: 'pdf_generated', entityType: 'quote', entityId: req.params.id, newValue: { pdfUrl: data.publicUrl } });
-    return sendSuccess(res, { quoteId: data.quote.id, pdfUrl: data.publicUrl, fileName: data.fileName, status: 'available' }, 'PDF generado correctamente');
-  },
+  generatePdf: generateQuotePdf,
+  pdfPlaceholder: generateQuotePdf,
 
   async sendPlaceholder(req, res) {
     const data = await quotesService.markSent(req.params.id);
