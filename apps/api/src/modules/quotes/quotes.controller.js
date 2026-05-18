@@ -45,6 +45,12 @@ export const quotesController = {
     return sendSuccess(res, data, 'Estado de presupuesto actualizado');
   },
 
+  async convertToJob(req, res) {
+    const data = await quotesService.convertToJob(req.params.id, req.user);
+    await auditService.log({ req, action: 'convert_to_job', entityType: 'quote', entityId: req.params.id, newValue: data });
+    return sendSuccess(res, data, data.created ? 'Trabajo creado desde presupuesto' : 'Trabajo existente actualizado desde presupuesto');
+  },
+
   async addItem(req, res) {
     const data = await quotesService.addItem(req.params.id, req.body);
     await auditService.log({ req, action: 'update', entityType: 'quote', entityId: req.params.id, newValue: data });
