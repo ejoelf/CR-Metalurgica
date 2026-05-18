@@ -24,11 +24,11 @@ export default function WorksPage() {
 
       <section className="section works-section">
         <div className="container">
-          <SectionHeader title="Últimos trabajos" description="Galería inicial preparada para conectarse al CRM y administrarse desde el panel privado." />
+          <SectionHeader title="Últimos trabajos" description="Trabajos publicados desde el CRM privado de CF Metal-Pintura." />
           {loading && <p className="muted center">Cargando trabajos...</p>}
           <div className="works-grid large">
             {items.map((work) => (
-              <article className="work-card" key={work.title}>
+              <article className="work-card" key={work.id || work.title}>
                 <div className="work-image" style={{ backgroundImage: `url(${work.image})` }} />
                 <div className="work-content">
                   <span>{work.category}</span>
