@@ -25,9 +25,14 @@ function SidebarBadge({ value }) {
   return <span className="sidebar-count-badge" aria-label={`${numericValue} pendientes`}>{numericValue > 99 ? '99+' : numericValue}</span>;
 }
 
-export default function Sidebar({ collapsed = false, onToggle }) {
+export default function Sidebar({ collapsed = false, onToggle, onNavigate }) {
   const { logout, isAuthenticated } = useAuth();
   const { counts } = useSidebarCounts({ enabled: isAuthenticated });
+
+  function handleLogout() {
+    onNavigate?.();
+    logout();
+  }
 
   return (
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`}>
@@ -48,7 +53,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
           const Icon = item.icon;
           const count = item.countKey ? counts[item.countKey] : 0;
           return (
-            <NavLink key={item.to} to={item.to} title={collapsed ? item.label : undefined}>
+            <NavLink key={item.to} to={item.to} title={collapsed ? item.label : undefined} onClick={onNavigate}>
               <span className="sidebar-icon-wrap">
                 <Icon size={18} />
                 {collapsed && <SidebarBadge value={count} />}
@@ -60,7 +65,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
         })}
       </nav>
 
-      <button className="sidebar-public-link sidebar-logout-link" type="button" onClick={logout} title={collapsed ? 'Cerrar sesión' : undefined}>
+      <button className="sidebar-public-link sidebar-logout-link" type="button" onClick={handleLogout} title={collapsed ? 'Cerrar sesión' : undefined}>
         <LogOut size={18} /> <span className="sidebar-label">Cerrar sesión</span>
       </button>
     </aside>
