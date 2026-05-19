@@ -3,6 +3,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Plus, Search } from 'lucide-re
 import PageHeader from '../../components/common/PageHeader.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import LoadingState from '../../components/common/LoadingState.jsx';
+import SuccessModal from '../../components/common/SuccessModal.jsx';
 import EventDrawer from './EventDrawer.jsx';
 import { agendaService } from '../../services/agendaService.js';
 import { clientsService } from '../../services/clientsService.js';
@@ -28,16 +29,21 @@ const statusLabels = {
   cancelled: 'Cancelado',
 };
 
-function toDateInput(date) {
-  return date.toISOString().slice(0, 10);
+function toDateInput(value) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function monthStart(date) {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
+  return new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
 }
 
 function monthEnd(date) {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 1);
+  return new Date(date.getFullYear(), date.getMonth() + 1, 1, 0, 0, 0, 0);
 }
 
 function buildCalendarDays(date) {
@@ -56,7 +62,7 @@ function buildCalendarDays(date) {
 }
 
 function sameDay(a, b) {
-  return toDateInput(new Date(a)) === toDateInput(new Date(b));
+  return toDateInput(a) === toDateInput(b);
 }
 
 export default function AgendaPage() {
@@ -72,6 +78,7 @@ export default function AgendaPage() {
   const [error, setError] = useState('');
   const [drawerMode, setDrawerMode] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   const calendar = useMemo(() => buildCalendarDays(currentDate), [currentDate]);
 
@@ -162,15 +169,15 @@ export default function AgendaPage() {
   async function handleSave(payload) {
     try {
       setSaving(true);
-      if (drawerMode === 'create') {
-        const created = await agendaService.create(payload);
-        setSelectedEvent(created);
-        setDrawerMode('edit');
-      } else if (selectedEvent?.id) {
-        const updated = await agendaService.update(selectedEvent.id, payload);
-        setSelectedEvent(updated);
-      }
+      const isCreate = drawerMode === 'create';
+      const saved = isCreate ? await agendaService.create(payload) : await agendaService.update(selectedEvent.id, payload);
+      closeDrawer();
+      setSelectedDate(toDateInput(saved.startAt || payload.startAt));
       await loadEvents();
+      setSuccess({
+        title: isCreate ? 'Evento agendado correctamente' : 'Evento actualizado correctamente',
+        description: isCreate ? `“${saved.title}” ya quedó registrado en la agenda.` : `Los cambios de “${saved.title}” fueron guardados.`,
+      });
     } catch (err) {
       setError(err.message || 'No se pudo guardar el evento');
     } finally {
@@ -185,6 +192,7 @@ export default function AgendaPage() {
       await agendaService.remove(event.id);
       closeDrawer();
       await loadEvents();
+      setSuccess({ title: 'Evento eliminado', description: `“${event.title}” fue quitado de la agenda operativa.` });
     } catch (err) {
       setError(err.message || 'No se pudo eliminar el evento');
     } finally {
@@ -291,6 +299,13 @@ export default function AgendaPage() {
         onClose={closeDrawer}
         onSave={handleSave}
         onDelete={handleDelete}
+      />
+
+      <SuccessModal
+        isOpen={Boolean(success)}
+        title={success?.title}
+        description={success?.description}
+        onClose={() => setSuccess(null)}
       />
     </div>
   );
