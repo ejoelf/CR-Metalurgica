@@ -56,7 +56,7 @@ export const clientsService = {
           }
         : {},
       include: {
-        jobs: { select: { id: true, title: true, status: true, priority: true, estimatedDeliveryDate: true, finalPrice: true, updatedAt: true } },
+        jobs: { select: { id: true, title: true, status: true, priority: true, dueDate: true, finalPrice: true, updatedAt: true } },
         quotes: { select: { id: true, quoteNumber: true, title: true, status: true, total: true, pdfUrl: true, createdAt: true } },
         incomes: { select: { id: true, title: true, amount: true, status: true, paidAt: true, createdAt: true } },
         agendaEvents: { select: { id: true, title: true, type: true, status: true, startAt: true } },
