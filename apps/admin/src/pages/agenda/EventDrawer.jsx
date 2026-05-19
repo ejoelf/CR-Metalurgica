@@ -9,7 +9,7 @@ import { formatDateTime } from '../../utils/formatters.js';
 const EMPTY_FORM = {
   title: '',
   description: '',
-  type: 'task',
+  type: 'other',
   status: 'scheduled',
   date: new Date().toISOString().slice(0, 10),
   startTime: '09:00',
@@ -40,7 +40,7 @@ function toForm(event, defaultDate) {
   return {
     title: event.title || '',
     description: event.description || '',
-    type: event.type || 'task',
+    type: event.type || 'other',
     status: event.status || 'scheduled',
     date: start.date || defaultDate || EMPTY_FORM.date,
     startTime: start.time || '09:00',
@@ -111,7 +111,7 @@ export default function EventDrawer({ isOpen, mode = 'create', event, defaultDat
       <BaseDrawer
         isOpen={isOpen}
         title={mode === 'create' ? 'Nuevo evento' : event?.title || 'Detalle del evento'}
-        description="Creá visitas, entregas, tareas, recordatorios y reuniones relacionadas al trabajo diario."
+        description="Creá visitas, entregas, mediciones, pagos, recordatorios y tareas relacionadas al trabajo diario."
         onClose={onClose}
         size="lg"
         footer={footer}
@@ -121,7 +121,7 @@ export default function EventDrawer({ isOpen, mode = 'create', event, defaultDat
             <h3>Datos principales</h3>
             <div className="agenda-form-inner">
               <label className="crm-field agenda-span-2"><span>Título</span><input name="title" value={form.title} onChange={handleChange} required placeholder="Visita, entrega, medición..." /></label>
-              <label className="crm-field"><span>Tipo</span><select name="type" value={form.type} onChange={handleChange}><option value="visit">Visita</option><option value="delivery">Entrega</option><option value="meeting">Reunión</option><option value="task">Tarea</option><option value="reminder">Recordatorio</option><option value="other">Otro</option></select></label>
+              <label className="crm-field"><span>Tipo</span><select name="type" value={form.type} onChange={handleChange}><option value="visit">Visita</option><option value="measurement">Medición</option><option value="production">Producción</option><option value="painting">Pintura</option><option value="delivery">Entrega</option><option value="payment">Pago</option><option value="reminder">Recordatorio</option><option value="other">Otro</option></select></label>
               <label className="crm-field"><span>Estado</span><select name="status" value={form.status} onChange={handleChange}><option value="scheduled">Programado</option><option value="completed">Completado</option><option value="postponed">Postergado</option><option value="cancelled">Cancelado</option></select></label>
               <DateInput label="Fecha" name="date" value={form.date} onChange={handleChange} />
               <TimeInput label="Hora inicio" name="startTime" value={form.startTime} onChange={handleChange} />
