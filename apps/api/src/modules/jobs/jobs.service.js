@@ -9,6 +9,13 @@ function toDecimalOrNull(value) {
   return value;
 }
 
+function parseDateOrNull(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date;
+}
+
 function normalizeJobPayload(data = {}, user = null) {
   return {
     clientId: data.clientId,
@@ -17,12 +24,15 @@ function normalizeJobPayload(data = {}, user = null) {
     serviceType: data.serviceType ? String(data.serviceType).trim() : null,
     status: data.status || 'pending',
     priority: data.priority || 'normal',
-    estimatedStartDate: data.estimatedStartDate ? new Date(data.estimatedStartDate) : null,
-    estimatedDeliveryDate: data.estimatedDeliveryDate ? new Date(data.estimatedDeliveryDate) : null,
-    realStartDate: data.realStartDate ? new Date(data.realStartDate) : null,
-    realDeliveryDate: data.realDeliveryDate ? new Date(data.realDeliveryDate) : null,
+    dueDate: parseDateOrNull(data.dueDate || data.estimatedDeliveryDate),
+    acceptedAt: parseDateOrNull(data.acceptedAt),
+    budgetedAt: parseDateOrNull(data.budgetedAt),
+    startedAt: parseDateOrNull(data.startedAt || data.realStartDate),
+    completedAt: parseDateOrNull(data.completedAt),
+    deliveredAt: parseDateOrNull(data.deliveredAt || data.realDeliveryDate),
     estimatedPrice: toDecimalOrNull(data.estimatedPrice),
     finalPrice: toDecimalOrNull(data.finalPrice),
+    paidAmount: data.paidAmount === undefined || data.paidAmount === null || data.paidAmount === '' ? undefined : data.paidAmount,
     internalNotes: data.internalNotes ? String(data.internalNotes).trim() : null,
     createdById: data.createdById || user?.id || null,
   };
@@ -31,11 +41,12 @@ function normalizeJobPayload(data = {}, user = null) {
 function decorateJob(job) {
   if (!job) return job;
 
-  const paidAmount = (job.incomes || []).reduce((total, income) => {
+  const paidAmountFromIncomes = (job.incomes || []).reduce((total, income) => {
     const amount = Number(income.amount || 0);
     return income.status === 'paid' ? total + amount : total;
   }, 0);
 
+  const paidAmount = Math.max(Number(job.paidAmount || 0), paidAmountFromIncomes);
   const total = Number(job.finalPrice || job.estimatedPrice || 0);
   const pendingAmount = Math.max(total - paidAmount, 0);
   const paymentPercent = total > 0 ? Math.min((paidAmount / total) * 100, 100) : 0;
@@ -76,11 +87,11 @@ export const jobsService = {
         client: true,
         quotes: { select: { id: true, quoteNumber: true, title: true, status: true, total: true, pdfUrl: true, createdAt: true } },
         incomes: { select: { id: true, title: true, amount: true, status: true, paidAt: true, createdAt: true } },
-        expenses: { select: { id: true, title: true, amount: true, category: true, paidAt: true, createdAt: true } },
+        expenses: { select: { id: true, title: true, amount: true, category: true, expenseDate: true, createdAt: true } },
         agendaEvents: { select: { id: true, title: true, type: true, status: true, startAt: true } },
         files: true,
       },
-      orderBy: [{ priority: 'desc' }, { estimatedDeliveryDate: 'asc' }, { updatedAt: 'desc' }],
+      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }, { updatedAt: 'desc' }],
     });
 
     return jobs.map(decorateJob);
@@ -96,7 +107,7 @@ export const jobsService = {
         expenses: { orderBy: { createdAt: 'desc' } },
         agendaEvents: { orderBy: { startAt: 'desc' } },
         files: true,
-        createdBy: { select: { id: true, name: true, email: true } },
+        createdBy: { select: { id: true, name: true, username: true, email: true } },
       },
     });
 
@@ -111,6 +122,7 @@ export const jobsService = {
     if (data.priority && !allowedPriorities.includes(data.priority)) throw badRequest('Prioridad inválida');
 
     const payload = normalizeJobPayload(data, user);
+    if (payload.paidAmount === undefined) delete payload.paidAmount;
 
     return prisma.job.create({
       data: payload,
@@ -125,6 +137,7 @@ export const jobsService = {
 
     const payload = normalizeJobPayload(data);
     delete payload.createdById;
+    if (payload.paidAmount === undefined) delete payload.paidAmount;
 
     return prisma.job.update({
       where: { id },
@@ -137,8 +150,10 @@ export const jobsService = {
     if (!allowedStatuses.includes(status)) throw badRequest('Estado de trabajo inválido');
 
     const updateData = { status };
-    if (status === 'delivered') updateData.realDeliveryDate = new Date();
-    if (status === 'production') updateData.realStartDate = new Date();
+    if (status === 'delivered') updateData.deliveredAt = new Date();
+    if (status === 'production') updateData.startedAt = new Date();
+    if (status === 'approved') updateData.acceptedAt = new Date();
+    if (status === 'quoted') updateData.budgetedAt = new Date();
 
     return prisma.job.update({
       where: { id },
@@ -162,10 +177,12 @@ export const jobsService = {
       timeline: [
         { label: 'Creado', date: job.createdAt },
         { label: 'Última actualización', date: job.updatedAt },
-        job.estimatedStartDate ? { label: 'Inicio estimado', date: job.estimatedStartDate } : null,
-        job.realStartDate ? { label: 'Inicio real', date: job.realStartDate } : null,
-        job.estimatedDeliveryDate ? { label: 'Entrega estimada', date: job.estimatedDeliveryDate } : null,
-        job.realDeliveryDate ? { label: 'Entregado', date: job.realDeliveryDate } : null,
+        job.budgetedAt ? { label: 'Presupuestado', date: job.budgetedAt } : null,
+        job.acceptedAt ? { label: 'Aceptado', date: job.acceptedAt } : null,
+        job.startedAt ? { label: 'Inicio', date: job.startedAt } : null,
+        job.completedAt ? { label: 'Completado', date: job.completedAt } : null,
+        job.dueDate ? { label: 'Entrega prevista', date: job.dueDate } : null,
+        job.deliveredAt ? { label: 'Entregado', date: job.deliveredAt } : null,
       ].filter(Boolean),
     };
   },
