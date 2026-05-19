@@ -74,6 +74,8 @@ body {
   background-attachment: fixed;
 }
 
+body.crm-mobile-menu-open { overflow: hidden; }
+
 button,
 input,
 select,
@@ -148,6 +150,8 @@ button { cursor: pointer; }
 
 .login-card p { line-height: 1.65; }
 
+.login-back-link { margin-top: 18px; width: 100%; }
+
 label {
   display: grid;
   gap: 8px;
@@ -189,7 +193,7 @@ textarea:focus {
   min-height: 44px;
   padding: 0 18px;
   font-weight: 900;
-  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease, color .2s ease;
 }
 
 .primary-button {
@@ -204,6 +208,8 @@ textarea:focus {
 .theme-toggle:hover {
   transform: translateY(-1px);
 }
+
+.primary-button:hover { color: #111827; }
 
 .ghost-button,
 .theme-toggle {
@@ -232,6 +238,8 @@ textarea:focus {
   display: grid;
   grid-template-columns: 292px 1fr;
 }
+
+.mobile-sidebar-backdrop { display: none; }
 
 .sidebar {
   position: sticky;
@@ -530,14 +538,42 @@ textarea:focus {
 }
 
 @media (max-width: 720px) {
+  .admin-shell { display: block; }
+
+  .mobile-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 88;
+    border: 0;
+    background: rgba(0, 0, 0, .58);
+    backdrop-filter: blur(5px);
+  }
+
+  .sidebar {
+    position: fixed;
+    z-index: 90;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(86vw, 320px);
+    height: 100vh;
+    overflow-y: auto;
+    transform: translateX(-104%);
+    transition: transform .25s ease;
+  }
+
+  .admin-shell.mobile-sidebar-open .sidebar { transform: translateX(0); }
+
+  .sidebar-nav { grid-template-columns: 1fr; }
+  .sidebar-public-link { margin-top: 18px; }
+
   .admin-content,
-  .topbar,
-  .sidebar { padding: 16px; }
+  .topbar { padding: 16px; }
   .topbar,
   .topbar-actions,
   .page-header { flex-direction: column; align-items: stretch; }
   .topbar-user { justify-content: space-between; }
-  .sidebar-nav,
   .kpi-grid,
   .dashboard-grid,
   .data-grid,
