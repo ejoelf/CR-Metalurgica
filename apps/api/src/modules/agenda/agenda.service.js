@@ -3,7 +3,7 @@ import { badRequest, notFound } from '../../utils/ApiError.js';
 import { systemActionsService } from '../../services/systemActions.service.js';
 
 const allowedStatuses = ['scheduled', 'completed', 'cancelled', 'postponed'];
-const allowedTypes = ['visit', 'delivery', 'meeting', 'task', 'reminder', 'other'];
+const allowedTypes = ['visit', 'measurement', 'production', 'painting', 'delivery', 'payment', 'reminder', 'other'];
 
 function parseDate(value, fallback = null) {
   if (!value) return fallback;
@@ -33,7 +33,7 @@ function normalizePayload(data = {}, user = null) {
   return {
     title: String(data.title).trim(),
     description: data.description ? String(data.description).trim() : null,
-    type: data.type || 'task',
+    type: data.type || 'other',
     status: data.status || 'scheduled',
     startAt,
     endAt,
@@ -52,8 +52,8 @@ function includeRelations() {
     client: true,
     job: true,
     quote: true,
-    assignedTo: { select: { id: true, name: true, email: true } },
-    createdBy: { select: { id: true, name: true, email: true } },
+    assignedTo: { select: { id: true, name: true, email: true, username: true } },
+    createdBy: { select: { id: true, name: true, email: true, username: true } },
   };
 }
 
