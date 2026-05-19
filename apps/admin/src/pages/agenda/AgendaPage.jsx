@@ -13,9 +13,11 @@ import { formatDate, formatDateTime } from '../../utils/formatters.js';
 const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const typeLabels = {
   visit: 'Visita',
+  measurement: 'Medición',
+  production: 'Producción',
+  painting: 'Pintura',
   delivery: 'Entrega',
-  meeting: 'Reunión',
-  task: 'Tarea',
+  payment: 'Pago',
   reminder: 'Recordatorio',
   other: 'Otro',
 };
@@ -260,7 +262,7 @@ export default function AgendaPage() {
             <EmptyState
               icon={CalendarDays}
               title="Sin eventos este día"
-              description="Podés crear una visita, tarea, entrega o recordatorio."
+              description="Podés crear una visita, medición, entrega, pago o recordatorio."
             />
           ) : (
             <div className="agenda-event-list">
