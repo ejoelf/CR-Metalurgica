@@ -316,6 +316,23 @@
   max-width: 420px;
 }
 
+.success-modal-content {
+  display: grid;
+  place-items: center;
+  padding: 4px 0 10px;
+}
+
+.success-modal-icon {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #bbf7d0;
+  background: rgba(34, 197, 94, .14);
+  border: 1px solid rgba(34, 197, 94, .3);
+}
+
 .settings-grid-wide {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   align-items: start;
