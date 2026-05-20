@@ -1,0 +1,16 @@
+.dashboard-lists-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.chart-card {
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-lists-grid {
+    grid-template-columns: 1fr;
+  }
+}
