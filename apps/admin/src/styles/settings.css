@@ -1,0 +1,59 @@
+.settings-logo-preview {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+  border: 1px dashed var(--crm-line, rgba(255,255,255,.12));
+  background: rgba(0,0,0,.12);
+  color: var(--crm-muted, #94a3b8);
+  overflow: hidden;
+}
+
+.settings-logo-preview img {
+  width: 112px;
+  height: 112px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: transparent;
+  box-shadow: 0 16px 42px rgba(0,0,0,.24);
+}
+
+.settings-logo-preview span {
+  color: var(--crm-muted, #94a3b8);
+  font-size: .88rem;
+  font-weight: 800;
+}
+
+.settings-integrations-card {
+  border-color: color-mix(in srgb, var(--crm-orange, #d8843f) 26%, var(--crm-line, rgba(255,255,255,.12)));
+}
+
+.settings-integration-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 4px;
+}
+
+.settings-integration-actions .crm-button:disabled {
+  opacity: .72;
+  cursor: not-allowed;
+  color: var(--crm-muted, #94a3b8);
+  background: rgba(255,255,255,.035);
+}
+
+.success-box {
+  padding: 12px 14px;
+  border-radius: 16px;
+  color: #bbf7d0;
+  background: rgba(34, 197, 94, .13);
+  border: 1px solid rgba(34, 197, 94, .24);
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .settings-integration-actions,
+  .settings-integration-actions .crm-button {
+    width: 100%;
+  }
+}
