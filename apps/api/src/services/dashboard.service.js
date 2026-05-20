@@ -2,7 +2,7 @@ import { prisma } from '../config/prisma.js';
 
 const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const activeJobStatuses = ['pending', 'quoted', 'approved', 'production', 'painted'];
-const pendingQuoteStatuses = ['draft', 'not_sent', 'sent'];
+const pendingQuoteStatuses = ['draft', 'sent'];
 
 function getMonthRange(year, monthIndex) {
   const start = new Date(year, monthIndex, 1);
