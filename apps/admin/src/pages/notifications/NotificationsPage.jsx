@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { BellRing, CalendarDays, CheckCheck, Inbox, Search, Trash2, X } from 'lucide-react';
+import { BellRing, CalendarDays, CheckCheck, ExternalLink, Inbox, MessageCircle, Search, Trash2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
@@ -15,6 +15,48 @@ const typeLabels = {
   error: 'Error',
   reminder: 'Recordatorio',
 };
+
+function getEntityCopy(notification) {
+  if (notification?.entityType === 'contactMessage') {
+    return {
+      icon: Inbox,
+      title: 'Mensaje recibido desde la web',
+      description: 'Hay una consulta nueva esperando respuesta. Podés abrir el mensaje completo o responder desde la sección Mensajes.',
+      primaryLabel: 'Ir al mensaje',
+      route: '/mensajes',
+    };
+  }
+
+  if (notification?.entityType === 'agendaEvent') {
+    return {
+      icon: CalendarDays,
+      title: 'Evento de agenda',
+      description: 'Tenés un evento o recordatorio registrado en el calendario operativo.',
+      primaryLabel: 'Ir a agenda',
+      route: '/agenda',
+    };
+  }
+
+  if (notification?.entityType === 'client') {
+    return { icon: MessageCircle, title: 'Cliente', description: 'Hay una acción relacionada a clientes.', primaryLabel: 'Ir a clientes', route: '/clientes' };
+  }
+
+  if (notification?.entityType === 'quote') {
+    return { icon: ExternalLink, title: 'Presupuesto', description: 'Hay una acción relacionada a presupuestos.', primaryLabel: 'Ir a presupuestos', route: '/presupuestos' };
+  }
+
+  if (notification?.entityType === 'job') {
+    return { icon: ExternalLink, title: 'Trabajo', description: 'Hay una acción relacionada a trabajos.', primaryLabel: 'Ir a trabajos', route: '/trabajos' };
+  }
+
+  return {
+    icon: BellRing,
+    title: 'Notificación del CRM',
+    description: 'El sistema registró una acción importante para revisar.',
+    primaryLabel: '',
+    route: '',
+  };
+}
 
 export default function NotificationsPage() {
   const navigate = useNavigate();
@@ -62,8 +104,9 @@ export default function NotificationsPage() {
     try {
       setActionLoading(true);
       const detail = await notificationsService.getById(notification.id);
-      setSelectedNotification(detail);
-      setItems((state) => state.map((item) => item.id === detail.id ? detail : item));
+      const readDetail = detail.isRead ? detail : await notificationsService.markAsRead(detail.id);
+      setSelectedNotification(readDetail);
+      setItems((state) => state.map((item) => item.id === readDetail.id ? readDetail : item));
       if (!notification.isRead) setUnreadCount((count) => Math.max(count - 1, 0));
     } catch (err) {
       setError(err.message || 'No se pudo abrir la notificación');
@@ -102,13 +145,12 @@ export default function NotificationsPage() {
   }
 
   function goToEntity(notification) {
-    if (!notification?.entityType) return;
-    if (notification.entityType === 'contactMessage') navigate('/mensajes');
-    if (notification.entityType === 'agendaEvent') navigate('/agenda');
-    if (notification.entityType === 'client') navigate('/clientes');
-    if (notification.entityType === 'quote') navigate('/presupuestos');
-    if (notification.entityType === 'job') navigate('/trabajos');
+    const copy = getEntityCopy(notification);
+    if (copy.route) navigate(copy.route);
   }
+
+  const selectedCopy = getEntityCopy(selectedNotification);
+  const SelectedIcon = selectedCopy.icon;
 
   return (
     <div>
@@ -141,17 +183,21 @@ export default function NotificationsPage() {
       {!loading && visibleItems.length > 0 && (
         <section className="notifications-layout-v2">
           <div className="notifications-list-v2">
-            {visibleItems.map((item) => (
-              <button key={item.id} className={`notification-row-v2 ${item.isRead ? 'is-read' : 'is-unread'} is-${item.type}`} type="button" onClick={() => openNotification(item)}>
-                <span className="notification-icon-v2"><BellRing size={18} /></span>
-                <span>
-                  <strong>{item.title}</strong>
-                  <small>{typeLabels[item.type] || item.type} · {formatDateTime(item.createdAt)}</small>
-                  <em>{item.message}</em>
-                </span>
-                {!item.isRead && <b>Nuevo</b>}
-              </button>
-            ))}
+            {visibleItems.map((item) => {
+              const rowCopy = getEntityCopy(item);
+              const RowIcon = rowCopy.icon;
+              return (
+                <button key={item.id} className={`notification-row-v2 ${item.isRead ? 'is-read' : 'is-unread'} is-${item.type}`} type="button" onClick={() => openNotification(item)}>
+                  <span className="notification-icon-v2"><RowIcon size={18} /></span>
+                  <span>
+                    <strong>{item.title}</strong>
+                    <small>{typeLabels[item.type] || item.type} · {formatDateTime(item.createdAt)}</small>
+                    <em>{item.message}</em>
+                  </span>
+                  {!item.isRead && <b>Nuevo</b>}
+                </button>
+              );
+            })}
           </div>
 
           <aside className="notification-detail-v2">
@@ -164,19 +210,28 @@ export default function NotificationsPage() {
             ) : (
               <article>
                 <button className="notification-close" type="button" onClick={() => setSelectedNotification(null)} aria-label="Cerrar detalle"><X size={18} /></button>
-                <span className="notification-pill">{typeLabels[selectedNotification.type] || selectedNotification.type}</span>
-                <h2>{selectedNotification.title}</h2>
-                <p>{selectedNotification.message}</p>
-                <div className="notification-info-grid">
-                  <span><b>Fecha</b>{formatDateTime(selectedNotification.createdAt)}</span>
-                  <span><b>Estado</b>{selectedNotification.isRead ? 'Leída' : 'No leída'}</span>
-                  <span><b>Entidad</b>{selectedNotification.entityType || 'Sin entidad'}</span>
-                  <span><b>ID</b>{selectedNotification.entityId || 'Sin ID'}</span>
+                <div className="notification-human-head">
+                  <span className="notification-human-icon"><SelectedIcon size={24} /></span>
+                  <div>
+                    <span className="notification-pill">{typeLabels[selectedNotification.type] || selectedNotification.type}</span>
+                    <h2>{selectedCopy.title}</h2>
+                  </div>
                 </div>
+
+                <div className="notification-human-card">
+                  <strong>{selectedNotification.title}</strong>
+                  <p>{selectedNotification.message}</p>
+                </div>
+
+                <div className="notification-human-summary">
+                  <span><b>Recibida</b>{formatDateTime(selectedNotification.createdAt)}</span>
+                  <span><b>Estado</b>{selectedNotification.isRead ? 'Leída' : 'No leída'}</span>
+                </div>
+
+                <p className="notification-human-help">{selectedCopy.description}</p>
+
                 <div className="notification-actions-v2">
-                  {selectedNotification.entityType === 'contactMessage' && <button className="crm-button primary" type="button" onClick={() => goToEntity(selectedNotification)}><Inbox size={16} /> Ir al mensaje</button>}
-                  {selectedNotification.entityType === 'agendaEvent' && <button className="crm-button primary" type="button" onClick={() => goToEntity(selectedNotification)}><CalendarDays size={16} /> Ir a agenda</button>}
-                  {selectedNotification.entityType && !['contactMessage', 'agendaEvent'].includes(selectedNotification.entityType) && <button className="crm-button primary" type="button" onClick={() => goToEntity(selectedNotification)}>Ir al módulo</button>}
+                  {selectedCopy.route && <button className="crm-button primary" type="button" onClick={() => goToEntity(selectedNotification)}><ExternalLink size={16} /> {selectedCopy.primaryLabel}</button>}
                   <button className="crm-button danger" type="button" onClick={() => setDeleteTarget(selectedNotification)}><Trash2 size={16} /> Eliminar</button>
                 </div>
               </article>
