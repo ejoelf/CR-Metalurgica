@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Eye, EyeOff, Save, Star, Trash2 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Eye, EyeOff, ImagePlus, Loader2, Save, Star, Trash2, UploadCloud } from 'lucide-react';
 import BaseDrawer from '../../components/common/BaseDrawer.jsx';
 import ConfirmModal from '../../components/common/ConfirmModal.jsx';
 import { resolveProjectImage } from '../../data/projectImages.js';
+import { uploadsService } from '../../services/uploadsService.js';
 
 const EMPTY_FORM = {
   title: '',
@@ -31,12 +32,40 @@ function toForm(item) {
   };
 }
 
+function ImageUploadField({ label, value, required = false, uploading = false, onSelectFile, onChangeUrl }) {
+  const inputRef = useRef(null);
+
+  return (
+    <div className="gallery-upload-field">
+      <div className="gallery-upload-header">
+        <span>{label}{required ? ' *' : ''}</span>
+        <button className="crm-button" type="button" onClick={() => inputRef.current?.click()} disabled={uploading}>
+          {uploading ? <Loader2 size={16} className="spin-icon" /> : <UploadCloud size={16} />} Cargar archivo
+        </button>
+      </div>
+      <input ref={inputRef} className="hidden-file-input" type="file" accept="image/*" onChange={onSelectFile} />
+      <input value={value || ''} onChange={(event) => onChangeUrl(event.target.value)} required={required} placeholder="URL o imagen cargada" />
+      {value ? (
+        <div className="gallery-preview-box compact">
+          <img src={resolveProjectImage(value)} alt={`Vista previa ${label}`} />
+        </div>
+      ) : (
+        <div className="gallery-preview-empty"><ImagePlus size={20} /> Sin imagen cargada</div>
+      )}
+    </div>
+  );
+}
+
 export default function GalleryItemDrawer({ isOpen, mode = 'create', item, saving = false, onClose, onSave, onDelete }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [uploadingField, setUploadingField] = useState('');
+  const [uploadError, setUploadError] = useState('');
 
   useEffect(() => {
     setForm(toForm(item));
+    setUploadError('');
+    setUploadingField('');
   }, [item, isOpen]);
 
   const original = useMemo(() => JSON.stringify(toForm(item)), [item]);
@@ -48,6 +77,27 @@ export default function GalleryItemDrawer({ isOpen, mode = 'create', item, savin
     setForm((state) => ({ ...state, [name]: type === 'checkbox' ? checked : value }));
   }
 
+  function handleUrlChange(field, value) {
+    setForm((state) => ({ ...state, [field]: value }));
+  }
+
+  async function handleUpload(field, event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      setUploadError('');
+      setUploadingField(field);
+      const uploaded = await uploadsService.uploadImage(file);
+      setForm((state) => ({ ...state, [field]: uploaded.url }));
+    } catch (error) {
+      setUploadError(error.message || 'No se pudo cargar la imagen');
+    } finally {
+      setUploadingField('');
+    }
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     onSave?.(form);
@@ -57,7 +107,7 @@ export default function GalleryItemDrawer({ isOpen, mode = 'create', item, savin
     <>
       {mode === 'edit' && <button className="crm-button danger" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={16} /> Eliminar</button>}
       <button className="crm-button ghost" type="button" onClick={onClose}>Cancelar</button>
-      <button className="crm-button primary" type="submit" form="gallery-item-form" disabled={saving || !hasChanges || !form.title || !form.mainImageUrl}>
+      <button className="crm-button primary" type="submit" form="gallery-item-form" disabled={saving || Boolean(uploadingField) || !hasChanges || !form.title || !form.mainImageUrl}>
         <Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}
       </button>
     </>
@@ -86,16 +136,31 @@ export default function GalleryItemDrawer({ isOpen, mode = 'create', item, savin
 
           <section className="gallery-panel gallery-span-2">
             <h3>Imágenes</h3>
-            <div className="gallery-form-inner">
-              <label className="crm-field gallery-span-2"><span>Imagen principal</span><input name="mainImageUrl" value={form.mainImageUrl} onChange={handleChange} required placeholder="/images/trabajo.jpg o URL externa" /></label>
-              <label className="crm-field"><span>Imagen antes</span><input name="beforeImageUrl" value={form.beforeImageUrl} onChange={handleChange} placeholder="Opcional" /></label>
-              <label className="crm-field"><span>Imagen después</span><input name="afterImageUrl" value={form.afterImageUrl} onChange={handleChange} placeholder="Opcional" /></label>
+            {uploadError && <p className="error-box">{uploadError}</p>}
+            <div className="gallery-upload-grid">
+              <ImageUploadField
+                label="Imagen principal"
+                value={form.mainImageUrl}
+                required
+                uploading={uploadingField === 'mainImageUrl'}
+                onSelectFile={(event) => handleUpload('mainImageUrl', event)}
+                onChangeUrl={(value) => handleUrlChange('mainImageUrl', value)}
+              />
+              <ImageUploadField
+                label="Imagen antes"
+                value={form.beforeImageUrl}
+                uploading={uploadingField === 'beforeImageUrl'}
+                onSelectFile={(event) => handleUpload('beforeImageUrl', event)}
+                onChangeUrl={(value) => handleUrlChange('beforeImageUrl', value)}
+              />
+              <ImageUploadField
+                label="Imagen después"
+                value={form.afterImageUrl}
+                uploading={uploadingField === 'afterImageUrl'}
+                onSelectFile={(event) => handleUpload('afterImageUrl', event)}
+                onChangeUrl={(value) => handleUrlChange('afterImageUrl', value)}
+              />
             </div>
-            {form.mainImageUrl && (
-              <div className="gallery-preview-box">
-                <img src={resolveProjectImage(form.mainImageUrl)} alt="Vista previa" />
-              </div>
-            )}
           </section>
 
           <section className="gallery-panel gallery-span-2">
