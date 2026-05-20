@@ -1,3 +1,30 @@
+.messages-help-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--crm-orange, #d8843f) 28%, transparent);
+  background: color-mix(in srgb, var(--crm-orange, #d8843f) 10%, transparent);
+  color: var(--crm-muted);
+}
+
+.messages-help-card svg {
+  flex: 0 0 auto;
+  color: var(--crm-orange, #d8843f);
+  margin-top: 2px;
+}
+
+.messages-help-card p {
+  margin: 0;
+  line-height: 1.55;
+  font-size: .9rem;
+}
+
+.messages-help-card strong {
+  color: var(--crm-text);
+}
+
 .messages-toolbar-v2 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
