@@ -47,3 +47,15 @@ export function requirePermission(moduleName, action) {
     return next();
   };
 }
+
+export function requireRole(allowedRoles = []) {
+  return (req, res, next) => {
+    const role = req.user?.role;
+
+    if (!role || !allowedRoles.includes(role)) {
+      return next(forbidden('No tenés permisos para acceder a esta sección'));
+    }
+
+    return next();
+  };
+}
