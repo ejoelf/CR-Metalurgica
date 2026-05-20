@@ -5,6 +5,7 @@ import { crmController } from './crm.controller.js';
 
 const router = Router();
 
+router.get('/dashboard', requireAuth, asyncHandler(crmController.dashboard));
 router.get('/sidebar-counts', requireAuth, asyncHandler(crmController.sidebarCounts));
 
 export default router;
