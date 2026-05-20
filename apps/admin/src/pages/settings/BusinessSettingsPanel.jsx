@@ -3,6 +3,8 @@ import { CreditCard, Landmark, Loader2, Save, UploadCloud } from 'lucide-react';
 import { settingsService } from '../../services/settingsService.js';
 import { uploadsService } from '../../services/uploadsService.js';
 
+const API_BASE_URL = (import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:4000/api').replace(/\/api\/?$/, '');
+
 const initialForm = {
   businessName: 'CF Metal Pintura',
   publicName: 'CF Metal Pintura',
@@ -34,7 +36,7 @@ function normalizePhoneForWhatsapp(value = '') {
 function resolveAssetUrl(value = '') {
   if (!value) return '';
   if (value.startsWith('http') || value.startsWith('data:')) return value;
-  return `http://localhost:4000${value}`;
+  return `${API_BASE_URL}${value}`;
 }
 
 export default function BusinessSettingsPanel() {
