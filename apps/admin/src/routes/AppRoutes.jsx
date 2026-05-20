@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.jsx';
+import RoleRoute from './RoleRoute.jsx';
 import AdminLayout from '../components/layout/AdminLayout.jsx';
 import LoginPage from '../pages/auth/LoginPage.jsx';
 import DashboardPage from '../pages/dashboard/DashboardPage.jsx';
@@ -30,7 +31,7 @@ export default function AppRoutes() {
           <Route path="/galeria" element={<GalleryPage />} />
           <Route path="/mensajes" element={<MessagesPage />} />
           <Route path="/notificaciones" element={<NotificationsPage />} />
-          <Route path="/auditoria" element={<AuditPage />} />
+          <Route path="/auditoria" element={<RoleRoute roles={['super_admin']}><AuditPage /></RoleRoute>} />
           <Route path="/configuracion" element={<SettingsPage />} />
         </Route>
       </Route>
