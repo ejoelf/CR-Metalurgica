@@ -4,7 +4,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import PageHeader from '../../components/common/PageHeader.jsx';
 import LoadingState from '../../components/common/LoadingState.jsx';
 import { dashboardService } from '../../services/dashboardService.js';
-import { formatCurrency, formatDateTime } from '../../utils/formatters.js';
+import { formatDateTime, formatMoney } from '../../utils/formatters.js';
 
 const jobStatusLabels = {
   pending: 'Pendiente',
@@ -58,7 +58,7 @@ export default function DashboardPage() {
     { label: 'Clientes activos', value: dashboard.kpis.activeClients, icon: Users, tone: 'blue' },
     { label: 'Trabajos activos', value: dashboard.kpis.activeJobs, icon: BriefcaseBusiness, tone: 'orange' },
     { label: 'Presupuestos pendientes', value: dashboard.kpis.pendingQuotes, icon: FileText, tone: 'purple' },
-    { label: 'Balance mensual', value: formatCurrency(dashboard.kpis.monthlyBalance), icon: CircleDollarSign, tone: dashboard.kpis.monthlyBalance >= 0 ? 'green' : 'red' },
+    { label: 'Balance mensual', value: formatMoney(dashboard.kpis.monthlyBalance), icon: CircleDollarSign, tone: dashboard.kpis.monthlyBalance >= 0 ? 'green' : 'red' },
   ];
 
   return (
@@ -100,7 +100,7 @@ export default function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip formatter={(value) => formatCurrency(value)} />
+                  <Tooltip formatter={(value) => formatMoney(value)} />
                   <Bar dataKey="ingresos" fill="#f59e0b" radius={[8, 8, 0, 0]} />
                   <Bar dataKey="egresos" fill="#64748b" radius={[8, 8, 0, 0]} />
                 </BarChart>
@@ -128,7 +128,7 @@ export default function DashboardPage() {
               </div>
               <div className="simple-list">
                 {dashboard.latestMovements.length ? dashboard.latestMovements.map((item) => (
-                  <span key={item.id}>{item.title}<b>{formatCurrency(item.amount)}</b></span>
+                  <span key={item.id}>{item.title}<b>{formatMoney(item.amount)}</b></span>
                 )) : <span>Sin ingresos registrados <b>-</b></span>}
               </div>
             </article>
@@ -152,7 +152,7 @@ export default function DashboardPage() {
               </div>
               <div className="simple-list">
                 {dashboard.recentQuotes.length ? dashboard.recentQuotes.map((item) => (
-                  <span key={item.id}>{item.quoteNumber} · {item.title}<b>{formatCurrency(item.total)}</b></span>
+                  <span key={item.id}>{item.quoteNumber} · {item.title}<b>{formatMoney(item.total)}</b></span>
                 )) : <span>Sin presupuestos recientes <b>-</b></span>}
               </div>
             </article>
