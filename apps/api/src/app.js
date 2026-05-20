@@ -13,11 +13,12 @@ const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: [env.webUrl, env.adminUrl], credentials: true }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '12mb' }));
+app.use(express.urlencoded({ extended: true, limit: '12mb' }));
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300 }));
 app.use('/storage/pdfs', express.static(path.resolve(process.cwd(), env.pdfStoragePath)));
+app.use('/storage/uploads', express.static(path.resolve(process.cwd(), 'storage/uploads')));
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, message: 'CF Metal Pintura PRO API is running' });
