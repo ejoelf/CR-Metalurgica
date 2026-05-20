@@ -14,7 +14,7 @@ const items = [
   { label: 'Galería', to: '/galeria', icon: GalleryHorizontal },
   { label: 'Mensajes', to: '/mensajes', icon: Inbox, countKey: 'unreadMessages' },
   { label: 'Notificaciones', to: '/notificaciones', icon: Bell, countKey: 'unreadNotifications' },
-  { label: 'Auditoría', to: '/auditoria', icon: FileClock },
+  { label: 'Auditoría', to: '/auditoria', icon: FileClock, roles: ['super_admin'] },
   { label: 'Configuración', to: '/configuracion', icon: Settings },
 ];
 
@@ -25,9 +25,15 @@ function SidebarBadge({ value }) {
   return <span className="sidebar-count-badge" aria-label={`${numericValue} pendientes`}>{numericValue > 99 ? '99+' : numericValue}</span>;
 }
 
+function canSeeItem(item, role) {
+  if (!item.roles?.length) return true;
+  return item.roles.includes(role);
+}
+
 export default function Sidebar({ collapsed = false, onToggle, onNavigate }) {
-  const { logout, isAuthenticated } = useAuth();
+  const { logout, isAuthenticated, user } = useAuth();
   const { counts } = useSidebarCounts({ enabled: isAuthenticated });
+  const visibleItems = items.filter((item) => canSeeItem(item, user?.role));
 
   function handleLogout() {
     onNavigate?.();
@@ -49,7 +55,7 @@ export default function Sidebar({ collapsed = false, onToggle, onNavigate }) {
       </div>
 
       <nav className="sidebar-nav">
-        {items.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
           const count = item.countKey ? counts[item.countKey] : 0;
           return (
