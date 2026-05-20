@@ -6,13 +6,20 @@ const crud = createCrudService('notification', {
   orderBy: { createdAt: 'desc' },
 });
 
+function visibleForUserWhere(userId = null) {
+  return {
+    OR: [{ userId }, { userId: null }],
+    NOT: { entityType: 'system' },
+  };
+}
+
 export const notificationsService = {
   ...crud,
 
   async findMany(query = {}, userId = null) {
     return prisma.notification.findMany({
       where: {
-        OR: [{ userId }, { userId: null }],
+        ...visibleForUserWhere(userId),
         ...(query.isRead !== undefined && query.isRead !== '' ? { isRead: query.isRead === true || query.isRead === 'true' } : {}),
         ...(query.type ? { type: query.type } : {}),
         ...(query.entityType ? { entityType: query.entityType } : {}),
@@ -35,7 +42,7 @@ export const notificationsService = {
 
   async unreadCount(userId = null) {
     return prisma.notification.count({
-      where: { OR: [{ userId }, { userId: null }], isRead: false },
+      where: { ...visibleForUserWhere(userId), isRead: false },
     });
   },
 
@@ -49,7 +56,7 @@ export const notificationsService = {
 
   async markAllAsRead(userId) {
     return prisma.notification.updateMany({
-      where: { OR: [{ userId }, { userId: null }], isRead: false },
+      where: { ...visibleForUserWhere(userId), isRead: false },
       data: { isRead: true, readAt: new Date() },
     });
   },
