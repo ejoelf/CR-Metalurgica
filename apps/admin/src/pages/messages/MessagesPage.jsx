@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Archive, Inbox, Mail, MessageCircle, Search, Trash2, UserPlus, X } from 'lucide-react';
+import { Archive, ExternalLink, Inbox, Mail, MessageCircle, Search, Trash2, UserPlus, X } from 'lucide-react';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import LoadingState from '../../components/common/LoadingState.jsx';
@@ -25,6 +25,10 @@ const statusLabels = {
 
 function normalizePhone(value = '') {
   return String(value).replace(/[^0-9]/g, '');
+}
+
+function openGmailInbox() {
+  window.open('https://mail.google.com/mail/u/0/#inbox', '_blank', 'noopener,noreferrer');
 }
 
 export default function MessagesPage() {
@@ -82,16 +86,17 @@ export default function MessagesPage() {
   function openReplyActions(message) {
     const phone = normalizePhone(message.phone);
     const email = message.email;
-    const subject = encodeURIComponent(`Respuesta a tu consulta - CF Metal-Pintura`);
+    const subject = encodeURIComponent('Respuesta a tu consulta - CF Metal-Pintura');
     const body = encodeURIComponent(`Hola ${message.fullName || ''}, gracias por comunicarte con CF Metal-Pintura.\n\nTe respondemos por tu consulta: "${message.serviceInterest || 'consulta web'}".\n\nSaludos.`);
     const whatsappText = encodeURIComponent(`Hola ${message.fullName || ''}, gracias por comunicarte con CF Metal-Pintura. Te respondemos por tu consulta.`);
 
     setReplyAction({
       title: 'Responder mensaje',
-      description: 'Elegí si querés responder por Gmail o por WhatsApp Web.',
+      description: 'Elegí si querés responder por Gmail o por WhatsApp Web. En esta V1, si respondés por email, la respuesta del cliente llegará al Gmail configurado.',
       actions: [
         { label: 'Responder por Gmail', description: email || 'El mensaje no tiene email cargado', icon: Mail, disabled: !email, onClick: () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`, '_blank', 'noopener,noreferrer'); setReplyAction(null); } },
         { label: 'Responder por WhatsApp', description: phone ? message.phone : 'El mensaje no tiene teléfono cargado', icon: MessageCircle, disabled: !phone, onClick: () => { window.open(`https://wa.me/${phone}?text=${whatsappText}`, '_blank', 'noopener,noreferrer'); setReplyAction(null); } },
+        { label: 'Abrir bandeja Gmail', description: 'Ver respuestas recibidas en el correo configurado', icon: ExternalLink, onClick: () => { openGmailInbox(); setReplyAction(null); } },
       ],
     });
   }
@@ -146,7 +151,13 @@ export default function MessagesPage() {
         eyebrow="Mensajería"
         title="Bandeja de mensajes"
         description="Consultas de la web pública organizadas para responder, archivar o convertir en clientes."
+        action={<button className="primary-button" type="button" onClick={openGmailInbox}><ExternalLink size={18} /> Abrir Gmail</button>}
       />
+
+      <section className="messages-help-card">
+        <Mail size={18} />
+        <p><strong>V1 simple:</strong> las respuestas por email se redactan en Gmail y las respuestas del cliente llegan al correo configurado. En V2 conectaremos Gmail API para leer respuestas dentro del CRM.</p>
+      </section>
 
       <section className="toolbar-card messages-toolbar-v2">
         <div className="messages-folder-tabs">
@@ -207,6 +218,7 @@ export default function MessagesPage() {
 
               <div className="message-actions-v2">
                 <button className="crm-button primary" type="button" onClick={() => openReplyActions(selected)} disabled={actionLoading}><Mail size={16} /> Responder</button>
+                <button className="crm-button" type="button" onClick={openGmailInbox}><ExternalLink size={16} /> Bandeja Gmail</button>
                 <button className="crm-button" type="button" onClick={() => handleConvert(selected)} disabled={actionLoading || selected.status === 'converted_to_client'}><UserPlus size={16} /> {selected.status === 'converted_to_client' ? 'Convertido' : 'Convertir'}</button>
                 <button className="crm-button" type="button" onClick={() => handleArchive(selected)} disabled={actionLoading || selected.status === 'dismissed'}><Archive size={16} /> Archivar</button>
                 <button className="crm-button danger" type="button" onClick={() => setDeleteTarget(selected)} disabled={actionLoading}><Trash2 size={16} /> Eliminar</button>
