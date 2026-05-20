@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Save } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { CreditCard, Landmark, Loader2, Save, UploadCloud } from 'lucide-react';
 import { settingsService } from '../../services/settingsService.js';
+import { uploadsService } from '../../services/uploadsService.js';
 
 const initialForm = {
   businessName: 'CF Metal Pintura',
@@ -26,10 +27,22 @@ const initialForm = {
   defaultProfitMargin: 15,
 };
 
+function normalizePhoneForWhatsapp(value = '') {
+  return String(value).replace(/[^0-9]/g, '');
+}
+
+function resolveAssetUrl(value = '') {
+  if (!value) return '';
+  if (value.startsWith('http') || value.startsWith('data:')) return value;
+  return `http://localhost:4000${value}`;
+}
+
 export default function BusinessSettingsPanel() {
   const [form, setForm] = useState(initialForm);
   const [feedback, setFeedback] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = useRef(null);
 
   useEffect(() => {
     settingsService.getBusinessSettings()
@@ -41,14 +54,34 @@ export default function BusinessSettingsPanel() {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
   }
 
+  async function handleLogoUpload(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    try {
+      setUploadingLogo(true);
+      setFeedback(null);
+      const uploaded = await uploadsService.uploadImage(file);
+      setForm((current) => ({ ...current, logoUrl: uploaded.url }));
+      setFeedback('Logo cargado correctamente. Recordá guardar la configuración.');
+    } catch (error) {
+      setFeedback(`No se pudo cargar el logo: ${error.message}`);
+    } finally {
+      setUploadingLogo(false);
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setSaving(true);
     setFeedback(null);
 
     try {
+      const phoneAsWhatsapp = normalizePhoneForWhatsapp(form.phone);
       const data = await settingsService.updateBusinessSettings({
         ...form,
+        whatsapp: phoneAsWhatsapp,
         quoteValidityDays: Number(form.quoteValidityDays) || 15,
         quoteDefaultValidityDays: Number(form.quoteDefaultValidityDays) || 15,
         defaultTaxRate: Number(form.defaultTaxRate) || 0,
@@ -72,7 +105,7 @@ export default function BusinessSettingsPanel() {
           <h2>Datos comerciales</h2>
           <p>Información central del negocio para CRM, web pública, presupuestos, PDF y reportes.</p>
         </div>
-        <button className="primary-button" type="submit" disabled={saving}>
+        <button className="primary-button" type="submit" disabled={saving || uploadingLogo}>
           <Save size={18} /> {saving ? 'Guardando...' : 'Guardar configuración'}
         </button>
       </div>
@@ -82,18 +115,32 @@ export default function BusinessSettingsPanel() {
       <div className="settings-grid settings-grid-wide">
         <article className="panel-card">
           <h2>Identidad</h2>
-          <label>Nombre interno<input name="businessName" value={form.businessName || ''} onChange={handleChange} /></label>
-          <label>Nombre público<input name="publicName" value={form.publicName || ''} onChange={handleChange} /></label>
+          <label>Nombre interno del sistema<input name="businessName" value={form.businessName || ''} onChange={handleChange} placeholder="Nombre usado dentro del CRM" /></label>
+          <p className="settings-help-text">Se usa internamente en CRM, reportes técnicos y configuración del sistema.</p>
+          <label>Nombre público visible<input name="publicName" value={form.publicName || ''} onChange={handleChange} placeholder="Nombre que ve el cliente" /></label>
+          <p className="settings-help-text">Se usa en web pública, presupuestos, PDF, emails y comunicaciones.</p>
           <label>Razón social<input name="legalName" value={form.legalName || ''} onChange={handleChange} placeholder="Opcional" /></label>
           <label>CUIT / CUIL<input name="taxId" value={form.taxId || ''} onChange={handleChange} placeholder="Opcional" /></label>
-          <label>Logo URL<input name="logoUrl" value={form.logoUrl || ''} onChange={handleChange} placeholder="Opcional" /></label>
+        </article>
+
+        <article className="panel-card">
+          <h2>Logo</h2>
+          <input ref={logoInputRef} className="hidden-file-input" type="file" accept="image/*" onChange={handleLogoUpload} />
+          <div className="settings-logo-preview">
+            {form.logoUrl ? <img src={resolveAssetUrl(form.logoUrl)} alt="Logo del negocio" /> : <span>Sin logo cargado</span>}
+          </div>
+          <button className="crm-button" type="button" onClick={() => logoInputRef.current?.click()} disabled={uploadingLogo}>
+            {uploadingLogo ? <Loader2 size={16} className="spin-icon" /> : <UploadCloud size={16} />} Cargar logo
+          </button>
+          <label>URL del logo<input name="logoUrl" value={form.logoUrl || ''} onChange={handleChange} placeholder="Se completa automáticamente al cargar archivo" /></label>
+          <p className="settings-help-text">El logo queda preparado para PDF, presupuestos, comunicaciones y futuras plantillas.</p>
         </article>
 
         <article className="panel-card">
           <h2>Contacto</h2>
           <label>Email<input name="email" type="email" value={form.email || ''} onChange={handleChange} /></label>
-          <label>Teléfono<input name="phone" value={form.phone || ''} onChange={handleChange} /></label>
-          <label>WhatsApp<input name="whatsapp" value={form.whatsapp || ''} onChange={handleChange} /></label>
+          <label>Teléfono y WhatsApp<input name="phone" value={form.phone || ''} onChange={handleChange} /></label>
+          <p className="settings-help-text">Usamos el mismo número para llamadas y WhatsApp. El sistema lo normaliza internamente al guardar.</p>
           <label>Sitio web<input name="website" value={form.website || ''} onChange={handleChange} placeholder="https://..." /></label>
         </article>
 
@@ -103,7 +150,8 @@ export default function BusinessSettingsPanel() {
           <label>Ciudad<input name="city" value={form.city || ''} onChange={handleChange} /></label>
           <label>Provincia<input name="province" value={form.province || ''} onChange={handleChange} /></label>
           <label>País<input name="country" value={form.country || ''} onChange={handleChange} /></label>
-          <label>Google Maps<input name="googleMapsUrl" value={form.googleMapsUrl || ''} onChange={handleChange} /></label>
+          <label>Link de ubicación en Google Maps<input name="googleMapsUrl" value={form.googleMapsUrl || ''} onChange={handleChange} /></label>
+          <p className="settings-help-text">Sirve por si el taller cambia de ubicación o si se quiere actualizar el link público del mapa.</p>
         </article>
 
         <article className="panel-card">
@@ -121,6 +169,16 @@ export default function BusinessSettingsPanel() {
           <label>Margen comercial %<input name="defaultMargin" type="number" min="0" step="0.01" value={form.defaultMargin || 0} onChange={handleChange} /></label>
           <label>Ganancia sugerida %<input name="defaultProfitMargin" type="number" min="0" step="0.01" value={form.defaultProfitMargin || 0} onChange={handleChange} /></label>
           <p className="settings-help-text">Estos valores sirven como base para presupuestos. Al generar uno nuevo se pueden modificar manualmente.</p>
+        </article>
+
+        <article className="panel-card settings-integrations-card">
+          <h2>Integraciones futuras</h2>
+          <p className="settings-help-text">Estas conexiones quedan pensadas para una próxima versión si César decide automatizar pagos, facturación o servicios externos.</p>
+          <div className="settings-integration-actions">
+            <button className="crm-button" type="button" disabled><CreditCard size={16} /> Conectar Mercado Pago</button>
+            <button className="crm-button" type="button" disabled><Landmark size={16} /> Conectar ARCA</button>
+          </div>
+          <p className="settings-help-text">Próximamente / V2. Por ahora no realizan ninguna acción.</p>
         </article>
       </div>
     </form>
