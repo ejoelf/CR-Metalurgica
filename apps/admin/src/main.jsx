@@ -21,6 +21,7 @@ import './styles/gallery.css';
 import './styles/messages.css';
 import './styles/notifications.css';
 import './styles/audit.css';
+import './styles/settings.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
