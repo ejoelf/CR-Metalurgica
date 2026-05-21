@@ -35,6 +35,10 @@ export default function LoginPage() {
 
   return (
     <main className="login-page">
+      <a className="login-back-link ghost-button" href={publicWebUrl}>
+        <ArrowLeft size={18} /> Volver a la web
+      </a>
+
       <section className="login-card">
         <div className="login-brand">
           <span className="login-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
@@ -58,10 +62,6 @@ export default function LoginPage() {
           <button className="primary-button" type="submit" disabled={loading}>{loading ? 'Ingresando...' : 'Ingresar'}</button>
           {error && <p className="error-box">{error}</p>}
         </form>
-
-        <a className="login-back-link ghost-button" href={publicWebUrl}>
-          <ArrowLeft size={18} /> Volver a la web
-        </a>
       </section>
     </main>
   );
