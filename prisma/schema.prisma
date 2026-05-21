@@ -225,39 +225,58 @@ model Job {
 }
 
 model Quote {
-  id             String      @id @default(uuid())
-  quoteNumber    String      @unique
-  clientId       String
-  client         Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  jobId          String?
-  job            Job?        @relation(fields: [jobId], references: [id], onDelete: SetNull)
-  title          String
-  description    String?
-  status         QuoteStatus @default(draft)
-  materialsCost  Decimal     @default(0)
-  laborCost      Decimal     @default(0)
-  paintCost      Decimal     @default(0)
-  extraCost      Decimal     @default(0)
-  subtotal       Decimal     @default(0)
-  discount       Decimal     @default(0)
-  profitMargin   Decimal     @default(15)
-  total          Decimal     @default(0)
-  validUntil     DateTime?
-  sentAt         DateTime?
-  approvedAt     DateTime?
-  rejectedAt     DateTime?
-  pdfUrl         String?
-  internalNotes  String?
-  createdById    String?
-  createdBy      User?       @relation("QuoteCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-  items          QuoteItem[]
-  pdfDocuments   PdfDocument[]
-  incomes        Income[]
-  expenses       Expense[]
-  agendaEvents   AgendaEvent[]
-  files          File[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id                    String      @id @default(uuid())
+  quoteNumber           String      @unique
+  clientId              String?
+  client                Client?     @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  jobId                 String?
+  job                   Job?        @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  title                 String
+  description           String?
+  status                QuoteStatus @default(draft)
+  recipientName         String?
+  recipientCompany      String?
+  recipientContactName  String?
+  recipientPhone        String?
+  recipientEmail        String?
+  recipientTaxId        String?
+  recipientAddress      String?
+  recipientCity         String?
+  recipientProvince     String?
+  recipientAdminAddress String?
+  workObject            String?
+  workLocation          String?
+  includedTasks         String?
+  excludedTasks         String?
+  technicalNotes        String?
+  paymentTerms          String?
+  executionTime         String?
+  warranty              String?
+  commercialConditions  String?
+  materialsCost         Decimal     @default(0)
+  laborCost             Decimal     @default(0)
+  paintCost             Decimal     @default(0)
+  extraCost             Decimal     @default(0)
+  subtotal              Decimal     @default(0)
+  discount              Decimal     @default(0)
+  profitMargin          Decimal     @default(15)
+  total                 Decimal     @default(0)
+  validUntil            DateTime?
+  sentAt                DateTime?
+  approvedAt            DateTime?
+  rejectedAt            DateTime?
+  pdfUrl                String?
+  internalNotes         String?
+  createdById           String?
+  createdBy             User?       @relation("QuoteCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  items                 QuoteItem[]
+  pdfDocuments          PdfDocument[]
+  incomes               Income[]
+  expenses              Expense[]
+  agendaEvents          AgendaEvent[]
+  files                 File[]
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
 
   @@map("quotes")
 }
@@ -269,8 +288,10 @@ model QuoteItem {
   name        String
   description String?
   quantity    Decimal  @default(1)
+  unit         String?  @default("unidad")
   unitPrice   Decimal  @default(0)
   total       Decimal  @default(0)
+  note        String?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -419,12 +440,6 @@ model File {
   sizeBytes    Int?
   entityType   String?
   entityId     String?
-  clientId     String?
-  client       Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  jobId        String?
-  job          Job?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
-  quoteId      String?
-  quote        Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
   uploadedById String?
   uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
   createdAt    DateTime @default(now())
