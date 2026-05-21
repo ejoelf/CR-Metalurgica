@@ -3,6 +3,10 @@ import StatusBadge from '../../components/common/StatusBadge.jsx';
 import { QUOTE_STATUS_LABELS } from '../../utils/statusLabels.js';
 import { formatDate, formatMoney } from '../../utils/formatters.js';
 
+function getRecipientName(quote) {
+  return quote.client?.fullName || quote.recipientName || quote.recipientCompany || quote.recipientContactName || 'Destinatario manual';
+}
+
 export default function QuoteCard({ quote, onOpen, onStatusChange }) {
   return (
     <article className="quote-card-v2" role="button" tabIndex={0} onClick={() => onOpen(quote)} onKeyDown={(event) => event.key === 'Enter' && onOpen(quote)}>
@@ -10,7 +14,7 @@ export default function QuoteCard({ quote, onOpen, onStatusChange }) {
         <span className="quote-card-icon"><Receipt size={22} /></span>
         <div>
           <strong>{quote.quoteNumber || 'Sin número'} · {quote.title || 'Presupuesto sin título'}</strong>
-          <p><UserRound size={14} /> {quote.client?.fullName || 'Sin cliente'}</p>
+          <p><UserRound size={14} /> {getRecipientName(quote)}</p>
         </div>
       </header>
 
