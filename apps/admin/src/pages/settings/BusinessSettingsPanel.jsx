@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CreditCard, Landmark, Loader2, Save, UploadCloud } from 'lucide-react';
 import { settingsService } from '../../services/settingsService.js';
 import { uploadsService } from '../../services/uploadsService.js';
-
-const API_BASE_URL = (import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:4000/api').replace(/\/api\/?$/, '');
+import { resolveAssetUrl } from '../../utils/assetUrl.js';
 
 const initialForm = {
   businessName: 'CF Metal Pintura',
@@ -15,6 +14,7 @@ const initialForm = {
   email: 'cesarromanisio6@gmail.com',
   website: '',
   logoUrl: '',
+  signatureUrl: '',
   address: 'Las Higueras, Río Cuarto, Córdoba',
   city: 'Las Higueras',
   province: 'Córdoba',
@@ -33,18 +33,14 @@ function normalizePhoneForWhatsapp(value = '') {
   return String(value).replace(/[^0-9]/g, '');
 }
 
-function resolveAssetUrl(value = '') {
-  if (!value) return '';
-  if (value.startsWith('http') || value.startsWith('data:')) return value;
-  return `${API_BASE_URL}${value}`;
-}
-
 export default function BusinessSettingsPanel() {
   const [form, setForm] = useState(initialForm);
   const [feedback, setFeedback] = useState(null);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingSignature, setUploadingSignature] = useState(false);
   const logoInputRef = useRef(null);
+  const signatureInputRef = useRef(null);
 
   useEffect(() => {
     settingsService.getBusinessSettings()
@@ -56,22 +52,32 @@ export default function BusinessSettingsPanel() {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
   }
 
+  async function uploadAsset(file, fieldName, setUploading, successMessage) {
+    try {
+      setUploading(true);
+      setFeedback(null);
+      const uploaded = await uploadsService.uploadImage(file);
+      setForm((current) => ({ ...current, [fieldName]: uploaded.url }));
+      setFeedback(successMessage);
+    } catch (error) {
+      setFeedback(`No se pudo cargar la imagen: ${error.message}`);
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function handleLogoUpload(event) {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file) return;
+    await uploadAsset(file, 'logoUrl', setUploadingLogo, 'Logo cargado correctamente. Recordá guardar la configuración.');
+  }
 
-    try {
-      setUploadingLogo(true);
-      setFeedback(null);
-      const uploaded = await uploadsService.uploadImage(file);
-      setForm((current) => ({ ...current, logoUrl: uploaded.url }));
-      setFeedback('Logo cargado correctamente. Recordá guardar la configuración.');
-    } catch (error) {
-      setFeedback(`No se pudo cargar el logo: ${error.message}`);
-    } finally {
-      setUploadingLogo(false);
-    }
+  async function handleSignatureUpload(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    await uploadAsset(file, 'signatureUrl', setUploadingSignature, 'Firma digital cargada correctamente. Recordá guardar la configuración.');
   }
 
   async function handleSubmit(event) {
@@ -107,7 +113,7 @@ export default function BusinessSettingsPanel() {
           <h2>Datos comerciales</h2>
           <p>Información central del negocio para CRM, web pública, presupuestos, PDF y reportes.</p>
         </div>
-        <button className="primary-button" type="submit" disabled={saving || uploadingLogo}>
+        <button className="primary-button" type="submit" disabled={saving || uploadingLogo || uploadingSignature}>
           <Save size={18} /> {saving ? 'Guardando...' : 'Guardar configuración'}
         </button>
       </div>
@@ -135,7 +141,20 @@ export default function BusinessSettingsPanel() {
             {uploadingLogo ? <Loader2 size={16} className="spin-icon" /> : <UploadCloud size={16} />} Cargar logo
           </button>
           <label>URL del logo<input name="logoUrl" value={form.logoUrl || ''} onChange={handleChange} placeholder="Se completa automáticamente al cargar archivo" /></label>
-          <p className="settings-help-text">El logo queda preparado para PDF, presupuestos, comunicaciones y futuras plantillas.</p>
+          <p className="settings-help-text">Este logo se usa en web pública, login, CRM y PDF. El favicon queda fijo.</p>
+        </article>
+
+        <article className="panel-card">
+          <h2>Firma digital</h2>
+          <input ref={signatureInputRef} className="hidden-file-input" type="file" accept="image/*" onChange={handleSignatureUpload} />
+          <div className="settings-logo-preview settings-signature-preview">
+            {form.signatureUrl ? <img src={resolveAssetUrl(form.signatureUrl)} alt="Firma digital" /> : <span>Sin firma cargada</span>}
+          </div>
+          <button className="crm-button" type="button" onClick={() => signatureInputRef.current?.click()} disabled={uploadingSignature}>
+            {uploadingSignature ? <Loader2 size={16} className="spin-icon" /> : <UploadCloud size={16} />} Cargar firma
+          </button>
+          <label>URL de la firma<input name="signatureUrl" value={form.signatureUrl || ''} onChange={handleChange} placeholder="Se completa automáticamente al cargar archivo" /></label>
+          <p className="settings-help-text">La firma queda disponible para presupuestos. En cada PDF César elige si la incluye o no.</p>
         </article>
 
         <article className="panel-card">
