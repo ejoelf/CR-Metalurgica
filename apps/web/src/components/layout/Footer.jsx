@@ -1,17 +1,21 @@
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
-import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import { cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
 import WhatsAppIcon from '../common/WhatsAppIcon.jsx';
 import { businessInfo, services } from '../../data/siteData.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
+import { usePublicBranding } from '../../hooks/usePublicBranding.js';
 
 export default function Footer() {
+  const branding = usePublicBranding();
+  const brandName = branding.publicName || branding.businessName;
+
   return (
     <footer className="site-footer editorial-footer">
       <div className="container editorial-footer-top">
         <div className="editorial-footer-brand">
-          <span className="footer-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
+          <span className="footer-logo-mark"><img src={branding.logoUrl} alt="Logo" /></span>
           <div>
-            <strong>{cfBrandName}</strong>
+            <strong>{brandName}</strong>
             <p>{cfBrandSlogan}</p>
           </div>
         </div>
@@ -44,7 +48,7 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom container editorial-footer-bottom">
-        <span>© {new Date().getFullYear()} {cfBrandName}</span>
+        <span>© {new Date().getFullYear()} {brandName}</span>
         <span>Desarrollado por <a href="https://nexo-digital.tech" target="_blank" rel="noreferrer">NexoDigital</a></span>
       </div>
     </footer>
