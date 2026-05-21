@@ -14,6 +14,7 @@ const allowedFields = [
   'country',
   'website',
   'logoUrl',
+  'signatureUrl',
   'instagramUrl',
   'facebookUrl',
   'googleMapsUrl',
@@ -40,6 +41,27 @@ function normalizeSettingsPayload(data = {}) {
   });
 
   return payload;
+}
+
+function toPublicBranding(settings) {
+  return {
+    businessName: settings.businessName,
+    publicName: settings.publicName,
+    legalName: settings.legalName,
+    email: settings.email,
+    phone: settings.phone,
+    whatsapp: settings.whatsapp,
+    address: settings.address,
+    city: settings.city,
+    province: settings.province,
+    country: settings.country,
+    website: settings.website,
+    logoUrl: settings.logoUrl,
+    signatureUrl: settings.signatureUrl,
+    instagramUrl: settings.instagramUrl,
+    facebookUrl: settings.facebookUrl,
+    googleMapsUrl: settings.googleMapsUrl,
+  };
 }
 
 export const settingsService = {
@@ -69,6 +91,11 @@ export const settingsService = {
         defaultProfitMargin: 15,
       },
     });
+  },
+
+  async getPublicBranding() {
+    const settings = await this.getBusinessSettings();
+    return toPublicBranding(settings);
   },
 
   async updateBusinessSettings(data) {
