@@ -3,7 +3,16 @@ import path from 'node:path';
 import PDFDocument from 'pdfkit';
 import { prisma } from '../config/prisma.js';
 import { env } from '../config/env.js';
-import { cfBrandName, cfLogoDataUrl } from '../../../../packages/branding/cfLogo.js';
+import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../packages/branding/cfLogo.js';
+
+const PAGE = { left: 50, right: 545, width: 495, bottom: 760 };
+const COLORS = {
+  ink: '#1f1f1c',
+  muted: '#6b665d',
+  line: '#ded8cc',
+  accent: '#b56f36',
+  soft: '#f6f1e8',
+};
 
 function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
@@ -23,15 +32,152 @@ function dataUrlToBuffer(dataUrl) {
   return base64 ? Buffer.from(base64, 'base64') : null;
 }
 
-function drawRow(doc, label, value, y, options = {}) {
-  const left = options.left || 58;
-  const right = options.right || 390;
-  doc.font('Helvetica').fontSize(9).fillColor('#6b7280').text(label, left, y, { width: 260 });
-  doc.font('Helvetica-Bold').fontSize(10).fillColor('#111827').text(value, right, y, { width: 150, align: 'right' });
+function text(value, fallback = '-') {
+  const clean = String(value || '').trim();
+  return clean || fallback;
 }
 
-function drawSeparator(doc, y) {
-  doc.strokeColor('#e5e7eb').lineWidth(1).moveTo(58, y).lineTo(535, y).stroke();
+function splitLines(value) {
+  return String(value || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function ensureSpace(doc, y, needed = 90) {
+  if (y + needed <= PAGE.bottom) return y;
+  doc.addPage();
+  return 56;
+}
+
+function sectionTitle(doc, title, y) {
+  y = ensureSpace(doc, y, 42);
+  doc.font('Helvetica-Bold').fontSize(12).fillColor(COLORS.ink).text(title, PAGE.left, y);
+  doc.moveTo(PAGE.left, y + 19).lineTo(PAGE.right, y + 19).strokeColor(COLORS.line).lineWidth(1).stroke();
+  return y + 32;
+}
+
+function paragraph(doc, value, y, options = {}) {
+  if (!value) return y;
+  y = ensureSpace(doc, y, 70);
+  const width = options.width || PAGE.width;
+  doc.font(options.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(options.size || 9.5).fillColor(options.color || COLORS.muted);
+  doc.text(String(value), options.x || PAGE.left, y, { width, lineGap: 3 });
+  return doc.y + 10;
+}
+
+function bulletList(doc, value, y) {
+  const lines = splitLines(value);
+  if (!lines.length) return y;
+  for (const line of lines) {
+    y = ensureSpace(doc, y, 28);
+    doc.font('Helvetica').fontSize(9.5).fillColor(COLORS.muted).text(`• ${line.replace(/^[-•]\s*/, '')}`, PAGE.left + 8, y, { width: PAGE.width - 16, lineGap: 3 });
+    y = doc.y + 5;
+  }
+  return y + 4;
+}
+
+function drawInfoLine(doc, label, value, x, y, width = 230) {
+  if (!value) return y;
+  doc.font('Helvetica-Bold').fontSize(8).fillColor(COLORS.accent).text(label.toUpperCase(), x, y, { width });
+  doc.font('Helvetica').fontSize(9.5).fillColor(COLORS.ink).text(value, x, y + 12, { width, lineGap: 2 });
+  return doc.y + 8;
+}
+
+function getRecipient(quote) {
+  return {
+    name: quote.recipientName || quote.client?.fullName || quote.recipientCompany || 'Cliente no informado',
+    company: quote.recipientCompany,
+    contact: quote.recipientContactName,
+    phone: quote.recipientPhone || quote.client?.phone,
+    email: quote.recipientEmail || quote.client?.email,
+    taxId: quote.recipientTaxId || quote.client?.taxId,
+    address: quote.recipientAdminAddress || quote.recipientAddress || quote.client?.address,
+    city: quote.recipientCity || quote.client?.city,
+    province: quote.recipientProvince,
+  };
+}
+
+function drawHeader(doc, quote, logoBuffer) {
+  doc.rect(0, 0, 595.28, 116).fill(COLORS.ink);
+
+  if (logoBuffer) doc.image(logoBuffer, PAGE.left, 20, { width: 92, height: 62, fit: [92, 62] });
+
+  doc.font('Helvetica-Bold').fontSize(18).fillColor('#ffffff').text(cfBrandName || 'CF Metal-Pintura', 155, 30, { width: 240 });
+  doc.font('Helvetica').fontSize(9.5).fillColor('#d9d2c6').text(cfBrandSlogan || 'Soluciones Integrales', 155, 55, { width: 240 });
+  doc.font('Helvetica').fontSize(8.5).fillColor('#d9d2c6').text('Herrería · Metalúrgica · Pintura · Obra', 155, 73, { width: 280 });
+
+  doc.font('Helvetica-Bold').fontSize(13).fillColor('#ffffff').text(`Presupuesto N.º ${text(quote.quoteNumber, '')}`, 360, 30, { width: 185, align: 'right' });
+  doc.font('Helvetica').fontSize(8.5).fillColor('#d9d2c6').text(`Fecha: ${formatDate(quote.createdAt)}`, 360, 54, { width: 185, align: 'right' });
+  doc.text(`Validez: ${formatDate(quote.validUntil)}`, 360, 70, { width: 185, align: 'right' });
+
+  return 142;
+}
+
+function drawCostTable(doc, quote, y) {
+  y = sectionTitle(doc, 'Detalle de costos', y);
+  doc.rect(PAGE.left, y, PAGE.width, 24).fill(COLORS.soft);
+  doc.font('Helvetica-Bold').fontSize(8).fillColor(COLORS.ink);
+  doc.text('Concepto', PAGE.left + 8, y + 8, { width: 112 });
+  doc.text('Descripción', PAGE.left + 126, y + 8, { width: 205 });
+  doc.text('Cant.', PAGE.left + 340, y + 8, { width: 42, align: 'right' });
+  doc.text('Monto', PAGE.left + 392, y + 8, { width: 95, align: 'right' });
+  y += 32;
+
+  const items = quote.items?.length ? quote.items : [];
+  if (!items.length) return paragraph(doc, 'Sin ítems detallados.', y);
+
+  for (const item of items) {
+    y = ensureSpace(doc, y, 62);
+    const quantity = Number(item.quantity || 1);
+    const unitPrice = Number(item.unitPrice || 0);
+    const total = Number(item.total || quantity * unitPrice);
+    const description = [item.description, item.note].filter(Boolean).join(' · ');
+    const rowHeight = Math.max(42, doc.heightOfString(description || '-', { width: 205 }) + 22);
+
+    doc.moveTo(PAGE.left, y - 5).lineTo(PAGE.right, y - 5).strokeColor(COLORS.line).lineWidth(.5).stroke();
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(COLORS.ink).text(text(item.name, 'Ítem'), PAGE.left + 8, y, { width: 112 });
+    doc.font('Helvetica').fontSize(8.5).fillColor(COLORS.muted).text(text(description), PAGE.left + 126, y, { width: 205, lineGap: 2 });
+    doc.font('Helvetica').fontSize(8.5).fillColor(COLORS.ink).text(`${quantity} ${text(item.unit, '')}`, PAGE.left + 340, y, { width: 42, align: 'right' });
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(COLORS.ink).text(formatMoney(total), PAGE.left + 392, y, { width: 95, align: 'right' });
+    y += rowHeight;
+  }
+
+  return y + 4;
+}
+
+function drawTotals(doc, quote, y) {
+  y = ensureSpace(doc, y, 160);
+  const x = 330;
+  const w = 215;
+  const rows = [
+    ['Subtotal', formatMoney(quote.subtotal)],
+    [`Margen (${Number(quote.profitMargin || 0)}%)`, formatMoney(Number(quote.subtotal || 0) * (Number(quote.profitMargin || 0) / 100))],
+    ['Descuento', formatMoney(quote.discount)],
+  ];
+
+  if (Number(quote.materialsCost || 0)) rows.unshift(['Materiales', formatMoney(quote.materialsCost)]);
+  if (Number(quote.laborCost || 0)) rows.unshift(['Mano de obra', formatMoney(quote.laborCost)]);
+  if (Number(quote.paintCost || 0)) rows.unshift(['Pintura', formatMoney(quote.paintCost)]);
+  if (Number(quote.extraCost || 0)) rows.unshift(['Extra / traslado', formatMoney(quote.extraCost)]);
+
+  doc.rect(x, y, w, rows.length * 20 + 52).fill(COLORS.soft);
+  let cursor = y + 12;
+  rows.forEach(([label, value]) => {
+    doc.font('Helvetica').fontSize(8.5).fillColor(COLORS.muted).text(label, x + 14, cursor, { width: 95 });
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(COLORS.ink).text(value, x + 100, cursor, { width: 95, align: 'right' });
+    cursor += 20;
+  });
+
+  doc.rect(x, cursor + 6, w, 36).fill(COLORS.ink);
+  doc.font('Helvetica-Bold').fontSize(10).fillColor('#ffffff').text('TOTAL GENERAL ESTIMADO', x + 14, cursor + 19, { width: 110 });
+  doc.font('Helvetica-Bold').fontSize(13).fillColor('#ffffff').text(formatMoney(quote.total), x + 122, cursor + 17, { width: 78, align: 'right' });
+  return cursor + 58;
+}
+
+function drawFooter(doc) {
+  const bottom = 786;
+  doc.font('Helvetica').fontSize(8).fillColor('#9b9488').text('Atentamente, CF Metal Pintura Romanisio · Documento generado por CF Metal-Pintura PRO', PAGE.left, bottom, { width: PAGE.width, align: 'center' });
 }
 
 export const quotePdfService = {
@@ -56,93 +202,60 @@ export const quotePdfService = {
     const publicUrl = `/storage/pdfs/${fileName}`;
 
     await new Promise((resolve, reject) => {
-      const doc = new PDFDocument({ size: 'A4', margin: 50 });
+      const doc = new PDFDocument({ size: 'A4', margin: 50, autoFirstPage: true });
       const stream = fs.createWriteStream(filePath);
       doc.pipe(stream);
 
+      const recipient = getRecipient(quote);
       const logoBuffer = dataUrlToBuffer(cfLogoDataUrl);
-      if (logoBuffer) {
-        doc.image(logoBuffer, 58, 40, { width: 62, height: 62 });
+      let y = drawHeader(doc, quote, logoBuffer);
+
+      const leftY = drawInfoLine(doc, 'Destinatario', recipient.name, PAGE.left, y);
+      drawInfoLine(doc, 'Empresa', recipient.company, PAGE.left, leftY);
+      drawInfoLine(doc, 'Contacto', recipient.contact, PAGE.left, doc.y + 4);
+      drawInfoLine(doc, 'Administración / Dirección', [recipient.address, recipient.city, recipient.province].filter(Boolean).join(' · '), PAGE.left, doc.y + 4, 245);
+
+      drawInfoLine(doc, 'De', 'CF Metal Pintura Romanisio', 330, y, 215);
+      drawInfoLine(doc, 'Dirección', 'Pasaje Mirage 41, Las Higueras, Córdoba', 330, doc.y + 4, 215);
+      drawInfoLine(doc, 'Teléfonos', '(358) 155719450 / (358) 1554283261', 330, doc.y + 4, 215);
+      if (recipient.phone || recipient.email || recipient.taxId) {
+        drawInfoLine(doc, 'Datos cliente', [recipient.phone, recipient.email, recipient.taxId].filter(Boolean).join(' · '), 330, doc.y + 4, 215);
       }
 
-      doc.font('Helvetica-Bold').fontSize(20).fillColor('#111827').text(cfBrandName || 'CF Metal-Pintura', 135, 45);
-      doc.font('Helvetica').fontSize(10).fillColor('#6b7280').text('Presupuesto profesional de herrería, metalúrgica y pintura', 135, 72);
-      doc.font('Helvetica-Bold').fontSize(13).fillColor('#d8843f').text(quote.quoteNumber || 'Presupuesto', 390, 45, { width: 145, align: 'right' });
-      doc.font('Helvetica').fontSize(9).fillColor('#6b7280').text(`Emitido: ${formatDate(quote.createdAt)}`, 390, 68, { width: 145, align: 'right' });
-      doc.text(`Validez: ${formatDate(quote.validUntil)}`, 390, 84, { width: 145, align: 'right' });
+      y = Math.max(doc.y + 18, 270);
+      y = sectionTitle(doc, 'Detalle del trabajo solicitado', y);
+      y = paragraph(doc, quote.workObject ? `Objeto: ${quote.workObject}` : quote.title, y, { bold: Boolean(quote.workObject), color: COLORS.ink });
+      if (quote.workLocation) y = paragraph(doc, `Ubicación de obra: ${quote.workLocation}`, y, { color: COLORS.ink });
+      y = paragraph(doc, quote.description, y);
 
-      drawSeparator(doc, 120);
-
-      doc.font('Helvetica-Bold').fontSize(13).fillColor('#111827').text('Datos del cliente', 58, 142);
-      doc.font('Helvetica').fontSize(10).fillColor('#374151').text(quote.client?.fullName || 'Cliente no informado', 58, 165);
-      doc.fillColor('#6b7280').text(`Teléfono: ${quote.client?.phone || '-'}`, 58, 182);
-      doc.text(`Email: ${quote.client?.email || '-'}`, 58, 197);
-      doc.text(`Dirección: ${quote.client?.address || '-'} ${quote.client?.city ? `· ${quote.client.city}` : ''}`, 58, 212);
-
-      doc.font('Helvetica-Bold').fontSize(13).fillColor('#111827').text('Presupuesto', 315, 142);
-      doc.font('Helvetica-Bold').fontSize(11).fillColor('#374151').text(quote.title || '-', 315, 165, { width: 220 });
-      doc.font('Helvetica').fontSize(10).fillColor('#6b7280').text(`Trabajo relacionado: ${quote.job?.title || '-'}`, 315, 190, { width: 220 });
-      doc.text(`Estado: ${quote.status || 'draft'}`, 315, 205, { width: 220 });
-
-      drawSeparator(doc, 245);
-
-      doc.font('Helvetica-Bold').fontSize(13).fillColor('#111827').text('Detalle de ítems', 58, 265);
-      let y = 292;
-      doc.font('Helvetica-Bold').fontSize(9).fillColor('#6b7280');
-      doc.text('Concepto', 58, y);
-      doc.text('Cant.', 330, y, { width: 45, align: 'right' });
-      doc.text('Unitario', 390, y, { width: 70, align: 'right' });
-      doc.text('Total', 465, y, { width: 70, align: 'right' });
-      y += 18;
-      drawSeparator(doc, y);
-      y += 10;
-
-      const items = quote.items?.length ? quote.items : [];
-      if (!items.length) {
-        doc.font('Helvetica').fontSize(10).fillColor('#6b7280').text('Sin ítems detallados.', 58, y);
-        y += 20;
+      if (quote.includedTasks) {
+        y = sectionTitle(doc, 'Alcance / tareas incluidas', y);
+        y = bulletList(doc, quote.includedTasks, y);
       }
 
-      items.forEach((item) => {
-        if (y > 700) {
-          doc.addPage();
-          y = 60;
-        }
-        const quantity = Number(item.quantity || 1);
-        const unitPrice = Number(item.unitPrice || 0);
-        const total = Number(item.total || quantity * unitPrice);
-        doc.font('Helvetica-Bold').fontSize(10).fillColor('#111827').text(item.name || 'Ítem', 58, y, { width: 250 });
-        if (item.description) doc.font('Helvetica').fontSize(8).fillColor('#6b7280').text(item.description, 58, y + 13, { width: 250 });
-        doc.font('Helvetica').fontSize(9).fillColor('#374151').text(String(quantity), 330, y, { width: 45, align: 'right' });
-        doc.text(formatMoney(unitPrice), 390, y, { width: 70, align: 'right' });
-        doc.font('Helvetica-Bold').text(formatMoney(total), 465, y, { width: 70, align: 'right' });
-        y += item.description ? 36 : 24;
-      });
+      y = drawCostTable(doc, quote, y);
+      y = drawTotals(doc, quote, y);
 
-      y += 12;
-      drawSeparator(doc, y);
-      y += 18;
+      const conditions = [
+        quote.excludedTasks,
+        quote.technicalNotes,
+        quote.paymentTerms ? `Forma de pago: ${quote.paymentTerms}` : '',
+        quote.executionTime ? `Plazo estimado: ${quote.executionTime}` : '',
+        quote.warranty ? `Garantía: ${quote.warranty}` : '',
+        quote.commercialConditions,
+      ].filter(Boolean).join('\n');
 
-      const totalsY = Math.max(y, 560);
-      drawRow(doc, 'Materiales', formatMoney(quote.materialsCost), totalsY);
-      drawRow(doc, 'Mano de obra', formatMoney(quote.laborCost), totalsY + 18);
-      drawRow(doc, 'Pintura', formatMoney(quote.paintCost), totalsY + 36);
-      drawRow(doc, 'Extra / traslado / viáticos', formatMoney(quote.extraCost), totalsY + 54);
-      drawRow(doc, 'Subtotal', formatMoney(quote.subtotal), totalsY + 78);
-      drawRow(doc, `Margen (${Number(quote.profitMargin || 0)}%)`, formatMoney(Number(quote.subtotal || 0) * (Number(quote.profitMargin || 0) / 100)), totalsY + 96);
-      drawRow(doc, 'Descuento', formatMoney(quote.discount), totalsY + 114);
-
-      doc.rect(58, totalsY + 140, 477, 42).fill('#111827');
-      doc.font('Helvetica-Bold').fontSize(12).fillColor('#ffffff').text('TOTAL FINAL', 75, totalsY + 154);
-      doc.font('Helvetica-Bold').fontSize(16).fillColor('#ffffff').text(formatMoney(quote.total), 350, totalsY + 151, { width: 165, align: 'right' });
-
-      if (quote.description || quote.internalNotes) {
-        doc.font('Helvetica-Bold').fontSize(11).fillColor('#111827').text('Notas', 58, totalsY + 205);
-        doc.font('Helvetica').fontSize(9).fillColor('#6b7280').text(quote.description || quote.internalNotes || '', 58, totalsY + 222, { width: 477 });
+      if (conditions) {
+        y = sectionTitle(doc, 'Condiciones', y + 12);
+        y = bulletList(doc, conditions, y);
       }
 
-      doc.font('Helvetica').fontSize(8).fillColor('#9ca3af').text('Documento generado por CF Metal-Pintura PRO · NexoDigital', 58, 790, { width: 477, align: 'center' });
+      if (quote.internalNotes) {
+        y = sectionTitle(doc, 'Observaciones internas / comerciales', y + 6);
+        y = paragraph(doc, quote.internalNotes, y);
+      }
 
+      drawFooter(doc);
       doc.end();
       stream.on('finish', resolve);
       stream.on('error', reject);
