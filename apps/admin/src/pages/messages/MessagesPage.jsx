@@ -92,7 +92,7 @@ export default function MessagesPage() {
 
     setReplyAction({
       title: 'Responder mensaje',
-      description: 'Elegí si querés responder por Gmail o por WhatsApp Web. En esta V1, si respondés por email, la respuesta del cliente llegará al Gmail configurado.',
+      description: 'Elegí si querés responder por Gmail o por WhatsApp Web.',
       actions: [
         { label: 'Responder por Gmail', description: email || 'El mensaje no tiene email cargado', icon: Mail, disabled: !email, onClick: () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`, '_blank', 'noopener,noreferrer'); setReplyAction(null); } },
         { label: 'Responder por WhatsApp', description: phone ? message.phone : 'El mensaje no tiene teléfono cargado', icon: MessageCircle, disabled: !phone, onClick: () => { window.open(`https://wa.me/${phone}?text=${whatsappText}`, '_blank', 'noopener,noreferrer'); setReplyAction(null); } },
@@ -153,11 +153,6 @@ export default function MessagesPage() {
         description="Consultas de la web pública organizadas para responder, archivar o convertir en clientes."
         action={<button className="primary-button" type="button" onClick={openGmailInbox}><ExternalLink size={18} /> Abrir Gmail</button>}
       />
-
-      <section className="messages-help-card">
-        <Mail size={18} />
-        <p><strong>V1 simple:</strong> las respuestas por email se redactan en Gmail y las respuestas del cliente llegan al correo configurado. En V2 conectaremos Gmail API para leer respuestas dentro del CRM.</p>
-      </section>
 
       <section className="toolbar-card messages-toolbar-v2">
         <div className="messages-folder-tabs">
