@@ -3,7 +3,7 @@ import path from 'node:path';
 import PDFDocument from 'pdfkit';
 import { prisma } from '../config/prisma.js';
 import { env } from '../config/env.js';
-import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../packages/branding/cfLogo.js';
+import { cfBrandName, cfBrandSlogan } from '../../../../packages/branding/cfLogo.js';
 
 const PAGE = { left: 50, right: 545, width: 495, bottom: 760 };
 const COLORS = {
@@ -25,11 +25,6 @@ function formatMoney(value) {
 function formatDate(value) {
   if (!value) return '-';
   return new Intl.DateTimeFormat('es-AR', { dateStyle: 'medium', timeZone: 'America/Argentina/Cordoba' }).format(new Date(value));
-}
-
-function dataUrlToBuffer(dataUrl) {
-  const base64 = String(dataUrl || '').split(',')[1];
-  return base64 ? Buffer.from(base64, 'base64') : null;
 }
 
 function text(value, fallback = '-') {
@@ -98,14 +93,24 @@ function getRecipient(quote) {
   };
 }
 
-function drawHeader(doc, quote, logoBuffer) {
-  doc.rect(0, 0, 595.28, 116).fill(COLORS.ink);
+function drawPdfLogo(doc, x, y) {
+  doc.save();
+  doc.roundedRect(x, y, 86, 64, 10).fill('#f7f3ea');
+  doc.fillColor(COLORS.ink);
+  doc.polygon([x + 10, y + 24], [x + 43, y + 7], [x + 78, y + 24], [x + 78, y + 32], [x + 43, y + 15], [x + 10, y + 32]).fill();
+  doc.rect(x + 20, y + 34, 17, 18).fill();
+  doc.rect(x + 47, y + 28, 17, 24).fill();
+  doc.font('Helvetica-Bold').fontSize(16).fillColor('#f7f3ea').text('CF', x + 52, y + 39, { width: 28, align: 'center' });
+  doc.font('Helvetica-Bold').fontSize(7).fillColor(COLORS.ink).text('METAL-PINTURA', x + 8, y + 54, { width: 70, align: 'center' });
+  doc.restore();
+}
 
-  if (logoBuffer) doc.image(logoBuffer, PAGE.left, 20, { width: 92, height: 62, fit: [92, 62] });
+function drawHeader(doc, quote) {
+  doc.rect(0, 0, 595.28, 116).fill(COLORS.ink);
+  drawPdfLogo(doc, PAGE.left, 22);
 
   doc.font('Helvetica-Bold').fontSize(18).fillColor('#ffffff').text(cfBrandName || 'CF Metal-Pintura', 155, 30, { width: 240 });
   doc.font('Helvetica').fontSize(9.5).fillColor('#d9d2c6').text(cfBrandSlogan || 'Soluciones Integrales', 155, 55, { width: 240 });
-  doc.font('Helvetica').fontSize(8.5).fillColor('#d9d2c6').text('Herrería · Metalúrgica · Pintura · Obra', 155, 73, { width: 280 });
 
   doc.font('Helvetica-Bold').fontSize(13).fillColor('#ffffff').text(`Presupuesto N.º ${text(quote.quoteNumber, '')}`, 360, 30, { width: 185, align: 'right' });
   doc.font('Helvetica').fontSize(8.5).fillColor('#d9d2c6').text(`Fecha: ${formatDate(quote.createdAt)}`, 360, 54, { width: 185, align: 'right' });
@@ -177,7 +182,7 @@ function drawTotals(doc, quote, y) {
 
 function drawFooter(doc) {
   const bottom = 786;
-  doc.font('Helvetica').fontSize(8).fillColor('#9b9488').text('Atentamente, CF Metal Pintura Romanisio · Documento generado por CF Metal-Pintura PRO', PAGE.left, bottom, { width: PAGE.width, align: 'center' });
+  doc.font('Helvetica').fontSize(8).fillColor('#9b9488').text('Atentamente, CF Metal Pintura Romanisio · Soluciones Integrales · Documento generado por CF Metal-Pintura PRO', PAGE.left, bottom, { width: PAGE.width, align: 'center' });
 }
 
 export const quotePdfService = {
@@ -207,8 +212,7 @@ export const quotePdfService = {
       doc.pipe(stream);
 
       const recipient = getRecipient(quote);
-      const logoBuffer = dataUrlToBuffer(cfLogoDataUrl);
-      let y = drawHeader(doc, quote, logoBuffer);
+      let y = drawHeader(doc, quote);
 
       const leftY = drawInfoLine(doc, 'Destinatario', recipient.name, PAGE.left, y);
       drawInfoLine(doc, 'Empresa', recipient.company, PAGE.left, leftY);
