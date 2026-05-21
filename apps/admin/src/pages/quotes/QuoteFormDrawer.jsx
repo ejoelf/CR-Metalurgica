@@ -10,8 +10,8 @@ import { QUOTE_STATUS_LABELS } from '../../utils/statusLabels.js';
 import { formatDate, formatDateTime, formatMoney, toInputDate } from '../../utils/formatters.js';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-const LOCAL_DRAFT_KEY = 'cf-metal-quote-local-draft-v1';
-const EMPTY_ITEM = { name: '', description: '', quantity: 1, unitPrice: 0 };
+const LOCAL_DRAFT_KEY = 'cf-metal-quote-local-draft-v2';
+const EMPTY_ITEM = { name: '', description: '', quantity: 1, unit: 'unidad', unitPrice: 0, note: '' };
 const EMPTY_FORM = {
   clientId: '',
   jobId: '',
@@ -19,6 +19,25 @@ const EMPTY_FORM = {
   description: '',
   status: 'draft',
   validUntil: '',
+  recipientName: '',
+  recipientCompany: '',
+  recipientContactName: '',
+  recipientPhone: '',
+  recipientEmail: '',
+  recipientTaxId: '',
+  recipientAddress: '',
+  recipientCity: '',
+  recipientProvince: '',
+  recipientAdminAddress: '',
+  workObject: '',
+  workLocation: '',
+  includedTasks: '',
+  excludedTasks: '',
+  technicalNotes: '',
+  paymentTerms: '',
+  executionTime: '',
+  warranty: '',
+  commercialConditions: '',
   materialsCost: 0,
   laborCost: 0,
   paintCost: 0,
@@ -38,6 +57,25 @@ function toForm(quote) {
     description: quote.description || '',
     status: quote.status || 'draft',
     validUntil: toInputDate(quote.validUntil),
+    recipientName: quote.recipientName || '',
+    recipientCompany: quote.recipientCompany || '',
+    recipientContactName: quote.recipientContactName || '',
+    recipientPhone: quote.recipientPhone || '',
+    recipientEmail: quote.recipientEmail || '',
+    recipientTaxId: quote.recipientTaxId || '',
+    recipientAddress: quote.recipientAddress || '',
+    recipientCity: quote.recipientCity || '',
+    recipientProvince: quote.recipientProvince || '',
+    recipientAdminAddress: quote.recipientAdminAddress || '',
+    workObject: quote.workObject || '',
+    workLocation: quote.workLocation || '',
+    includedTasks: quote.includedTasks || '',
+    excludedTasks: quote.excludedTasks || '',
+    technicalNotes: quote.technicalNotes || '',
+    paymentTerms: quote.paymentTerms || '',
+    executionTime: quote.executionTime || '',
+    warranty: quote.warranty || '',
+    commercialConditions: quote.commercialConditions || '',
     materialsCost: quote.materialsCost ?? 0,
     laborCost: quote.laborCost ?? 0,
     paintCost: quote.paintCost ?? 0,
@@ -45,7 +83,7 @@ function toForm(quote) {
     discount: quote.discount ?? 0,
     profitMargin: quote.profitMargin ?? 15,
     internalNotes: quote.internalNotes || '',
-    items: quote.items?.length ? quote.items.map((item) => ({ name: item.name || '', description: item.description || '', quantity: item.quantity ?? 1, unitPrice: item.unitPrice ?? 0 })) : [{ ...EMPTY_ITEM }],
+    items: quote.items?.length ? quote.items.map((item) => ({ name: item.name || '', description: item.description || '', quantity: item.quantity ?? 1, unit: item.unit || 'unidad', unitPrice: item.unitPrice ?? 0, note: item.note || '' })) : [{ ...EMPTY_ITEM }],
   };
 }
 
@@ -59,17 +97,14 @@ function calculateTotals(form) {
 
 function hasUsefulDraftData(form) {
   return Boolean(
-    form.title ||
-    form.description ||
-    form.clientId ||
-    form.jobId ||
-    form.internalNotes ||
-    Number(form.materialsCost || 0) > 0 ||
-    Number(form.laborCost || 0) > 0 ||
-    Number(form.paintCost || 0) > 0 ||
-    Number(form.extraCost || 0) > 0 ||
+    form.title || form.description || form.clientId || form.jobId || form.recipientName || form.recipientCompany || form.workObject || form.workLocation || form.includedTasks || form.commercialConditions || form.internalNotes ||
+    Number(form.materialsCost || 0) > 0 || Number(form.laborCost || 0) > 0 || Number(form.paintCost || 0) > 0 || Number(form.extraCost || 0) > 0 ||
     (form.items || []).some((item) => item.name || item.description || Number(item.unitPrice || 0) > 0)
   );
+}
+
+function hasRecipient(form) {
+  return Boolean(form.clientId || form.recipientName || form.recipientCompany || form.recipientContactName);
 }
 
 function readLocalDraft() {
@@ -147,7 +182,7 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
 
   function recoverDraft() {
     if (draftPrompt?.form) {
-      setForm(draftPrompt.form);
+      setForm({ ...EMPTY_FORM, ...draftPrompt.form });
       setLocalSavedAt(draftPrompt.savedAt || null);
     }
     setDraftPrompt(null);
@@ -164,6 +199,22 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
   function handleChange(event) {
     const { name, value } = event.target;
     setForm((state) => ({ ...state, [name]: value }));
+  }
+
+  function handleClientChange(event) {
+    const clientId = event.target.value;
+    const client = clients.find((item) => item.id === clientId);
+    setForm((state) => ({
+      ...state,
+      clientId,
+      jobId: '',
+      recipientName: client ? client.fullName || '' : state.recipientName,
+      recipientPhone: client ? client.phone || '' : state.recipientPhone,
+      recipientEmail: client ? client.email || '' : state.recipientEmail,
+      recipientAddress: client ? client.address || '' : state.recipientAddress,
+      recipientCity: client ? client.city || '' : state.recipientCity,
+      recipientTaxId: client ? client.taxId || '' : state.recipientTaxId,
+    }));
   }
 
   function handleItemChange(index, field, value) {
@@ -197,18 +248,19 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
 
   function openSendActions() {
     const client = clients.find((item) => item.id === form.clientId) || quote?.client;
-    const email = client?.email;
-    const phone = String(client?.phone || '').replace(/[^0-9]/g, '');
+    const recipientName = form.recipientName || form.recipientCompany || client?.fullName || '';
+    const email = form.recipientEmail || client?.email;
+    const phone = String(form.recipientPhone || client?.phone || '').replace(/[^0-9]/g, '');
     const subject = encodeURIComponent(`Presupuesto ${quote?.quoteNumber || ''} - CF Metal-Pintura`);
-    const body = encodeURIComponent(`Hola ${client?.fullName || ''}, te enviamos el presupuesto solicitado.\n\n${pdfUrl ? `PDF: ${pdfUrl}\n\n` : ''}Saludos, CF Metal-Pintura.`);
-    const whatsappText = encodeURIComponent(`Hola ${client?.fullName || ''}, te enviamos el presupuesto solicitado de CF Metal-Pintura.${pdfUrl ? `\nPDF: ${pdfUrl}` : ''}`);
+    const body = encodeURIComponent(`Hola ${recipientName}, te enviamos el presupuesto solicitado.\n\n${pdfUrl ? `PDF: ${pdfUrl}\n\n` : ''}Saludos, CF Metal-Pintura.`);
+    const whatsappText = encodeURIComponent(`Hola ${recipientName}, te enviamos el presupuesto solicitado de CF Metal-Pintura.${pdfUrl ? `\nPDF: ${pdfUrl}` : ''}`);
 
     setSendAction({
       title: 'Enviar presupuesto',
       description: 'Elegí el medio para enviar este presupuesto. Luego se marcará como enviado.',
       actions: [
-        { label: 'Enviar por Gmail', description: email ? email : 'El cliente no tiene email cargado', icon: Mail, disabled: !email, onClick: () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`, '_blank', 'noopener,noreferrer'); onMarkSent?.(quote); setSendAction(null); } },
-        { label: 'Enviar por WhatsApp', description: phone ? client.phone : 'El cliente no tiene teléfono cargado', icon: MessageCircle, disabled: !phone, onClick: () => { window.open(`https://wa.me/${phone}?text=${whatsappText}`, '_blank', 'noopener,noreferrer'); onMarkSent?.(quote); setSendAction(null); } },
+        { label: 'Enviar por Gmail', description: email ? email : 'No hay email cargado', icon: Mail, disabled: !email, onClick: () => { window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`, '_blank', 'noopener,noreferrer'); onMarkSent?.(quote); setSendAction(null); } },
+        { label: 'Enviar por WhatsApp', description: phone ? form.recipientPhone || client?.phone : 'No hay teléfono cargado', icon: MessageCircle, disabled: !phone, onClick: () => { window.open(`https://wa.me/${phone}?text=${whatsappText}`, '_blank', 'noopener,noreferrer'); onMarkSent?.(quote); setSendAction(null); } },
       ],
     });
   }
@@ -223,7 +275,7 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
       {mode === 'edit' && <button className="crm-button" type="button" onClick={openSendActions}>Enviar</button>}
       {mode === 'edit' && <button className="crm-button danger" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={16} /> Eliminar</button>}
       <button className="crm-button ghost" type="button" onClick={onClose}>Cancelar</button>
-      <button className="crm-button primary" type="submit" form="quote-form" disabled={saving || !hasChanges || !form.clientId || !form.title}>
+      <button className="crm-button primary" type="submit" form="quote-form" disabled={saving || !hasChanges || !hasRecipient(form) || !form.title}>
         <Save size={16} /> {saving ? 'Guardando...' : 'Guardar borrador'}
       </button>
     </>
@@ -234,7 +286,7 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
       <BaseDrawer
         isOpen={isOpen}
         title={mode === 'create' ? 'Nuevo presupuesto' : `${quote?.quoteNumber || ''} · ${quote?.title || 'Presupuesto'}`}
-        description="Creá, editá, calculá y prepará presupuestos con ítems, costos, margen y validez."
+        description="Creá presupuestos completos con cliente existente o destinatario manual, alcance de obra, condiciones e ítems detallados."
         onClose={onClose}
         size="xl"
         footer={footer}
@@ -255,14 +307,39 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
 
         <form id="quote-form" className="quote-detail-grid" onSubmit={handleSubmit}>
           <section className="quote-panel">
+            <h3>Destinatario</h3>
+            <div className="quote-form-grid">
+              <label className="crm-field"><span>Cliente existente</span><select name="clientId" value={form.clientId} onChange={handleClientChange}><option value="">Cliente no registrado / carga manual</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.fullName}</option>)}</select></label>
+              <label className="crm-field"><span>Empresa / Razón social</span><input name="recipientCompany" value={form.recipientCompany} onChange={handleChange} placeholder="Globoaves Argentina" /></label>
+              <label className="crm-field"><span>Nombre / Destinatario</span><input name="recipientName" value={form.recipientName} onChange={handleChange} placeholder="Nombre del cliente o destinatario" /></label>
+              <label className="crm-field"><span>Contacto / Responsable</span><input name="recipientContactName" value={form.recipientContactName} onChange={handleChange} placeholder="Persona de contacto" /></label>
+              <label className="crm-field"><span>Teléfono</span><input name="recipientPhone" value={form.recipientPhone} onChange={handleChange} placeholder="Teléfono / WhatsApp" /></label>
+              <label className="crm-field"><span>Email</span><input name="recipientEmail" type="email" value={form.recipientEmail} onChange={handleChange} placeholder="email@empresa.com" /></label>
+              <label className="crm-field"><span>CUIT / DNI</span><input name="recipientTaxId" value={form.recipientTaxId} onChange={handleChange} placeholder="Opcional" /></label>
+              <label className="crm-field"><span>Ciudad / Provincia</span><input name="recipientCity" value={form.recipientCity} onChange={handleChange} placeholder="Río Cuarto, Córdoba" /></label>
+              <label className="crm-field quote-span-2"><span>Dirección / Administración central</span><input name="recipientAdminAddress" value={form.recipientAdminAddress} onChange={handleChange} placeholder="Sobremonte 70 - Piso 6, Paseo de la Ribera..." /></label>
+            </div>
+          </section>
+
+          <section className="quote-panel">
             <h3>Datos generales</h3>
             <div className="quote-form-grid">
-              <label className="crm-field"><span>Cliente</span><select name="clientId" value={form.clientId} onChange={handleChange} required><option value="">Seleccionar cliente</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.fullName}</option>)}</select></label>
               <label className="crm-field"><span>Trabajo relacionado</span><select name="jobId" value={form.jobId} onChange={handleChange}><option value="">Sin trabajo relacionado</option>{filteredJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}</select></label>
               <label className="crm-field"><span>Título</span><input name="title" value={form.title} onChange={handleChange} required placeholder="Presupuesto para portón, estructura..." /></label>
               <label className="crm-field"><span>Validez hasta</span><input name="validUntil" type="date" value={form.validUntil} onChange={handleChange} /></label>
               <label className="crm-field"><span>Estado</span><select name="status" value={form.status} onChange={handleChange}>{Object.entries(QUOTE_STATUS_LABELS).filter(([value]) => ['draft', 'sent', 'approved', 'rejected', 'expired', 'cancelled'].includes(value)).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-              <label className="crm-field quote-span-2"><span>Descripción</span><textarea name="description" value={form.description} onChange={handleChange} placeholder="Descripción general del trabajo presupuestado" /></label>
+              <label className="crm-field quote-span-2"><span>Objeto del presupuesto</span><textarea name="workObject" value={form.workObject} onChange={handleChange} placeholder="Fabricación, armado, pintura, desmontaje y colocación..." /></label>
+              <label className="crm-field quote-span-2"><span>Ubicación de obra</span><input name="workLocation" value={form.workLocation} onChange={handleChange} placeholder="A coordinar / dirección de obra" /></label>
+              <label className="crm-field quote-span-2"><span>Descripción general</span><textarea name="description" value={form.description} onChange={handleChange} placeholder="Descripción general del trabajo presupuestado" /></label>
+            </div>
+          </section>
+
+          <section className="quote-panel quote-span-2">
+            <h3>Alcance y condiciones técnicas</h3>
+            <div className="quote-form-grid">
+              <label className="crm-field quote-span-2"><span>Tareas incluidas</span><textarea name="includedTasks" value={form.includedTasks} onChange={handleChange} placeholder="Una tarea por línea: fabricación, soldado, pintura, desmontaje..." /></label>
+              <label className="crm-field quote-span-2"><span>Exclusiones / No incluye</span><textarea name="excludedTasks" value={form.excludedTasks} onChange={handleChange} placeholder="Ej: No incluye motor reductor, trabajos adicionales..." /></label>
+              <label className="crm-field quote-span-2"><span>Notas técnicas</span><textarea name="technicalNotes" value={form.technicalNotes} onChange={handleChange} placeholder="Materiales, medidas, aclaraciones técnicas, CAPER, etc." /></label>
             </div>
           </section>
 
@@ -270,11 +347,13 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
             <h3>Ítems del presupuesto</h3>
             <div className="quote-items-list">
               {form.items.map((item, index) => (
-                <article className="quote-item-row" key={index}>
-                  <label className="crm-field"><span>Ítem</span><input value={item.name} onChange={(event) => handleItemChange(index, 'name', event.target.value)} placeholder="Material, trabajo, traslado..." /></label>
+                <article className="quote-item-row quote-item-row-pro" key={index}>
+                  <label className="crm-field"><span>Concepto</span><input value={item.name} onChange={(event) => handleItemChange(index, 'name', event.target.value)} placeholder="Fabricación y montaje" /></label>
                   <label className="crm-field"><span>Detalle</span><input value={item.description} onChange={(event) => handleItemChange(index, 'description', event.target.value)} placeholder="Detalle opcional" /></label>
                   <label className="crm-field"><span>Cant.</span><input type="number" min="0" step="0.01" value={item.quantity} onChange={(event) => handleItemChange(index, 'quantity', event.target.value)} /></label>
+                  <label className="crm-field"><span>Unidad</span><input value={item.unit} onChange={(event) => handleItemChange(index, 'unit', event.target.value)} placeholder="unidad / global / m2" /></label>
                   <MoneyInput label="Precio unit." value={item.unitPrice} onChange={(event) => handleItemChange(index, 'unitPrice', event.target.value)} />
+                  <label className="crm-field"><span>Nota</span><input value={item.note} onChange={(event) => handleItemChange(index, 'note', event.target.value)} placeholder="Opcional" /></label>
                   <button className="crm-icon-button quote-remove-item" type="button" onClick={() => removeItem(index)} disabled={form.items.length <= 1} aria-label="Quitar ítem"><X size={16} /></button>
                 </article>
               ))}
@@ -312,8 +391,18 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
           </section>
 
           <section className="quote-panel quote-span-2">
+            <h3>Condiciones comerciales</h3>
+            <div className="quote-form-grid">
+              <label className="crm-field"><span>Forma de pago</span><textarea name="paymentTerms" value={form.paymentTerms} onChange={handleChange} placeholder="Anticipo, saldo, transferencia, efectivo..." /></label>
+              <label className="crm-field"><span>Plazo estimado</span><textarea name="executionTime" value={form.executionTime} onChange={handleChange} placeholder="A coordinar / 15 días hábiles..." /></label>
+              <label className="crm-field"><span>Garantía</span><textarea name="warranty" value={form.warranty} onChange={handleChange} placeholder="Opcional" /></label>
+              <label className="crm-field"><span>Condiciones adicionales</span><textarea name="commercialConditions" value={form.commercialConditions} onChange={handleChange} placeholder="Una condición por línea" /></label>
+            </div>
+          </section>
+
+          <section className="quote-panel quote-span-2">
             <h3>Notas internas</h3>
-            <label className="crm-field"><textarea name="internalNotes" value={form.internalNotes} onChange={handleChange} placeholder="Notas internas, condiciones o aclaraciones" /></label>
+            <label className="crm-field"><textarea name="internalNotes" value={form.internalNotes} onChange={handleChange} placeholder="Notas internas que no necesariamente salen en el PDF" /></label>
           </section>
         </form>
       </BaseDrawer>
