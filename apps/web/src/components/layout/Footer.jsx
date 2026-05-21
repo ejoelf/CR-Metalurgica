@@ -1,5 +1,5 @@
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
-import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import WhatsAppIcon from '../common/WhatsAppIcon.jsx';
 import { businessInfo, services } from '../../data/siteData.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
@@ -12,7 +12,7 @@ export default function Footer() {
           <span className="footer-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
           <div>
             <strong>{cfBrandName}</strong>
-            <p>Metalúrgica, pintura, durlock y soluciones de obra a medida.</p>
+            <p>{cfBrandSlogan}</p>
           </div>
         </div>
         <a className="editorial-footer-cta" href={buildWhatsAppUrl(businessInfo.whatsapp, quoteMessage())} target="_blank" rel="noreferrer">
