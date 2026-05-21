@@ -15,7 +15,7 @@ const priorityWeight = { urgent: 0, high: 1, normal: 2, low: 3 };
 function groupJobsByStatus(jobs) {
   return statusOrder.map((status) => ({
     status,
-    label: JOB_STATUS_LABELS[status],
+    label: JOB_STATUS_LABELS[status] || status,
     jobs: jobs
       .filter((job) => job.status === status)
       .sort((a, b) => {
@@ -210,7 +210,7 @@ export default function JobsPage() {
                   ))}
                 </div>
               ) : (
-                <div className="jobs-empty-line">Sin trabajos en {group.label.toLowerCase()}.</div>
+                <div className="jobs-empty-line">Sin trabajos en {(group.label || 'este estado').toLowerCase()}.</div>
               )}
             </section>
           ))}
