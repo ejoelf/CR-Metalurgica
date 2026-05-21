@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import { Bell, CalendarDays, FileClock, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench } from 'lucide-react';
+import { Bell, CalendarDays, FileClock, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench, X } from 'lucide-react';
 import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useSidebarCounts } from '../../hooks/useSidebarCounts.js';
+
+const publicWebUrl = import.meta.env.VITE_PUBLIC_WEB_URL || 'http://localhost:5173/';
 
 const items = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
@@ -30,14 +32,16 @@ function canSeeItem(item, role) {
   return item.roles.includes(role);
 }
 
-export default function Sidebar({ collapsed = false, onToggle, onNavigate }) {
+export default function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onNavigate }) {
   const { logout, isAuthenticated, user } = useAuth();
   const { counts } = useSidebarCounts({ enabled: isAuthenticated });
   const visibleItems = items.filter((item) => canSeeItem(item, user?.role));
+  const ToggleIcon = mobileOpen ? X : Menu;
 
   function handleLogout() {
     onNavigate?.();
     logout();
+    window.location.href = publicWebUrl;
   }
 
   return (
@@ -49,8 +53,8 @@ export default function Sidebar({ collapsed = false, onToggle, onNavigate }) {
             <strong>{cfBrandName}</strong>
           </div>
         </div>
-        <button className="sidebar-toggle" type="button" onClick={onToggle} aria-label="Alternar menú lateral">
-          <Menu size={18} />
+        <button className="sidebar-toggle" type="button" onClick={onToggle} aria-label={mobileOpen ? 'Cerrar menú lateral' : 'Alternar menú lateral'}>
+          <ToggleIcon size={18} />
         </button>
       </div>
 
