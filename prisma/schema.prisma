@@ -440,6 +440,12 @@ model File {
   sizeBytes    Int?
   entityType   String?
   entityId     String?
+  clientId     String?
+  client       Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  jobId        String?
+  job          Job?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  quoteId      String?
+  quote        Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
   uploadedById String?
   uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
   createdAt    DateTime @default(now())
