@@ -13,10 +13,67 @@ function visibleForUserWhere(userId = null) {
   };
 }
 
+function todayRange() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 1);
+  return { start, end };
+}
+
+function formatAgendaTime(value) {
+  return new Intl.DateTimeFormat('es-AR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Argentina/Cordoba',
+  }).format(new Date(value));
+}
+
+async function ensureTodayAgendaReminders(userId = null) {
+  const { start, end } = todayRange();
+
+  const events = await prisma.agendaEvent.findMany({
+    where: {
+      startAt: { gte: start, lt: end },
+      status: 'scheduled',
+      ...(userId ? { OR: [{ assignedToId: userId }, { assignedToId: null }] } : {}),
+    },
+    include: { client: true, job: true },
+  });
+
+  for (const event of events) {
+    const targetUserId = event.assignedToId || null;
+    const exists = await prisma.notification.findFirst({
+      where: {
+        entityType: 'agendaEventReminder',
+        entityId: event.id,
+        OR: [{ userId: targetUserId }, { userId: null }],
+      },
+    });
+
+    if (exists) continue;
+
+    const context = [event.client?.fullName, event.job?.title, event.location].filter(Boolean).join(' · ');
+
+    await prisma.notification.create({
+      data: {
+        userId: targetUserId,
+        title: 'Recordatorio de agenda para hoy',
+        message: `${formatAgendaTime(event.startAt)} · ${event.title}${context ? ` · ${context}` : ''}`,
+        type: 'reminder',
+        entityType: 'agendaEventReminder',
+        entityId: event.id,
+      },
+    });
+  }
+}
+
 export const notificationsService = {
   ...crud,
 
   async findMany(query = {}, userId = null) {
+    await ensureTodayAgendaReminders(userId);
+
     return prisma.notification.findMany({
       where: {
         ...visibleForUserWhere(userId),
@@ -41,6 +98,8 @@ export const notificationsService = {
   },
 
   async unreadCount(userId = null) {
+    await ensureTodayAgendaReminders(userId);
+
     return prisma.notification.count({
       where: { ...visibleForUserWhere(userId), isRead: false },
     });
