@@ -6,7 +6,7 @@ import { env } from '../config/env.js';
 import { cfBrandName, cfBrandSlogan } from '../../../../packages/branding/cfLogo.js';
 
 const PAGE = { left: 50, right: 545, width: 495, bottom: 744 };
-const COLORS = { ink: '#1f1f1c', muted: '#625d55', line: '#ded8cc', accent: '#c97835', soft: '#f7efe4', pale: '#fbf7f0' };
+const COLORS = { ink: '#1f1f1c', muted: '#625d55', line: '#ded8cc', accent: '#c97835', soft: '#f7efe4' };
 
 function ensureDir(dirPath) { if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true }); }
 function money(value) { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(Number(value || 0)); }
@@ -69,13 +69,6 @@ function bulletList(doc, value, y) {
   return y + 2;
 }
 
-function infoItem(doc, label, value, x, y, width) {
-  if (!value) return y;
-  doc.font('Helvetica-Bold').fontSize(7.8).fillColor(COLORS.accent).text(label.toUpperCase(), x, y, { width });
-  doc.font('Helvetica').fontSize(9).fillColor(COLORS.ink).text(clean(value), x, y + 11, { width, lineGap: 2 });
-  return doc.y + 8;
-}
-
 function getRecipient(quote) {
   return {
     name: quote.recipientName || quote.client?.fullName || quote.recipientCompany || 'Cliente no informado',
@@ -102,29 +95,25 @@ function drawHeader(doc, quote, settings) {
   return 140;
 }
 
-function drawStackedCard(doc, title, fields, y) {
-  const x = PAGE.left;
-  const width = PAGE.width;
-  y = fitPage(doc, y, 150);
-  doc.roundedRect(x, y, width, 28, 8).fill(COLORS.soft);
-  doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.accent).text(title, x + 14, y + 9, { width: width - 28 });
-  let cursor = y + 42;
-  fields.filter((item) => item.value).forEach((item, index) => {
-    const col = index % 2;
-    const rowY = cursor + Math.floor(index / 2) * 38;
-    const itemX = x + 14 + (col * 238);
-    infoItem(doc, item.label, item.value, itemX, rowY, 220);
+function drawPlainSection(doc, title, fields, y) {
+  const visible = fields.filter((item) => item.value);
+  if (!visible.length) return y;
+  y = fitPage(doc, y, 28 + visible.length * 18);
+  doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.accent).text(title, PAGE.left, y, { width: PAGE.width });
+  y += 18;
+  visible.forEach((item) => {
+    doc.font('Helvetica-Bold').fontSize(8).fillColor(COLORS.accent).text(`${item.label}:`, PAGE.left, y, { width: 118, continued: true });
+    doc.font('Helvetica').fontSize(9).fillColor(COLORS.ink).text(` ${clean(item.value)}`, { width: PAGE.width - 118 });
+    y = doc.y + 5;
   });
-  const rows = Math.ceil(fields.filter((item) => item.value).length / 2);
-  const height = 42 + Math.max(rows, 1) * 38 + 12;
-  doc.roundedRect(x, y, width, height, 10).strokeColor(COLORS.line).stroke();
-  return y + height + 16;
+  doc.moveTo(PAGE.left, y + 3).lineTo(PAGE.right, y + 3).strokeColor(COLORS.line).lineWidth(.6).stroke();
+  return y + 16;
 }
 
-function drawInfoCards(doc, quote, settings, y) {
+function drawInfoBlock(doc, quote, settings, y) {
   const r = getRecipient(quote);
-  y = drawStackedCard(doc, 'DATOS DEL CLIENTE', [
-    { label: 'Nombre / destinatario', value: r.name },
+  y = drawPlainSection(doc, 'DATOS DEL CLIENTE', [
+    { label: 'Nombre', value: r.name },
     { label: 'Empresa', value: r.company },
     { label: 'Contacto', value: r.contact },
     { label: 'Teléfono', value: r.phone },
@@ -132,14 +121,14 @@ function drawInfoCards(doc, quote, settings, y) {
     { label: 'CUIT / DNI', value: r.taxId },
     { label: 'Dirección', value: [r.address, r.city, r.province].filter(Boolean).join(' · ') },
   ], y);
-  y = drawStackedCard(doc, 'DATOS DEL EMISOR', [
+  y = drawPlainSection(doc, 'DATOS DEL EMISOR', [
     { label: 'Empresa', value: settings?.publicName || settings?.businessName || 'CF Metal-Pintura' },
     { label: 'Identidad', value: cfBrandSlogan },
     { label: 'Dirección', value: settings?.address || 'Pasaje Mirage 41, Las Higueras, Córdoba' },
     { label: 'Teléfono', value: settings?.phone || '(358) 155719450' },
     { label: 'Email', value: settings?.email },
   ], y);
-  return y + 4;
+  return y;
 }
 
 function drawCostTable(doc, quote, y) {
@@ -231,7 +220,7 @@ export const quotePdfService = {
       doc.pipe(stream);
       doc.on('pageAdded', () => drawPageFooter(doc));
       let y = drawHeader(doc, quote, settings);
-      y = drawInfoCards(doc, quote, settings, y);
+      y = drawInfoBlock(doc, quote, settings, y);
       y = heading(doc, 'Detalle del trabajo solicitado', y);
       y = paragraph(doc, quote.workObject ? `Objeto: ${quote.workObject}` : quote.title, y, { bold: Boolean(quote.workObject), color: COLORS.ink });
       if (quote.workLocation) y = paragraph(doc, `Ubicación de obra: ${quote.workLocation}`, y, { color: COLORS.ink });
