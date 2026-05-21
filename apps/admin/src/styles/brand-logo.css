@@ -58,7 +58,9 @@
   top: 24px;
   left: 24px;
   z-index: 5;
+  width: auto !important;
   min-height: 42px;
+  margin: 0 !important;
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -79,8 +81,21 @@
 }
 
 @media (max-width: 720px) {
+  .login-page {
+    align-content: center;
+    gap: 18px;
+  }
+
   .login-back-link {
     position: static;
-    margin: 18px;
+    order: 2;
+    width: min(100%, 520px) !important;
+    min-height: 48px;
+    margin: 0 auto !important;
+    padding: 0 16px;
+  }
+
+  .login-card {
+    order: 1;
   }
 }
