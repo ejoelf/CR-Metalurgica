@@ -27,6 +27,10 @@ export default function AdminLayout() {
     setSidebarCollapsed((value) => !value);
   }
 
+  function handleOpenMobileSidebar() {
+    setMobileSidebarOpen(true);
+  }
+
   function handleCloseMobileSidebar() {
     setMobileSidebarOpen(false);
   }
@@ -34,9 +38,9 @@ export default function AdminLayout() {
   return (
     <div className={`admin-shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''} ${mobileSidebarOpen ? 'mobile-sidebar-open' : ''}`}>
       {mobileSidebarOpen && <button className="mobile-sidebar-backdrop" type="button" aria-label="Cerrar menú" onClick={handleCloseMobileSidebar} />}
-      <Sidebar collapsed={sidebarCollapsed} onToggle={handleToggleSidebar} onNavigate={handleCloseMobileSidebar} />
+      <Sidebar collapsed={sidebarCollapsed} mobileOpen={mobileSidebarOpen} onToggle={handleToggleSidebar} onNavigate={handleCloseMobileSidebar} />
       <div className="admin-main">
-        <Topbar />
+        <Topbar onOpenMobileSidebar={handleOpenMobileSidebar} />
         <div className="admin-content">
           <Outlet />
         </div>
