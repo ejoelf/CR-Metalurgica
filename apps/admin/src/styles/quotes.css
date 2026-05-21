@@ -213,6 +213,10 @@
   background: rgba(0,0,0,.08);
 }
 
+.quote-item-row-pro {
+  grid-template-columns: minmax(150px, 1.1fr) minmax(180px, 1.2fr) 82px 105px 130px minmax(120px, .8fr) 40px;
+}
+
 .quote-remove-item {
   margin-bottom: 1px;
 }
@@ -254,10 +258,22 @@
   color: var(--crm-muted);
 }
 
+@media (max-width: 1180px) {
+  .quote-item-row-pro {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quote-item-row-pro .quote-remove-item {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
 @media (max-width: 980px) {
   .quotes-toolbar,
   .quote-form-grid,
-  .quote-item-row {
+  .quote-item-row,
+  .quote-item-row-pro {
     grid-template-columns: 1fr;
   }
 
