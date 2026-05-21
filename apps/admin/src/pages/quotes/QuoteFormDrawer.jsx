@@ -113,7 +113,7 @@ export default function QuoteFormDrawer({ isOpen, mode = 'create', quote, client
             <label className="crm-field"><span>Título</span><input name="title" value={form.title} onChange={handleChange} required /></label>
             <label className="crm-field"><span>Validez hasta</span><input name="validUntil" type="date" value={form.validUntil} onChange={handleChange} /></label>
             <label className="crm-field"><span>Estado</span><select name="status" value={form.status} onChange={handleChange}>{Object.entries(QUOTE_STATUS_LABELS).filter(([value]) => ['draft', 'sent', 'approved', 'rejected', 'expired', 'cancelled'].includes(value)).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-            <label className="crm-field quote-span-2"><span><input type="checkbox" name="includeDigitalSignature" checked={form.includeDigitalSignature} onChange={handleChange} /> Incluir firma digital en el PDF</span></label>
+            <label className="quote-signature-toggle quote-span-2"><input type="checkbox" name="includeDigitalSignature" checked={form.includeDigitalSignature} onChange={handleChange} /><span>Incluir firma digital en el PDF</span></label>
             <label className="crm-field quote-span-2"><span>Objeto del presupuesto</span><textarea name="workObject" value={form.workObject} onChange={handleChange} /></label>
             <label className="crm-field quote-span-2"><span>Ubicación de obra</span><input name="workLocation" value={form.workLocation} onChange={handleChange} /></label>
             <label className="crm-field quote-span-2"><span>Descripción general</span><textarea name="description" value={form.description} onChange={handleChange} /></label>
