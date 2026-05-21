@@ -70,13 +70,13 @@
 
 .sidebar-public-link.sidebar-logout-link {
   appearance: none !important;
-  width: calc(100% - 48px) !important;
+  width: 100% !important;
   min-height: 52px !important;
-  margin: auto 24px 24px !important;
-  padding: 0 18px !important;
+  margin: auto 0 24px !important;
+  padding: 0 24px !important;
   display: flex !important;
   align-items: center !important;
-  gap: 12px !important;
+  gap: 16px !important;
   font: inherit !important;
   font-size: .74rem !important;
   font-weight: 900 !important;
