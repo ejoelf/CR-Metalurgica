@@ -153,6 +153,7 @@ model BusinessSettings {
   country                  String?  @default("Argentina")
   website                  String?
   logoUrl                  String?
+  signatureUrl             String?
   instagramUrl             String?
   facebookUrl              String?
   googleMapsUrl            String?
@@ -253,6 +254,7 @@ model Quote {
   executionTime         String?
   warranty              String?
   commercialConditions  String?
+  includeDigitalSignature Boolean   @default(false)
   materialsCost         Decimal     @default(0)
   laborCost             Decimal     @default(0)
   paintCost             Decimal     @default(0)
