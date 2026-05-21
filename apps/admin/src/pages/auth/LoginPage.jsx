@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
-import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import { cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useBranding } from '../../hooks/useBranding.js';
 
 const publicWebUrl = import.meta.env.VITE_PUBLIC_WEB_URL || 'http://localhost:5173/';
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
+  const branding = useBranding();
+  const brandName = branding.publicName || branding.businessName;
   const [form, setForm] = useState({ identifier: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,9 +44,9 @@ export default function LoginPage() {
 
       <section className="login-card">
         <div className="login-brand">
-          <span className="login-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
+          <span className="login-logo-mark"><img src={branding.logoUrl} alt="Logo" /></span>
           <div>
-            <strong>{cfBrandName} PRO</strong>
+            <strong>{brandName}</strong>
             <small>{cfBrandSlogan}</small>
           </div>
         </div>
