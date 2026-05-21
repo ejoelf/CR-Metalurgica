@@ -102,30 +102,44 @@ function drawHeader(doc, quote, settings) {
   return 140;
 }
 
+function drawStackedCard(doc, title, fields, y) {
+  const x = PAGE.left;
+  const width = PAGE.width;
+  y = fitPage(doc, y, 150);
+  doc.roundedRect(x, y, width, 28, 8).fill(COLORS.soft);
+  doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.accent).text(title, x + 14, y + 9, { width: width - 28 });
+  let cursor = y + 42;
+  fields.filter((item) => item.value).forEach((item, index) => {
+    const col = index % 2;
+    const rowY = cursor + Math.floor(index / 2) * 38;
+    const itemX = x + 14 + (col * 238);
+    infoItem(doc, item.label, item.value, itemX, rowY, 220);
+  });
+  const rows = Math.ceil(fields.filter((item) => item.value).length / 2);
+  const height = 42 + Math.max(rows, 1) * 38 + 12;
+  doc.roundedRect(x, y, width, height, 10).strokeColor(COLORS.line).stroke();
+  return y + height + 16;
+}
+
 function drawInfoCards(doc, quote, settings, y) {
   const r = getRecipient(quote);
-  const cardW = 240;
-  const leftX = PAGE.left;
-  const rightX = PAGE.left + 255;
-  const cardH = 142;
-  doc.roundedRect(leftX, y, cardW, cardH, 10).fill(COLORS.pale).strokeColor(COLORS.line).stroke();
-  doc.roundedRect(rightX, y, cardW, cardH, 10).fill(COLORS.pale).strokeColor(COLORS.line).stroke();
-  doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.accent).text('DATOS DEL CLIENTE', leftX + 14, y + 14, { width: cardW - 28 });
-  doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.accent).text('DATOS DEL EMISOR', rightX + 14, y + 14, { width: cardW - 28 });
-  let ly = y + 36;
-  ly = infoItem(doc, 'Nombre / destinatario', r.name, leftX + 14, ly, cardW - 28);
-  ly = infoItem(doc, 'Empresa', r.company, leftX + 14, ly, cardW - 28);
-  ly = infoItem(doc, 'Contacto', r.contact, leftX + 14, ly, cardW - 28);
-  ly = infoItem(doc, 'Teléfono', r.phone, leftX + 14, ly, cardW - 28);
-  ly = infoItem(doc, 'Email', r.email, leftX + 14, ly, cardW - 28);
-  ly = infoItem(doc, 'Dirección', [r.address, r.city, r.province].filter(Boolean).join(' · '), leftX + 14, ly, cardW - 28);
-  let ry = y + 36;
-  ry = infoItem(doc, 'Empresa', settings?.publicName || settings?.businessName || 'CF Metal-Pintura', rightX + 14, ry, cardW - 28);
-  ry = infoItem(doc, 'Identidad', cfBrandSlogan, rightX + 14, ry, cardW - 28);
-  ry = infoItem(doc, 'Dirección', settings?.address || 'Pasaje Mirage 41, Las Higueras, Córdoba', rightX + 14, ry, cardW - 28);
-  ry = infoItem(doc, 'Teléfono', settings?.phone || '(358) 155719450', rightX + 14, ry, cardW - 28);
-  ry = infoItem(doc, 'Email', settings?.email, rightX + 14, ry, cardW - 28);
-  return y + cardH + 24;
+  y = drawStackedCard(doc, 'DATOS DEL CLIENTE', [
+    { label: 'Nombre / destinatario', value: r.name },
+    { label: 'Empresa', value: r.company },
+    { label: 'Contacto', value: r.contact },
+    { label: 'Teléfono', value: r.phone },
+    { label: 'Email', value: r.email },
+    { label: 'CUIT / DNI', value: r.taxId },
+    { label: 'Dirección', value: [r.address, r.city, r.province].filter(Boolean).join(' · ') },
+  ], y);
+  y = drawStackedCard(doc, 'DATOS DEL EMISOR', [
+    { label: 'Empresa', value: settings?.publicName || settings?.businessName || 'CF Metal-Pintura' },
+    { label: 'Identidad', value: cfBrandSlogan },
+    { label: 'Dirección', value: settings?.address || 'Pasaje Mirage 41, Las Higueras, Córdoba' },
+    { label: 'Teléfono', value: settings?.phone || '(358) 155719450' },
+    { label: 'Email', value: settings?.email },
+  ], y);
+  return y + 4;
 }
 
 function drawCostTable(doc, quote, y) {
