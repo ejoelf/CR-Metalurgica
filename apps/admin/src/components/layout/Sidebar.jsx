@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Bell, CalendarDays, FileClock, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench, X } from 'lucide-react';
-import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useSidebarCounts } from '../../hooks/useSidebarCounts.js';
 
@@ -51,6 +51,7 @@ export default function Sidebar({ collapsed = false, mobileOpen = false, onToggl
           <span className="sidebar-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
           <div className="sidebar-label">
             <strong>{cfBrandName}</strong>
+            <small>{cfBrandSlogan}</small>
           </div>
         </div>
         <button className="sidebar-toggle" type="button" onClick={onToggle} aria-label={mobileOpen ? 'Cerrar menú lateral' : 'Alternar menú lateral'}>
