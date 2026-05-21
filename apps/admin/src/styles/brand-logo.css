@@ -44,12 +44,17 @@
   line-height: 1.05;
 }
 
-.login-brand {
-  align-items: center;
+.sidebar-brand small,
+.login-brand small {
+  display: block !important;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 800;
 }
 
-.login-brand small {
-  display: none !important;
+.login-brand {
+  align-items: center;
 }
 
 .login-back-link {
