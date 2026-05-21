@@ -6,6 +6,8 @@ const crud = createCrudService('notification', {
   orderBy: { createdAt: 'desc' },
 });
 
+let agendaReminderSyncPromise = null;
+
 function visibleForUserWhere(userId = null) {
   return {
     OR: [{ userId }, { userId: null }],
@@ -30,42 +32,58 @@ function formatAgendaTime(value) {
 }
 
 async function ensureTodayAgendaReminders(userId = null) {
-  const { start, end } = todayRange();
+  if (agendaReminderSyncPromise) return agendaReminderSyncPromise;
 
-  const events = await prisma.agendaEvent.findMany({
-    where: {
-      startAt: { gte: start, lt: end },
-      status: 'scheduled',
-      ...(userId ? { OR: [{ assignedToId: userId }, { assignedToId: null }] } : {}),
-    },
-    include: { client: true, job: true },
+  agendaReminderSyncPromise = (async () => {
+    const { start, end } = todayRange();
+
+    const events = await prisma.agendaEvent.findMany({
+      where: {
+        startAt: { gte: start, lt: end },
+        status: 'scheduled',
+        ...(userId ? { OR: [{ assignedToId: userId }, { assignedToId: null }] } : {}),
+      },
+      include: { client: true, job: true },
+    });
+
+    for (const event of events) {
+      const targetUserId = event.assignedToId || null;
+      const existingReminders = await prisma.notification.findMany({
+        where: {
+          entityType: 'agendaEventReminder',
+          entityId: event.id,
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      if (existingReminders.length > 1) {
+        await prisma.notification.deleteMany({
+          where: {
+            id: { in: existingReminders.slice(1).map((item) => item.id) },
+          },
+        });
+      }
+
+      if (existingReminders.length > 0) continue;
+
+      const context = [event.client?.fullName, event.job?.title, event.location].filter(Boolean).join(' · ');
+
+      await prisma.notification.create({
+        data: {
+          userId: targetUserId,
+          title: 'Recordatorio de agenda para hoy',
+          message: `${formatAgendaTime(event.startAt)} · ${event.title}${context ? ` · ${context}` : ''}`,
+          type: 'reminder',
+          entityType: 'agendaEventReminder',
+          entityId: event.id,
+        },
+      });
+    }
+  })().finally(() => {
+    agendaReminderSyncPromise = null;
   });
 
-  for (const event of events) {
-    const targetUserId = event.assignedToId || null;
-    const exists = await prisma.notification.findFirst({
-      where: {
-        entityType: 'agendaEventReminder',
-        entityId: event.id,
-        OR: [{ userId: targetUserId }, { userId: null }],
-      },
-    });
-
-    if (exists) continue;
-
-    const context = [event.client?.fullName, event.job?.title, event.location].filter(Boolean).join(' · ');
-
-    await prisma.notification.create({
-      data: {
-        userId: targetUserId,
-        title: 'Recordatorio de agenda para hoy',
-        message: `${formatAgendaTime(event.startAt)} · ${event.title}${context ? ` · ${context}` : ''}`,
-        type: 'reminder',
-        entityType: 'agendaEventReminder',
-        entityId: event.id,
-      },
-    });
-  }
+  return agendaReminderSyncPromise;
 }
 
 export const notificationsService = {
