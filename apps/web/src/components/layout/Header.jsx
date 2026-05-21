@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { LogIn, Menu, X } from 'lucide-react';
-import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 
 const navItems = [
   { label: 'Inicio', to: '/' },
@@ -26,7 +26,7 @@ export default function Header() {
           </span>
           <span>
             <strong>{cfBrandName}</strong>
-            <small>Metalúrgica · Pintura · Obra</small>
+            <small>{cfBrandSlogan}</small>
           </span>
         </Link>
 
