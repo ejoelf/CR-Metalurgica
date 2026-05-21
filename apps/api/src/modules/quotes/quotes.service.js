@@ -2,9 +2,35 @@ import { prisma } from '../../config/prisma.js';
 import { badRequest, notFound } from '../../utils/ApiError.js';
 
 const allowedStatuses = ['draft', 'sent', 'approved', 'rejected', 'expired', 'cancelled'];
+const quoteTextFields = [
+  'recipientName',
+  'recipientCompany',
+  'recipientContactName',
+  'recipientPhone',
+  'recipientEmail',
+  'recipientTaxId',
+  'recipientAddress',
+  'recipientCity',
+  'recipientProvince',
+  'recipientAdminAddress',
+  'workObject',
+  'workLocation',
+  'includedTasks',
+  'excludedTasks',
+  'technicalNotes',
+  'paymentTerms',
+  'executionTime',
+  'warranty',
+  'commercialConditions',
+];
 
 function toNumber(value) {
   return Number(value || 0);
+}
+
+function cleanText(value) {
+  const text = String(value || '').trim();
+  return text || null;
 }
 
 function calculateTotals(data = {}) {
@@ -41,21 +67,38 @@ function validateStatus(status) {
   }
 }
 
+function buildQuoteTextPayload(data = {}) {
+  return quoteTextFields.reduce((acc, field) => {
+    acc[field] = cleanText(data[field]);
+    return acc;
+  }, {});
+}
+
+function hasRecipientData(data = {}) {
+  return Boolean(
+    data.clientId ||
+    cleanText(data.recipientName) ||
+    cleanText(data.recipientCompany) ||
+    cleanText(data.recipientContactName)
+  );
+}
+
 function normalizeQuotePayload(data = {}, user = null) {
   const totals = calculateTotals(data);
 
-  if (!data.clientId) throw badRequest('El cliente es requerido para guardar el presupuesto en esta versión');
+  if (!hasRecipientData(data)) throw badRequest('El presupuesto necesita un cliente existente o un destinatario manual');
   if (!data.title) throw badRequest('El título del presupuesto es requerido');
 
   validateStatus(data.status);
 
   return {
     quoteNumber: data.quoteNumber || `P-${Date.now()}`,
-    clientId: data.clientId,
+    clientId: data.clientId || null,
     jobId: data.jobId || null,
     title: String(data.title || '').trim(),
-    description: data.description ? String(data.description).trim() : null,
+    description: cleanText(data.description),
     status: data.status || 'draft',
+    ...buildQuoteTextPayload(data),
     materialsCost: totals.materialsCost,
     laborCost: totals.laborCost,
     paintCost: totals.paintCost,
@@ -65,9 +108,53 @@ function normalizeQuotePayload(data = {}, user = null) {
     profitMargin: totals.profitMargin,
     total: totals.total,
     validUntil: data.validUntil ? new Date(data.validUntil) : null,
-    internalNotes: data.internalNotes ? String(data.internalNotes).trim() : null,
+    internalNotes: cleanText(data.internalNotes),
     createdById: data.createdById || user?.id || null,
   };
+}
+
+function normalizeQuoteItems(items = []) {
+  return (Array.isArray(items) ? items : [])
+    .filter((item) => item?.name || item?.description || toNumber(item?.unitPrice) > 0)
+    .map((item, index) => {
+      const quantity = toNumber(item.quantity || 1);
+      const unitPrice = toNumber(item.unitPrice);
+      return {
+        name: String(item.name || `Ítem ${index + 1}`).trim(),
+        description: cleanText(item.description),
+        quantity,
+        unit: cleanText(item.unit) || 'unidad',
+        unitPrice,
+        total: quantity * unitPrice,
+        note: cleanText(item.note),
+        sortOrder: index,
+      };
+    });
+}
+
+async function ensureQuoteClient(quote, user = null) {
+  if (quote.clientId) return quote.clientId;
+
+  const fullName = quote.recipientName || quote.recipientCompany || quote.recipientContactName;
+  if (!fullName) throw badRequest('Para convertir este presupuesto en trabajo, cargá el nombre del destinatario o vinculá un cliente');
+
+  const client = await prisma.client.create({
+    data: {
+      fullName,
+      phone: quote.recipientPhone || 'Sin teléfono',
+      email: quote.recipientEmail || null,
+      address: quote.recipientAddress || quote.recipientAdminAddress || null,
+      city: quote.recipientCity || null,
+      taxId: quote.recipientTaxId || null,
+      clientType: quote.recipientCompany ? 'empresa' : 'particular',
+      source: 'presupuesto',
+      status: 'lead',
+      notes: `Cliente creado automáticamente desde el presupuesto ${quote.quoteNumber}.${quote.recipientCompany ? ` Empresa: ${quote.recipientCompany}.` : ''}${quote.recipientContactName ? ` Contacto: ${quote.recipientContactName}.` : ''}`,
+    },
+  });
+
+  await prisma.quote.update({ where: { id: quote.id }, data: { clientId: client.id } });
+  return client.id;
 }
 
 export const quotesService = {
@@ -87,6 +174,10 @@ export const quotesService = {
                 { quoteNumber: { contains: searchValue, mode: 'insensitive' } },
                 { title: { contains: searchValue, mode: 'insensitive' } },
                 { description: { contains: searchValue, mode: 'insensitive' } },
+                { recipientName: { contains: searchValue, mode: 'insensitive' } },
+                { recipientCompany: { contains: searchValue, mode: 'insensitive' } },
+                { recipientContactName: { contains: searchValue, mode: 'insensitive' } },
+                { workObject: { contains: searchValue, mode: 'insensitive' } },
                 { client: { fullName: { contains: searchValue, mode: 'insensitive' } } },
                 { job: { title: { contains: searchValue, mode: 'insensitive' } } },
               ],
@@ -106,22 +197,12 @@ export const quotesService = {
 
   async create(data, user) {
     const payload = normalizeQuotePayload(data, user);
+    const items = normalizeQuoteItems(data.items);
 
     return prisma.quote.create({
       data: {
         ...payload,
-        items: data.items?.length
-          ? {
-              create: data.items.map((item, index) => ({
-                name: String(item.name || `Ítem ${index + 1}`).trim(),
-                description: item.description ? String(item.description).trim() : null,
-                quantity: toNumber(item.quantity || 1),
-                unitPrice: toNumber(item.unitPrice),
-                total: toNumber(item.quantity || 1) * toNumber(item.unitPrice),
-                sortOrder: index,
-              })),
-            }
-          : undefined,
+        items: items.length ? { create: items } : undefined,
       },
       include: quoteInclude(),
     });
@@ -130,13 +211,20 @@ export const quotesService = {
   async update(id, data) {
     await this.findById(id);
     const payload = normalizeQuotePayload(data);
+    const items = normalizeQuoteItems(data.items);
     delete payload.quoteNumber;
     delete payload.createdById;
 
-    return prisma.quote.update({
-      where: { id },
-      data: payload,
-      include: quoteInclude(),
+    return prisma.$transaction(async (tx) => {
+      await tx.quoteItem.deleteMany({ where: { quoteId: id } });
+      return tx.quote.update({
+        where: { id },
+        data: {
+          ...payload,
+          items: items.length ? { create: items } : undefined,
+        },
+        include: quoteInclude(),
+      });
     });
   },
 
@@ -163,13 +251,13 @@ export const quotesService = {
 
   async convertToJob(id, user = null) {
     const quote = await this.findById(id);
-
-    if (!quote.clientId) throw badRequest('El presupuesto necesita un cliente asociado para convertirse en trabajo');
+    const clientId = await ensureQuoteClient(quote, user);
 
     if (quote.jobId) {
       const job = await prisma.job.update({
         where: { id: quote.jobId },
         data: {
+          clientId,
           status: 'approved',
           finalPrice: quote.total,
           internalNotes: quote.internalNotes || quote.description || undefined,
@@ -186,7 +274,7 @@ export const quotesService = {
 
       const updatedQuote = await prisma.quote.update({
         where: { id },
-        data: { status: 'approved', approvedAt: new Date() },
+        data: { clientId, status: 'approved', approvedAt: new Date() },
         include: quoteInclude(),
       });
 
@@ -195,15 +283,15 @@ export const quotesService = {
 
     const job = await prisma.job.create({
       data: {
-        clientId: quote.clientId,
+        clientId,
         title: quote.title,
-        description: quote.description,
+        description: quote.workObject || quote.description,
         serviceType: 'Trabajo desde presupuesto',
         status: 'approved',
         priority: 'normal',
         estimatedPrice: quote.total,
         finalPrice: quote.total,
-        internalNotes: quote.internalNotes || quote.description || null,
+        internalNotes: quote.internalNotes || quote.commercialConditions || quote.description || null,
         createdById: user?.id || quote.createdById || null,
       },
       include: {
@@ -218,7 +306,7 @@ export const quotesService = {
 
     const updatedQuote = await prisma.quote.update({
       where: { id },
-      data: { jobId: job.id, status: 'approved', approvedAt: new Date() },
+      data: { clientId, jobId: job.id, status: 'approved', approvedAt: new Date() },
       include: quoteInclude(),
     });
 
@@ -227,17 +315,8 @@ export const quotesService = {
 
   async addItem(quoteId, data) {
     await this.findById(quoteId);
-    const item = await prisma.quoteItem.create({
-      data: {
-        quoteId,
-        name: String(data.name || 'Nuevo ítem').trim(),
-        description: data.description ? String(data.description).trim() : null,
-        quantity: toNumber(data.quantity || 1),
-        unitPrice: toNumber(data.unitPrice),
-        total: toNumber(data.quantity || 1) * toNumber(data.unitPrice),
-        sortOrder: Number(data.sortOrder || 0),
-      },
-    });
+    const itemData = normalizeQuoteItems([data])[0] || { name: 'Nuevo ítem', quantity: 1, unit: 'unidad', unitPrice: 0, total: 0, sortOrder: 0 };
+    const item = await prisma.quoteItem.create({ data: { quoteId, ...itemData } });
     await this.recalculateQuote(quoteId);
     return item;
   },
@@ -253,10 +332,12 @@ export const quotesService = {
       where: { id: itemId },
       data: {
         name: data.name !== undefined ? String(data.name).trim() : undefined,
-        description: data.description !== undefined ? String(data.description || '').trim() || null : undefined,
+        description: data.description !== undefined ? cleanText(data.description) : undefined,
         quantity,
+        unit: data.unit !== undefined ? cleanText(data.unit) || 'unidad' : undefined,
         unitPrice,
         total: quantity * unitPrice,
+        note: data.note !== undefined ? cleanText(data.note) : undefined,
         sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : undefined,
       },
     });
