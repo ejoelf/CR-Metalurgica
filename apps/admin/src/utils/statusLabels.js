@@ -3,7 +3,7 @@ export const JOB_STATUS_LABELS = {
   quoted: 'Presupuestado',
   approved: 'Aprobado',
   production: 'Producción',
-  painting: 'Pintura',
+  painted: 'Pintura',
   delivered: 'Entregado',
   completed: 'Completado',
   cancelled: 'Cancelado',
