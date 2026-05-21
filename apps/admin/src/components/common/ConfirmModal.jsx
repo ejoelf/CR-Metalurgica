@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import BaseModal from './BaseModal.jsx';
 
 export default function ConfirmModal({
@@ -11,20 +12,34 @@ export default function ConfirmModal({
   onConfirm,
   onClose,
 }) {
+  const [internalLoading, setInternalLoading] = useState(false);
+  const isProcessing = loading || internalLoading;
+
+  async function handleConfirm() {
+    if (isProcessing) return;
+    try {
+      setInternalLoading(true);
+      await onConfirm?.();
+      onClose?.();
+    } finally {
+      setInternalLoading(false);
+    }
+  }
+
   return (
     <BaseModal
       isOpen={isOpen}
       title={title}
       description={description}
-      onClose={onClose}
+      onClose={isProcessing ? undefined : onClose}
       size="sm"
       footer={
         <>
-          <button className="crm-button ghost" type="button" onClick={onClose} disabled={loading}>
+          <button className="crm-button ghost" type="button" onClick={onClose} disabled={isProcessing}>
             {cancelLabel}
           </button>
-          <button className={`crm-button ${danger ? 'danger' : 'primary'}`} type="button" onClick={onConfirm} disabled={loading}>
-            {loading ? 'Procesando...' : confirmLabel}
+          <button className={`crm-button ${danger ? 'danger' : 'primary'}`} type="button" onClick={handleConfirm} disabled={isProcessing}>
+            {isProcessing ? 'Procesando...' : confirmLabel}
           </button>
         </>
       }
