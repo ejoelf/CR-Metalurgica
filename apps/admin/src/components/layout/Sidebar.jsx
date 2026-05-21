@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import { Bell, CalendarDays, FileClock, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench, X } from 'lucide-react';
-import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import { cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useSidebarCounts } from '../../hooks/useSidebarCounts.js';
+import { useBranding } from '../../hooks/useBranding.js';
 
 const publicWebUrl = import.meta.env.VITE_PUBLIC_WEB_URL || 'http://localhost:5173/';
 
@@ -34,6 +35,8 @@ function canSeeItem(item, role) {
 
 export default function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onNavigate }) {
   const { logout, isAuthenticated, user } = useAuth();
+  const branding = useBranding();
+  const brandName = branding.publicName || branding.businessName;
   const { counts } = useSidebarCounts({ enabled: isAuthenticated });
   const visibleItems = items.filter((item) => canSeeItem(item, user?.role));
   const ToggleIcon = mobileOpen ? X : Menu;
@@ -48,9 +51,9 @@ export default function Sidebar({ collapsed = false, mobileOpen = false, onToggl
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`}>
       <div className="sidebar-brand-row">
         <div className="sidebar-brand">
-          <span className="sidebar-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
+          <span className="sidebar-logo-mark"><img src={branding.logoUrl} alt="Logo" /></span>
           <div className="sidebar-label">
-            <strong>{cfBrandName}</strong>
+            <strong>{brandName}</strong>
             <small>{cfBrandSlogan}</small>
           </div>
         </div>
