@@ -6,11 +6,12 @@
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
+  border-radius: 0 !important;
 }
 
 .logo-brand-mark {
-  width: 54px !important;
-  height: 54px !important;
+  width: 62px !important;
+  height: 44px !important;
 }
 
 .logo-brand-mark img,
@@ -19,11 +20,12 @@
   height: 100%;
   object-fit: contain;
   display: block;
+  border-radius: 0 !important;
 }
 
 .footer-logo-mark {
-  width: 86px !important;
-  height: 86px !important;
+  width: 150px !important;
+  height: 100px !important;
   background: transparent !important;
 }
 
@@ -37,12 +39,12 @@
 
 @media (max-width: 720px) {
   .logo-brand-mark {
-    width: 48px !important;
-    height: 48px !important;
+    width: 54px !important;
+    height: 40px !important;
   }
 
   .footer-logo-mark {
-    width: 72px !important;
-    height: 72px !important;
+    width: 132px !important;
+    height: 88px !important;
   }
 }
