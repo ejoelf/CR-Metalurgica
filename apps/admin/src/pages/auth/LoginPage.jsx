@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
-import { cfBrandName, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
+import { cfBrandName, cfBrandSlogan, cfLogoDataUrl } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const publicWebUrl = import.meta.env.VITE_PUBLIC_WEB_URL || 'http://localhost:5173/';
@@ -44,6 +44,7 @@ export default function LoginPage() {
           <span className="login-logo-mark"><img src={cfLogoDataUrl} alt={`${cfBrandName} logo`} /></span>
           <div>
             <strong>{cfBrandName} PRO</strong>
+            <small>{cfBrandSlogan}</small>
           </div>
         </div>
 
