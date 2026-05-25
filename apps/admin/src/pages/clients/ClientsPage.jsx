@@ -39,11 +39,11 @@ export default function ClientsPage() {
       setSaving(true);
       if (drawerMode === 'create') {
         const created = await clientsService.create(payload);
-        setSelectedClient(created); setDrawerMode('edit');
+        closeDrawer();
         setSuccess({ title: 'Cliente creado', description: `El cliente "${created.fullName}" se guardó correctamente.` });
       } else if (selectedClient?.id) {
         const updated = await clientsService.update(selectedClient.id, payload);
-        setSelectedClient(updated);
+        closeDrawer();
         setSuccess({ title: 'Cliente actualizado', description: `El cliente "${updated.fullName}" se modificó correctamente.` });
       }
       await loadClients();
