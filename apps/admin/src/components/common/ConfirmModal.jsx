@@ -11,6 +11,7 @@ export default function ConfirmModal({
   loading = false,
   onConfirm,
   onClose,
+  children,
 }) {
   const [internalLoading, setInternalLoading] = useState(false);
   const isProcessing = loading || internalLoading;
@@ -35,14 +36,12 @@ export default function ConfirmModal({
       size="sm"
       footer={
         <>
-          <button className="crm-button ghost" type="button" onClick={onClose} disabled={isProcessing}>
-            {cancelLabel}
-          </button>
-          <button className={`crm-button ${danger ? 'danger' : 'primary'}`} type="button" onClick={handleConfirm} disabled={isProcessing}>
-            {isProcessing ? 'Procesando...' : confirmLabel}
-          </button>
+          <button className="crm-button ghost" type="button" onClick={onClose} disabled={isProcessing}>{cancelLabel}</button>
+          <button className={`crm-button ${danger ? 'danger' : 'primary'}`} type="button" onClick={handleConfirm} disabled={isProcessing}>{isProcessing ? 'Procesando...' : confirmLabel}</button>
         </>
       }
-    />
+    >
+      {children}
+    </BaseModal>
   );
 }
