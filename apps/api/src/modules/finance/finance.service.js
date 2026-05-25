@@ -50,6 +50,14 @@ function mapExpense(item) {
   };
 }
 
+async function cancelRelatedFinanceAgenda({ type, id }) {
+  const where = type === 'income'
+    ? { entityType: 'income', entityId: id }
+    : { entityType: 'expense', entityId: id };
+
+  await prisma.notification.deleteMany({ where });
+}
+
 export const financeService = {
   async summary(query) {
     const { start, end, year, month } = getMonthRange(query);
@@ -101,6 +109,7 @@ export const financeService = {
         ? []
         : prisma.income.findMany({
             where: {
+              status: { not: 'cancelled' },
               OR: [
                 { paidAt: { gte: start, lt: end } },
                 { paidAt: null, createdAt: { gte: start, lt: end } },
@@ -132,7 +141,7 @@ export const financeService = {
   async movementDetail(type, id) {
     const movementType = normalizeType(type);
     if (movementType === 'income') {
-      const item = await prisma.income.findUnique({ where: { id }, include: { client: true, job: true, quote: true } });
+      const item = await prisma.income.findFirst({ where: { id, status: { not: 'cancelled' } }, include: { client: true, job: true, quote: true } });
       if (!item) throw notFound('Ingreso no encontrado');
       return mapIncome(item);
     }
@@ -239,16 +248,20 @@ export const financeService = {
     const movementType = normalizeType(type);
     if (movementType === 'income') {
       await this.movementDetail('income', id);
-      return mapIncome(await prisma.income.update({ where: { id }, data: { status: 'cancelled' }, include: { client: true, job: true, quote: true } }));
+      const deleted = await prisma.income.delete({ where: { id }, include: { client: true, job: true, quote: true } });
+      await cancelRelatedFinanceAgenda({ type: 'income', id });
+      return mapIncome(deleted);
     }
 
     await this.movementDetail('expense', id);
-    return mapExpense(await prisma.expense.delete({ where: { id }, include: { client: true, job: true, quote: true } }));
+    const deleted = await prisma.expense.delete({ where: { id }, include: { client: true, job: true, quote: true } });
+    await cancelRelatedFinanceAgenda({ type: 'expense', id });
+    return mapExpense(deleted);
   },
 
   async byJob(jobId) {
     const [incomes, expenses] = await Promise.all([
-      prisma.income.findMany({ where: { jobId } }),
+      prisma.income.findMany({ where: { jobId, status: { not: 'cancelled' } } }),
       prisma.expense.findMany({ where: { jobId } }),
     ]);
 
