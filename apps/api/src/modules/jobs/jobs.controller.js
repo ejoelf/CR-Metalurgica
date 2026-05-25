@@ -4,12 +4,7 @@ import { sendSuccess } from '../../utils/responses.js';
 
 export const jobsController = {
   async list(req, res) {
-    const data = await jobsService.findMany({
-      search: req.query.search,
-      status: req.query.status,
-      priority: req.query.priority,
-      clientId: req.query.clientId,
-    });
+    const data = await jobsService.findMany({ search: req.query.search, status: req.query.status, priority: req.query.priority, clientId: req.query.clientId });
     return sendSuccess(res, data, 'Trabajos obtenidos correctamente');
   },
 
@@ -40,7 +35,7 @@ export const jobsController = {
 
   async remove(req, res) {
     const oldValue = await jobsService.findById(req.params.id);
-    const data = await jobsService.remove(req.params.id);
+    const data = await jobsService.remove(req.params.id, req.body || {}, req.user);
     await auditService.log({ req, action: 'delete', entityType: 'job', entityId: data.id, oldValue, newValue: data });
     return sendSuccess(res, data, 'Trabajo eliminado correctamente');
   },
