@@ -68,11 +68,11 @@ export default function JobsPage() {
       setSaving(true);
       if (drawerMode === 'create') {
         const created = await jobsService.create(payload);
-        setSelectedJob(created); setDrawerMode('edit');
+        closeDrawer();
         setSuccess({ title: 'Trabajo creado', description: `El trabajo "${created.title}" se creó correctamente.` });
       } else if (selectedJob?.id) {
         const updated = await jobsService.update(selectedJob.id, payload);
-        setSelectedJob(updated);
+        closeDrawer();
         setSuccess({ title: 'Trabajo actualizado', description: `El trabajo "${updated.title}" se actualizó correctamente.` });
       }
       await loadJobs();
