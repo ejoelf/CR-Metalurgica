@@ -1,0 +1,3 @@
+ALTER TYPE "JobStatus" ADD VALUE IF NOT EXISTS 'completed';
+ALTER TYPE "JobStatus" ADD VALUE IF NOT EXISTS 'on_hold';
+ALTER TYPE "JobStatus" ADD VALUE IF NOT EXISTS 'rescheduled';
