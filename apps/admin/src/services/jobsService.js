@@ -38,9 +38,10 @@ export const jobsService = {
     });
   },
 
-  async remove(id) {
+  async remove(id, data = {}) {
     return apiClient(`/jobs/${id}`, {
       method: 'DELETE',
+      body: JSON.stringify(data),
     });
   },
 };
