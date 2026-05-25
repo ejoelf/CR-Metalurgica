@@ -53,8 +53,8 @@ export default function FinancePage() {
   async function handleSave(payload) {
     try {
       setSaving(true);
-      if (drawerMode === 'create') { const created = await financeService.createMovement(payload); setSelectedMovement(created); setDrawerMode('edit'); setSuccess({ title: 'Movimiento creado', description: `El movimiento "${created.title}" se guardó correctamente.` }); }
-      else if (selectedMovement?.id) { const updated = await financeService.updateMovement(selectedMovement.movementType, selectedMovement.id, payload); setSelectedMovement(updated); setSuccess({ title: 'Movimiento actualizado', description: `El movimiento "${updated.title}" se modificó correctamente.` }); }
+      if (drawerMode === 'create') { const created = await financeService.createMovement(payload); closeDrawer(); setSuccess({ title: 'Movimiento creado', description: `El movimiento "${created.title}" se guardó correctamente.` }); }
+      else if (selectedMovement?.id) { const updated = await financeService.updateMovement(selectedMovement.movementType, selectedMovement.id, payload); closeDrawer(); setSuccess({ title: 'Movimiento actualizado', description: `El movimiento "${updated.title}" se modificó correctamente.` }); }
       await loadFinance();
     } catch (err) { setError(err.message || 'No se pudo guardar el movimiento'); }
     finally { setSaving(false); }
