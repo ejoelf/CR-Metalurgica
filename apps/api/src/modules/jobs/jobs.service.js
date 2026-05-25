@@ -45,18 +45,36 @@ function decorateJob(job) {
 async function syncJobAgenda(job) {
   if (!job?.id) return;
   const clientName = job.client?.fullName ? ` · ${job.client.fullName}` : '';
-
   if (job.dueDate) {
     const existing = await prisma.agendaEvent.findFirst({ where: { jobId: job.id, type: 'delivery', title: { contains: 'Entrega estimada' } } });
     const data = { title: `Entrega estimada: ${job.title}`, description: `Fecha de entrega estimada marcada desde Trabajos.${clientName}`, type: 'delivery', status: job.status === 'cancelled' ? 'cancelled' : 'scheduled', startAt: job.dueDate, endAt: null, reminderAt: job.dueDate, location: null, clientId: job.clientId, jobId: job.id };
     if (existing) await prisma.agendaEvent.update({ where: { id: existing.id }, data }); else await prisma.agendaEvent.create({ data });
   }
-
   if (job.startedAt) {
     const existing = await prisma.agendaEvent.findFirst({ where: { jobId: job.id, type: 'production', title: { contains: 'Inicio' } } });
     const data = { title: `Inicio de trabajo: ${job.title}`, description: `Inicio marcado desde Trabajos.${clientName}`, type: 'production', status: job.status === 'cancelled' ? 'cancelled' : 'scheduled', startAt: job.startedAt, endAt: null, reminderAt: job.startedAt, location: null, clientId: job.clientId, jobId: job.id };
     if (existing) await prisma.agendaEvent.update({ where: { id: existing.id }, data }); else await prisma.agendaEvent.create({ data });
   }
+}
+
+async function registerClosureRefund(job, closure = {}, user = null) {
+  if (!closure.refundMoney) return null;
+  const amount = Number(closure.refundAmount || 0);
+  if (amount <= 0) return null;
+  return prisma.expense.create({
+    data: {
+      title: `Devolución por trabajo eliminado: ${job.title}`,
+      description: closure.refundNote || `Devolución registrada al cerrar/eliminar el trabajo ${job.title}.`,
+      amount,
+      category: 'Devolución a cliente',
+      paymentMethod: closure.refundMethod || 'cash',
+      expenseDate: new Date(),
+      supplierName: job.client?.fullName || null,
+      clientId: job.clientId,
+      jobId: job.id,
+      createdById: user?.id || null,
+    },
+  });
 }
 
 export const jobsService = {
@@ -67,14 +85,11 @@ export const jobsService = {
   },
   async findById(id) {
     const job = await prisma.job.findUnique({ where: { id }, include: { client: true, quotes: { orderBy: { createdAt: 'desc' }, include: { pdfDocuments: true, items: true } }, incomes: { orderBy: { createdAt: 'desc' } }, expenses: { orderBy: { createdAt: 'desc' } }, agendaEvents: { orderBy: { startAt: 'desc' } }, files: true, createdBy: { select: { id: true, name: true, username: true, email: true } } } });
-    if (!job) throw notFound('Trabajo no encontrado');
-    return decorateJob(job);
+    if (!job) throw notFound('Trabajo no encontrado'); return decorateJob(job);
   },
   async create(data, user) {
-    if (!data.clientId) throw badRequest('El cliente es requerido');
-    if (!data.title) throw badRequest('El título del trabajo es requerido');
-    if (data.status && !allowedStatuses.includes(data.status)) throw badRequest('Estado de trabajo inválido');
-    if (data.priority && !allowedPriorities.includes(data.priority)) throw badRequest('Prioridad inválida');
+    if (!data.clientId) throw badRequest('El cliente es requerido'); if (!data.title) throw badRequest('El título del trabajo es requerido');
+    if (data.status && !allowedStatuses.includes(data.status)) throw badRequest('Estado de trabajo inválido'); if (data.priority && !allowedPriorities.includes(data.priority)) throw badRequest('Prioridad inválida');
     const payload = normalizeJobPayload(data, user); if (payload.paidAmount === undefined) delete payload.paidAmount;
     const job = await prisma.job.create({ data: payload, include: { client: true, quotes: true, incomes: true, expenses: true, agendaEvents: true, files: true } });
     await syncJobAgenda(job);
@@ -84,8 +99,7 @@ export const jobsService = {
   async update(id, data) {
     const previous = await this.findById(id);
     if (['cancelled', 'delivered'].includes(previous.status)) throw badRequest('Este trabajo ya está cerrado y no permite cambios de estado o edición operativa');
-    if (data.status && !allowedStatuses.includes(data.status)) throw badRequest('Estado de trabajo inválido');
-    if (data.priority && !allowedPriorities.includes(data.priority)) throw badRequest('Prioridad inválida');
+    if (data.status && !allowedStatuses.includes(data.status)) throw badRequest('Estado de trabajo inválido'); if (data.priority && !allowedPriorities.includes(data.priority)) throw badRequest('Prioridad inválida');
     const payload = normalizeJobPayload(data); delete payload.createdById; if (payload.paidAmount === undefined) delete payload.paidAmount;
     const job = await prisma.job.update({ where: { id }, data: payload, include: { client: true, quotes: true, incomes: true, expenses: true, agendaEvents: true, files: true } });
     await syncJobAgenda(job);
@@ -99,15 +113,16 @@ export const jobsService = {
     if (current.status === 'cancelled') throw badRequest('El trabajo eliminado/cancelado queda cerrado y no permite cambiar estado');
     if (current.status === 'completed' && status !== 'delivered') throw badRequest('Un trabajo completado solo puede pasar a Entregado');
     const updateData = { status };
-    if (status === 'delivered') updateData.deliveredAt = new Date();
-    if (status === 'completed') updateData.completedAt = new Date();
-    if (status === 'production') updateData.startedAt = new Date();
-    if (status === 'approved') updateData.acceptedAt = new Date();
-    if (status === 'quoted') updateData.budgetedAt = new Date();
+    if (status === 'delivered') updateData.deliveredAt = new Date(); if (status === 'completed') updateData.completedAt = new Date(); if (status === 'production') updateData.startedAt = new Date(); if (status === 'approved') updateData.acceptedAt = new Date(); if (status === 'quoted') updateData.budgetedAt = new Date();
     const job = await prisma.job.update({ where: { id }, data: updateData, include: { client: true, quotes: true, incomes: true, expenses: true, agendaEvents: true, files: true } });
-    await syncJobAgenda(job);
-    return decorateJob(job);
+    await syncJobAgenda(job); return decorateJob(job);
   },
-  async remove(id) { const job = await prisma.job.update({ where: { id }, data: { status: 'cancelled' }, include: { client: true, quotes: true, incomes: true, expenses: true, agendaEvents: true, files: true } }); await syncJobAgenda(job); return decorateJob(job); },
+  async remove(id, closure = {}, user = null) {
+    const job = await prisma.job.update({ where: { id }, data: { status: 'cancelled' }, include: { client: true, quotes: true, incomes: true, expenses: true, agendaEvents: true, files: true } });
+    await registerClosureRefund(job, closure, user);
+    await syncJobAgenda(job);
+    await systemActionsService.notify({ name: 'job_closed', title: 'Trabajo eliminado/cerrado', message: `Se eliminó/cerró el trabajo: ${job.title}`, type: 'warning', entityType: 'job', entityId: job.id, payload: { refundMoney: Boolean(closure.refundMoney), refundAmount: Number(closure.refundAmount || 0) } });
+    return decorateJob(await this.findById(id));
+  },
   async timeline(id) { const job = await this.findById(id); return { job, timeline: [{ label: 'Creado', date: job.createdAt }, { label: 'Última actualización', date: job.updatedAt }, job.budgetedAt ? { label: 'Presupuestado', date: job.budgetedAt } : null, job.acceptedAt ? { label: 'Aceptado', date: job.acceptedAt } : null, job.startedAt ? { label: 'Inicio', date: job.startedAt } : null, job.completedAt ? { label: 'Completado', date: job.completedAt } : null, job.dueDate ? { label: 'Entrega prevista', date: job.dueDate } : null, job.deliveredAt ? { label: 'Entregado', date: job.deliveredAt } : null].filter(Boolean) }; },
 };
