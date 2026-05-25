@@ -20,7 +20,10 @@ enum JobStatus {
   approved
   production
   painted
+  completed
   delivered
+  on_hold
+  rescheduled
   cancelled
 }
 
