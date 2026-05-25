@@ -58,7 +58,10 @@ export default function JobFormDrawer({ isOpen, mode = 'create', job, clients = 
       </form>
     </BaseDrawer>
     <ConfirmModal isOpen={deleteOpen} title="Eliminar trabajo" description={`¿Estás seguro de querer eliminar el trabajo ${job?.title || ''}?`} confirmLabel="Sí, eliminar" danger loading={saving} onClose={() => setDeleteOpen(false)} onConfirm={confirmDelete}>
-      <div className="job-delete-refund-box"><label><input type="checkbox" name="refundMoney" checked={closePayload.refundMoney} onChange={handleClosePayloadChange} /> Registrar devolución de dinero</label>{closePayload.refundMoney && <div className="job-form-grid"><MoneyInput label="Monto devuelto" name="refundAmount" value={closePayload.refundAmount} onChange={handleClosePayloadChange} /><label className="crm-field"><span>Método</span><select name="refundMethod" value={closePayload.refundMethod} onChange={handleClosePayloadChange}><option value="cash">Efectivo</option><option value="transfer">Transferencia</option><option value="card">Tarjeta</option><option value="other">Otro</option></select></label><label className="crm-field job-span-2"><span>Nota de devolución</span><textarea name="refundNote" value={closePayload.refundNote} onChange={handleClosePayloadChange} /></label></div>}</div>
+      <div className="job-delete-refund-box">
+        <label className="job-refund-checkbox"><input type="checkbox" name="refundMoney" checked={closePayload.refundMoney} onChange={handleClosePayloadChange} /><span>¿Registrar devolución de dinero?</span></label>
+        {closePayload.refundMoney && <div className="job-form-grid"><MoneyInput label="Monto devuelto" name="refundAmount" value={closePayload.refundAmount} onChange={handleClosePayloadChange} /><label className="crm-field"><span>Método</span><select name="refundMethod" value={closePayload.refundMethod} onChange={handleClosePayloadChange}><option value="cash">Efectivo</option><option value="transfer">Transferencia</option><option value="card">Tarjeta</option><option value="other">Otro</option></select></label><label className="crm-field job-span-2"><span>Nota de devolución</span><textarea name="refundNote" value={closePayload.refundNote} onChange={handleClosePayloadChange} /></label></div>}
+      </div>
     </ConfirmModal>
   </>;
 }
