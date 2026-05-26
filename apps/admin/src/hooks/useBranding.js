@@ -7,6 +7,7 @@ const fallbackBranding = {
   businessName: cfBrandName,
   slogan: cfBrandSlogan,
   logoUrl: cfLogoDataUrl,
+  uploadedLogoUrl: '',
   signatureUrl: '',
 };
 
@@ -16,7 +17,7 @@ export function useBranding() {
   useEffect(() => {
     let active = true;
 
-    fetch(`${API_ORIGIN}/api/public/branding`)
+    fetch(API_ORIGIN + '/api/public/branding')
       .then((response) => response.ok ? response.json() : null)
       .then((payload) => {
         if (!active || !payload) return;
@@ -26,7 +27,8 @@ export function useBranding() {
           ...data,
           publicName: data?.publicName || data?.businessName || cfBrandName,
           slogan: cfBrandSlogan,
-          logoUrl: resolveAssetUrl(data?.logoUrl) || cfLogoDataUrl,
+          logoUrl: cfLogoDataUrl,
+          uploadedLogoUrl: resolveAssetUrl(data?.logoUrl) || '',
           signatureUrl: resolveAssetUrl(data?.signatureUrl),
         });
       })
