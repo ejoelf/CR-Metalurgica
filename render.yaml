@@ -7,7 +7,6 @@ services:
     branch: main
     rootDir: .
     buildCommand: npm run install:all && npm run prisma:generate && npm run build:api
-    preDeployCommand: npm run prisma:deploy
     startCommand: npm run start:api
     healthCheckPath: /api/health
     autoDeploy: true
