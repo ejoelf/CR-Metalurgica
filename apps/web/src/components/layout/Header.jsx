@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { LogIn, Menu, X } from 'lucide-react';
-import { cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
+import { applyLogoFallback, cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
 import { usePublicBranding } from '../../hooks/usePublicBranding.js';
 
 const navItems = [
@@ -26,7 +26,7 @@ export default function Header() {
       <div className="container header-inner editorial-header-inner">
         <Link className="brand editorial-brand" to="/" onClick={() => setOpen(false)}>
           <span className="brand-mark editorial-brand-mark logo-brand-mark">
-            <img src={branding.logoUrl} alt="Logo" />
+            <img src={branding.logoUrl} alt="CF Metal-Pintura" onError={applyLogoFallback} />
           </span>
           <span>
             <strong>{brandName}</strong>
