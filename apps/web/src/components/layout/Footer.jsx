@@ -1,5 +1,5 @@
 import { Facebook, Instagram, Mail, MapPin, Phone } from 'lucide-react';
-import { cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
+import { applyLogoFallback, cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
 import WhatsAppIcon from '../common/WhatsAppIcon.jsx';
 import { businessInfo, services } from '../../data/siteData.js';
 import { buildWhatsAppUrl, quoteMessage } from '../../utils/whatsapp.js';
@@ -13,7 +13,7 @@ export default function Footer() {
     <footer className="site-footer editorial-footer">
       <div className="container editorial-footer-top">
         <div className="editorial-footer-brand">
-          <span className="footer-logo-mark"><img src={branding.logoUrl} alt="Logo" /></span>
+          <span className="footer-logo-mark"><img src={branding.logoUrl} alt="CF Metal-Pintura" onError={applyLogoFallback} /></span>
           <div>
             <strong>{brandName}</strong>
             <p>{cfBrandSlogan}</p>
