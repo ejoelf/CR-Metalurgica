@@ -7,6 +7,7 @@ const fallbackBranding = {
   businessName: cfBrandName,
   slogan: cfBrandSlogan,
   logoUrl: cfLogoDataUrl,
+  uploadedLogoUrl: '',
 };
 
 export function usePublicBranding() {
@@ -23,7 +24,8 @@ export function usePublicBranding() {
           ...data,
           publicName: data?.publicName || data?.businessName || cfBrandName,
           slogan: cfBrandSlogan,
-          logoUrl: resolveAssetUrl(data?.logoUrl) || cfLogoDataUrl,
+          logoUrl: cfLogoDataUrl,
+          uploadedLogoUrl: resolveAssetUrl(data?.logoUrl) || '',
         });
       })
       .catch(() => {
