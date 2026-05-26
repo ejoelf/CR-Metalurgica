@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { Bell, CalendarDays, FileClock, GalleryHorizontal, Inbox, LayoutDashboard, LogOut, Menu, Receipt, Settings, Users, WalletCards, Wrench, X } from 'lucide-react';
-import { cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
+import { applyLogoFallback, cfBrandSlogan } from '../../../../../packages/branding/cfLogo.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useSidebarCounts } from '../../hooks/useSidebarCounts.js';
 import { useBranding } from '../../hooks/useBranding.js';
@@ -51,7 +51,7 @@ export default function Sidebar({ collapsed = false, mobileOpen = false, onToggl
     <aside className={`sidebar ${collapsed ? 'is-collapsed' : ''}`}>
       <div className="sidebar-brand-row">
         <div className="sidebar-brand">
-          <span className="sidebar-logo-mark"><img src={branding.logoUrl} alt="Logo" /></span>
+          <span className="sidebar-logo-mark"><img src={branding.logoUrl} alt="CF Metal-Pintura" onError={applyLogoFallback} /></span>
           <div className="sidebar-label">
             <strong>{brandName}</strong>
             <small>{cfBrandSlogan}</small>
