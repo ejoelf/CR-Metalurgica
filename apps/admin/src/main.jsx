@@ -16,6 +16,7 @@ import './styles/activity.css';
 import './styles/clients.css';
 import './styles/jobs.css';
 import './styles/quotes.css';
+import './styles/quotes-mobile-fixes.css';
 import './styles/finance.css';
 import './styles/agenda.css';
 import './styles/gallery.css';
