@@ -6,7 +6,7 @@ import { updateSeo } from '../utils/seo.js';
 
 export default function AboutPage() {
   useEffect(() => {
-    updateSeo({ title: 'Nosotros | CF Metal-Pintura', description: 'Conocé la historia y forma de trabajo de CF Metal-Pintura.' });
+    updateSeo({ title: 'Nosotros | CF Metal-Pintura', description: 'Conoce la historia y forma de trabajo de CF Metal-Pintura.' });
   }, []);
 
   return (
@@ -25,16 +25,16 @@ export default function AboutPage() {
             <span className="eyebrow">CF Metal-Pintura</span>
             <h2>Una forma de trabajar basada en confianza y responsabilidad</h2>
             <p>
-              En CF Metal-Pintura trabajamos brindando soluciones integrales en metalúrgica, pintura, durlock y electricidad.
-              Cada proyecto se encara con atención al detalle, comunicación directa y foco en lograr un resultado funcional y prolijo.
+              En CF Metal-Pintura trabajamos brindando soluciones integrales en metalurgica, pintura, durlock y electricidad.
+              Cada proyecto se encara con atencion al detalle, comunicacion directa y foco en lograr un resultado funcional y prolijo.
             </p>
             <p>
-              El objetivo es acompañar al cliente desde la primera consulta hasta la entrega final, ordenando medidas, materiales,
+              El objetivo es acompanar al cliente desde la primera consulta hasta la entrega final, ordenando medidas, materiales,
               tiempos y presupuesto para que cada trabajo avance con claridad.
             </p>
             <p>
-              Esta nueva versión PRO de la web queda preparada para conectar el sitio público con un CRM interno, permitiendo gestionar
-              consultas, presupuestos, trabajos, agenda y galería desde un sistema profesional.
+              Priorizamos una atencion cercana, presupuestos claros y trabajos realizados con compromiso, cuidando cada etapa para
+              entregar soluciones duraderas y adaptadas a la necesidad real de cada cliente.
             </p>
           </div>
         </div>
