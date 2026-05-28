@@ -1,0 +1,29 @@
+@media (max-width: 720px) {
+  .quotes-toolbar {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .quotes-toolbar .search-input,
+  .quotes-toolbar select,
+  .quotes-toolbar > span {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .quotes-toolbar .search-input input {
+    min-width: 0 !important;
+  }
+
+  .quotes-toolbar > span {
+    white-space: normal !important;
+  }
+
+  .quotes-grid-v2 {
+    grid-template-columns: 1fr !important;
+  }
+}
