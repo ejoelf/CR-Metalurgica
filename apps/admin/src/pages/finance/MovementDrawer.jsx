@@ -6,6 +6,14 @@ import MoneyInput from '../../components/common/MoneyInput.jsx';
 import DateInput from '../../components/common/DateInput.jsx';
 import { formatDateTime, toInputDate } from '../../utils/formatters.js';
 
+const PAYMENT_METHODS = [
+  { value: 'cash', label: 'Efectivo' },
+  { value: 'transfer', label: 'Transferencia' },
+  { value: 'card', label: 'Tarjeta' },
+  { value: 'mercado_pago', label: 'Mercado Pago' },
+  { value: 'other', label: 'Otro' },
+];
+
 const EMPTY_FORM = {
   type: 'income',
   title: '',
@@ -14,12 +22,23 @@ const EMPTY_FORM = {
   movementDate: toInputDate(new Date()),
   status: 'paid',
   category: 'general',
-  paymentMethod: '',
+  paymentMethod: 'cash',
   supplierName: '',
   clientId: '',
   jobId: '',
   quoteId: '',
 };
+
+function normalizePaymentMethod(value) {
+  if (!value) return 'cash';
+  if (['cash', 'transfer', 'card', 'mercado_pago', 'other'].includes(value)) return value;
+  const normalized = String(value).trim().toLowerCase();
+  if (normalized.includes('efectivo')) return 'cash';
+  if (normalized.includes('transfer')) return 'transfer';
+  if (normalized.includes('tarjeta')) return 'card';
+  if (normalized.includes('mercado')) return 'mercado_pago';
+  return 'other';
+}
 
 function toForm(movement) {
   if (!movement) return EMPTY_FORM;
@@ -32,7 +51,7 @@ function toForm(movement) {
     movementDate: toInputDate(movement.movementDate || movement.paidAt || movement.expenseDate || movement.createdAt),
     status: movement.status || 'paid',
     category: movement.category || 'general',
-    paymentMethod: movement.paymentMethod || '',
+    paymentMethod: normalizePaymentMethod(movement.paymentMethod),
     supplierName: movement.supplierName || '',
     clientId: movement.clientId || movement.client?.id || '',
     jobId: movement.jobId || movement.job?.id || '',
@@ -60,7 +79,7 @@ export default function MovementDrawer({ isOpen, mode = 'create', movement, clie
 
   function handleSubmit(event) {
     event.preventDefault();
-    onSave?.(form);
+    onSave?.({ ...form, paymentMethod: normalizePaymentMethod(form.paymentMethod) });
   }
 
   const filteredJobs = form.clientId ? jobs.filter((job) => job.clientId === form.clientId || job.client?.id === form.clientId) : jobs;
@@ -96,7 +115,7 @@ export default function MovementDrawer({ isOpen, mode = 'create', movement, clie
               <DateInput label="Fecha" name="movementDate" value={form.movementDate} onChange={handleChange} max={maxDate} />
               {form.type === 'income' && <label className="crm-field"><span>Estado</span><select name="status" value={form.status} onChange={handleChange}><option value="paid">Pagado</option><option value="pending">Pendiente</option><option value="cancelled">Cancelado</option></select></label>}
               {form.type === 'expense' && <label className="crm-field"><span>Categoría</span><select name="category" value={form.category} onChange={handleChange}><option value="general">General</option><option value="materials">Materiales</option><option value="tools">Herramientas</option><option value="transport">Transporte</option><option value="taxes">Impuestos</option><option value="services">Servicios</option></select></label>}
-              <label className="crm-field"><span>Método de pago</span><input name="paymentMethod" value={form.paymentMethod} onChange={handleChange} placeholder="Efectivo, transferencia, tarjeta..." /></label>
+              <label className="crm-field"><span>Método de pago</span><select name="paymentMethod" value={form.paymentMethod} onChange={handleChange}>{PAYMENT_METHODS.map((method) => <option key={method.value} value={method.value}>{method.label}</option>)}</select></label>
               {form.type === 'expense' && <label className="crm-field"><span>Proveedor</span><input name="supplierName" value={form.supplierName} onChange={handleChange} placeholder="Proveedor o comercio" /></label>}
             </div>
           </section>
