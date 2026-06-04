@@ -5,16 +5,7 @@ import PageHeader from '../../components/common/PageHeader.jsx';
 import LoadingState from '../../components/common/LoadingState.jsx';
 import { dashboardService } from '../../services/dashboardService.js';
 import { formatDateTime, formatMoney } from '../../utils/formatters.js';
-
-const jobStatusLabels = {
-  pending: 'Pendiente',
-  quoted: 'Presupuestado',
-  approved: 'Aprobado',
-  production: 'Producción',
-  painted: 'Pintado',
-  delivered: 'Entregado',
-  cancelled: 'Cancelado',
-};
+import { JOB_STATUS_LABELS } from '../../utils/statusLabels.js';
 
 const emptyDashboard = {
   kpis: {
@@ -114,7 +105,7 @@ export default function DashboardPage() {
               </div>
               <div className="status-list">
                 {dashboard.jobStatuses.map((item) => (
-                  <span key={item.status}>{jobStatusLabels[item.status] || item.status} <b>{item.count}</b></span>
+                  <span key={item.status}>{JOB_STATUS_LABELS[item.status] || item.status} <b>{item.count}</b></span>
                 ))}
               </div>
             </article>
