@@ -4,14 +4,14 @@ import BaseDrawer from '../../components/common/BaseDrawer.jsx';
 import ConfirmModal from '../../components/common/ConfirmModal.jsx';
 import DateInput from '../../components/common/DateInput.jsx';
 import TimeInput from '../../components/common/TimeInput.jsx';
-import { formatDateTime } from '../../utils/formatters.js';
+import { buildArgentinaDateTime, formatDateTime, toInputDate } from '../../utils/formatters.js';
 
 const EMPTY_FORM = {
   title: '',
   description: '',
   type: 'other',
   status: 'scheduled',
-  date: new Date().toISOString().slice(0, 10),
+  date: toInputDate(new Date()),
   startTime: '09:00',
   endTime: '',
   reminderDate: '',
@@ -26,9 +26,18 @@ function splitDateTime(value) {
   if (!value) return { date: '', time: '' };
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return { date: '', time: '' };
+
+  const inputDate = toInputDate(date);
+  const inputDateTime = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Argentina/Cordoba',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date);
+
   return {
-    date: date.toISOString().slice(0, 10),
-    time: date.toTimeString().slice(0, 5),
+    date: inputDate,
+    time: inputDateTime,
   };
 }
 
@@ -55,8 +64,7 @@ function toForm(event, defaultDate) {
 }
 
 function buildDateTime(date, time) {
-  if (!date || !time) return null;
-  return `${date}T${time}:00`;
+  return buildArgentinaDateTime(date, time);
 }
 
 export default function EventDrawer({ isOpen, mode = 'create', event, defaultDate, clients = [], jobs = [], quotes = [], saving = false, onClose, onSave, onDelete }) {
