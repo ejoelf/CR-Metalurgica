@@ -3,6 +3,9 @@ import portonEstandar from '../../../../src/assets/projects/PortonEstandar.jpeg'
 import cocheraGaleria from '../../../../src/assets/projects/CocheraGaleria.jpeg';
 import carteleria from '../../../../src/assets/projects/Carteleria.jpeg';
 
+const API_URL = import.meta.env.VITE_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API_ORIGIN = API_URL.replace(/\/api\/?$/, '');
+
 export const projectImages = {
   portonDoble,
   portonEstandar,
@@ -12,6 +15,14 @@ export const projectImages = {
 
 export function resolveProjectImage(imageUrl) {
   if (!imageUrl) return cocheraGaleria;
+
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('data:')) {
+    return imageUrl;
+  }
+
+  if (imageUrl.startsWith('/storage/') || imageUrl.startsWith('/uploads/')) {
+    return `${API_ORIGIN}${imageUrl}`;
+  }
 
   const normalized = imageUrl.toLowerCase();
 
