@@ -4,12 +4,13 @@ import PageHeader from '../../components/common/PageHeader.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import LoadingState from '../../components/common/LoadingState.jsx';
 import SuccessModal from '../../components/common/SuccessModal.jsx';
+import BaseModal from '../../components/common/BaseModal.jsx';
 import EventDrawer from './EventDrawer.jsx';
 import { agendaService } from '../../services/agendaService.js';
 import { clientsService } from '../../services/clientsService.js';
 import { jobsService } from '../../services/jobsService.js';
 import { quotesService } from '../../services/quotesService.js';
-import { formatDate, formatDateTime } from '../../utils/formatters.js';
+import { formatDate, formatDateTime, toInputDate } from '../../utils/formatters.js';
 
 const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const typeLabels = {
@@ -28,15 +29,6 @@ const statusLabels = {
   postponed: 'Postergado',
   cancelled: 'Cancelado',
 };
-
-function toDateInput(value) {
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
 
 function monthStart(date) {
   return new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
@@ -62,7 +54,7 @@ function buildCalendarDays(date) {
 }
 
 function sameDay(a, b) {
-  return toDateInput(a) === toDateInput(b);
+  return toInputDate(a) === toInputDate(b);
 }
 
 export default function AgendaPage() {
@@ -71,7 +63,8 @@ export default function AgendaPage() {
   const [jobs, setJobs] = useState([]);
   const [quotes, setQuotes] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(toDateInput(new Date()));
+  const [selectedDate, setSelectedDate] = useState(toInputDate(new Date()));
+  const [dayModalOpen, setDayModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -139,10 +132,11 @@ export default function AgendaPage() {
   function goToday() {
     const today = new Date();
     setCurrentDate(today);
-    setSelectedDate(toDateInput(today));
+    setSelectedDate(toInputDate(today));
   }
 
   function openCreate(date = selectedDate) {
+    setDayModalOpen(false);
     setSelectedEvent(null);
     setSelectedDate(date);
     setDrawerMode('create');
@@ -150,6 +144,7 @@ export default function AgendaPage() {
 
   async function openEvent(event) {
     try {
+      setDayModalOpen(false);
       setLoading(true);
       const detail = await agendaService.getById(event.id);
       setSelectedEvent(detail);
@@ -166,13 +161,22 @@ export default function AgendaPage() {
     setSelectedEvent(null);
   }
 
+  function handleDayClick(dateKey, dayEvents) {
+    setSelectedDate(dateKey);
+    if (!dayEvents.length) {
+      openCreate(dateKey);
+      return;
+    }
+    setDayModalOpen(true);
+  }
+
   async function handleSave(payload) {
     try {
       setSaving(true);
       const isCreate = drawerMode === 'create';
       const saved = isCreate ? await agendaService.create(payload) : await agendaService.update(selectedEvent.id, payload);
       closeDrawer();
-      setSelectedDate(toDateInput(saved.startAt || payload.startAt));
+      setSelectedDate(toInputDate(saved.startAt || payload.startAt));
       await loadEvents();
       setSuccess({
         title: isCreate ? 'Evento agendado correctamente' : 'Evento actualizado correctamente',
@@ -200,7 +204,7 @@ export default function AgendaPage() {
     }
   }
 
-  const monthLabel = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' }).format(currentDate);
+  const monthLabel = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric', timeZone: 'America/Argentina/Cordoba' }).format(currentDate);
 
   return (
     <div>
@@ -234,19 +238,18 @@ export default function AgendaPage() {
           </div>
           <div className="agenda-calendar-grid">
             {calendar.days.map((day) => {
-              const dateKey = toDateInput(day);
+              const dateKey = toInputDate(day);
               const dayEvents = events.filter((event) => sameDay(event.startAt, dateKey) && event.status !== 'cancelled');
               const isCurrentMonth = day.getMonth() === currentDate.getMonth();
               const isSelected = dateKey === selectedDate;
-              const isToday = dateKey === toDateInput(new Date());
+              const isToday = dateKey === toInputDate(new Date());
 
               return (
                 <button
                   key={dateKey}
                   type="button"
                   className={`agenda-day-cell ${isCurrentMonth ? '' : 'is-muted'} ${isSelected ? 'is-selected' : ''} ${isToday ? 'is-today' : ''}`}
-                  onClick={() => setSelectedDate(dateKey)}
-                  onDoubleClick={() => openCreate(dateKey)}
+                  onClick={() => handleDayClick(dateKey, dayEvents)}
                 >
                   <span>{day.getDate()}</span>
                   <small>{dayEvents.length ? `${dayEvents.length} evento${dayEvents.length > 1 ? 's' : ''}` : ''}</small>
@@ -286,6 +289,26 @@ export default function AgendaPage() {
           )}
         </aside>
       </section>
+
+      <BaseModal
+        isOpen={dayModalOpen}
+        title={`Eventos del ${formatDate(selectedDate)}`}
+        description="Elegí un evento para verlo completo o agregá uno nuevo para este día."
+        onClose={() => setDayModalOpen(false)}
+        size="lg"
+        footer={<button className="crm-button primary" type="button" onClick={() => openCreate(selectedDate)}><Plus size={16} /> Agregar evento</button>}
+      >
+        <div className="agenda-event-list">
+          {selectedDayEvents.map((event) => (
+            <button className={`agenda-event-card is-${event.type}`} key={event.id} type="button" onClick={() => openEvent(event)}>
+              <span>{typeLabels[event.type] || event.type} · {statusLabels[event.status] || event.status}</span>
+              <strong>{event.title}</strong>
+              <small>{formatDateTime(event.startAt)} {event.location ? `· ${event.location}` : ''}</small>
+              <p>{event.client?.fullName || event.job?.title || event.quote?.title || 'Sin relación'}</p>
+            </button>
+          ))}
+        </div>
+      </BaseModal>
 
       <EventDrawer
         isOpen={Boolean(drawerMode)}
