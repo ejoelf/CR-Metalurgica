@@ -1,7 +1,25 @@
 export const BUSINESS_TIME_ZONE = 'America/Argentina/Cordoba';
 
+function formatPartsInTimeZone(value, timeZone = BUSINESS_TIME_ZONE) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+
+  return Object.fromEntries(parts.map((part) => [part.type, part.value]));
+}
+
 export function getUserTimeZone() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || BUSINESS_TIME_ZONE;
+  return BUSINESS_TIME_ZONE;
 }
 
 export function formatMoney(value, currency = 'ARS') {
@@ -25,7 +43,7 @@ export function formatDate(value, options = {}) {
 
   return new Intl.DateTimeFormat('es-AR', {
     dateStyle: options.dateStyle || 'medium',
-    timeZone: options.timeZone || getUserTimeZone(),
+    timeZone: options.timeZone || BUSINESS_TIME_ZONE,
   }).format(date);
 }
 
@@ -37,22 +55,25 @@ export function formatDateTime(value, options = {}) {
   return new Intl.DateTimeFormat('es-AR', {
     dateStyle: options.dateStyle || 'medium',
     timeStyle: options.timeStyle || 'short',
-    timeZone: options.timeZone || getUserTimeZone(),
+    timeZone: options.timeZone || BUSINESS_TIME_ZONE,
   }).format(date);
 }
 
-export function toInputDate(value) {
-  if (!value) return '';
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toISOString().slice(0, 10);
+export function toInputDate(value, timeZone = BUSINESS_TIME_ZONE) {
+  const parts = formatPartsInTimeZone(value, timeZone);
+  if (!parts) return '';
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
-export function toInputDateTime(value) {
-  if (!value) return '';
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toISOString().slice(0, 16);
+export function toInputDateTime(value, timeZone = BUSINESS_TIME_ZONE) {
+  const parts = formatPartsInTimeZone(value, timeZone);
+  if (!parts) return '';
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+export function buildArgentinaDateTime(date, time = '00:00') {
+  if (!date || !time) return null;
+  return `${date}T${time}:00-03:00`;
 }
 
 export function calculatePaymentSummary(total = 0, paid = 0) {
