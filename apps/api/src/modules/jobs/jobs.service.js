@@ -63,8 +63,8 @@ async function registerClosureRefund(job, closure = {}, user = null) {
   if (amount <= 0) return null;
   return prisma.expense.create({
     data: {
-      title: `Devolución por trabajo eliminado: ${job.title}`,
-      description: closure.refundNote || `Devolución registrada al cerrar/eliminar el trabajo ${job.title}.`,
+      title: `Devolución por trabajo cancelado: ${job.title}`,
+      description: closure.refundNote || `Devolución registrada al cancelar el trabajo ${job.title}.`,
       amount,
       category: 'Devolución a cliente',
       paymentMethod: closure.refundMethod || 'cash',
@@ -75,6 +75,24 @@ async function registerClosureRefund(job, closure = {}, user = null) {
       createdById: user?.id || null,
     },
   });
+}
+
+async function deleteCancelledJob(id) {
+  const job = await prisma.job.findUnique({ where: { id }, include: { client: true, quotes: true, incomes: true, expenses: true, agendaEvents: true, files: true } });
+  if (!job) throw notFound('Trabajo no encontrado');
+  if (job.status !== 'cancelled') throw badRequest('Para eliminar definitivamente un trabajo, primero debe estar en estado Cancelado');
+
+  await prisma.$transaction([
+    prisma.notification.deleteMany({ where: { entityType: 'job', entityId: id } }),
+    prisma.agendaEvent.deleteMany({ where: { jobId: id } }),
+    prisma.file.deleteMany({ where: { jobId: id } }),
+    prisma.income.updateMany({ where: { jobId: id }, data: { jobId: null } }),
+    prisma.expense.updateMany({ where: { jobId: id }, data: { jobId: null } }),
+    prisma.quote.updateMany({ where: { jobId: id }, data: { jobId: null } }),
+    prisma.job.delete({ where: { id } }),
+  ]);
+
+  return decorateJob(job);
 }
 
 export const jobsService = {
@@ -110,7 +128,7 @@ export const jobsService = {
     if (!allowedStatuses.includes(status)) throw badRequest('Estado de trabajo inválido');
     const current = await this.findById(id);
     if (current.status === 'delivered') throw badRequest('El trabajo entregado queda cerrado y no permite cambiar estado');
-    if (current.status === 'cancelled') throw badRequest('El trabajo eliminado/cancelado queda cerrado y no permite cambiar estado');
+    if (current.status === 'cancelled') throw badRequest('El trabajo cancelado queda cerrado y no permite cambiar estado');
     if (current.status === 'completed' && status !== 'delivered') throw badRequest('Un trabajo completado solo puede pasar a Entregado');
     const updateData = { status };
     if (status === 'delivered') updateData.deliveredAt = new Date(); if (status === 'completed') updateData.completedAt = new Date(); if (status === 'production') updateData.startedAt = new Date(); if (status === 'approved') updateData.acceptedAt = new Date(); if (status === 'quoted') updateData.budgetedAt = new Date();
@@ -118,10 +136,19 @@ export const jobsService = {
     await syncJobAgenda(job); return decorateJob(job);
   },
   async remove(id, closure = {}, user = null) {
+    const current = await this.findById(id);
+    if (current.status === 'cancelled') {
+      const deleted = await deleteCancelledJob(id);
+      await systemActionsService.notify({ name: 'job_deleted_final', title: 'Trabajo eliminado definitivamente', message: `Se eliminó definitivamente el trabajo: ${deleted.title}`, type: 'warning', entityType: 'job', entityId: deleted.id, payload: { finalDelete: true } });
+      return deleted;
+    }
+
+    if (current.status === 'delivered') throw badRequest('Un trabajo entregado queda cerrado y no se puede eliminar desde este flujo');
+
     const job = await prisma.job.update({ where: { id }, data: { status: 'cancelled' }, include: { client: true, quotes: true, incomes: true, expenses: true, agendaEvents: true, files: true } });
     await registerClosureRefund(job, closure, user);
     await syncJobAgenda(job);
-    await systemActionsService.notify({ name: 'job_closed', title: 'Trabajo eliminado/cerrado', message: `Se eliminó/cerró el trabajo: ${job.title}`, type: 'warning', entityType: 'job', entityId: job.id, payload: { refundMoney: Boolean(closure.refundMoney), refundAmount: Number(closure.refundAmount || 0) } });
+    await systemActionsService.notify({ name: 'job_cancelled', title: 'Trabajo cancelado', message: `Se canceló el trabajo: ${job.title}`, type: 'warning', entityType: 'job', entityId: job.id, payload: { refundMoney: Boolean(closure.refundMoney), refundAmount: Number(closure.refundAmount || 0) } });
     return decorateJob(await this.findById(id));
   },
   async timeline(id) { const job = await this.findById(id); return { job, timeline: [{ label: 'Creado', date: job.createdAt }, { label: 'Última actualización', date: job.updatedAt }, job.budgetedAt ? { label: 'Presupuestado', date: job.budgetedAt } : null, job.acceptedAt ? { label: 'Aceptado', date: job.acceptedAt } : null, job.startedAt ? { label: 'Inicio', date: job.startedAt } : null, job.completedAt ? { label: 'Completado', date: job.completedAt } : null, job.dueDate ? { label: 'Entrega prevista', date: job.dueDate } : null, job.deliveredAt ? { label: 'Entregado', date: job.deliveredAt } : null].filter(Boolean) }; },
