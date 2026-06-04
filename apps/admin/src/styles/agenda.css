@@ -6,7 +6,8 @@
 }
 
 .agenda-month-nav {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 40px minmax(170px, 1fr) 40px;
   align-items: center;
   gap: 10px;
   min-height: 44px;
@@ -32,7 +33,7 @@
 }
 
 .agenda-month-nav strong {
-  min-width: 170px;
+  min-width: 0;
   text-align: center;
   text-transform: capitalize;
 }
@@ -272,6 +273,19 @@
     grid-template-columns: 1fr;
   }
 
+  .agenda-month-nav {
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    width: 100%;
+  }
+
+  .agenda-month-nav strong {
+    text-align: center;
+  }
+
+  .agenda-calendar-card {
+    padding: 12px;
+  }
+
   .agenda-weekdays,
   .agenda-calendar-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -279,5 +293,36 @@
 
   .agenda-weekdays {
     display: none;
+  }
+
+  .agenda-calendar-grid {
+    gap: 6px;
+  }
+
+  .agenda-day-cell {
+    min-height: 82px;
+    padding: 8px;
+    gap: 4px;
+  }
+
+  .agenda-day-cell > span {
+    width: 24px;
+    height: 24px;
+    font-size: .86rem;
+  }
+
+  .agenda-day-cell small {
+    font-size: .68rem;
+  }
+
+  .agenda-day-cell em {
+    padding: 3px 5px;
+    font-size: .66rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .agenda-day-cell {
+    min-height: 74px;
   }
 }
