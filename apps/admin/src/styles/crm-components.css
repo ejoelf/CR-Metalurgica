@@ -50,6 +50,7 @@
   border-top: 1px solid var(--crm-line);
   border-bottom: 0;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .crm-modal-header h2,
@@ -354,17 +355,33 @@
   animation: crm-spin .85s linear infinite;
 }
 
-@keyframes crm-spin {
-  to { transform: rotate(360deg); }
-}
-
 @media (max-width: 720px) {
-  .crm-modal-backdrop {
-    padding: 12px;
+  .crm-drawer-header,
+  .crm-drawer-body,
+  .crm-drawer-footer,
+  .crm-modal-header,
+  .crm-modal-body,
+  .crm-modal-footer {
+    padding: 18px 16px;
   }
 
-  .crm-modal,
-  .crm-drawer {
+  .crm-drawer-footer,
+  .crm-modal-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-height: 45vh;
+    overflow-y: auto;
+  }
+
+  .crm-drawer-footer .crm-button,
+  .crm-drawer-footer a.crm-button,
+  .crm-modal-footer .crm-button,
+  .crm-modal-footer a.crm-button {
     width: 100%;
   }
+}
+
+@keyframes crm-spin {
+  to { transform: rotate(360deg); }
 }
