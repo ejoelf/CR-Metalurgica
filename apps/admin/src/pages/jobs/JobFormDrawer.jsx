@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Save, Trash2 } from 'lucide-react';
+import { Save, Trash2, XCircle } from 'lucide-react';
 import BaseDrawer from '../../components/common/BaseDrawer.jsx';
 import ConfirmModal from '../../components/common/ConfirmModal.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
@@ -30,17 +30,25 @@ export default function JobFormDrawer({ isOpen, mode = 'create', job, clients = 
   const current = useMemo(() => JSON.stringify(form), [form]);
   const hasChanges = mode === 'create' ? true : original !== current;
   const isClosed = mode === 'edit' && CLOSED_STATUSES.includes(job?.status);
+  const isCancelled = mode === 'edit' && job?.status === 'cancelled';
+  const isDelivered = mode === 'edit' && job?.status === 'delivered';
+  const deleteActionLabel = isCancelled ? 'Eliminar definitivo' : 'Cancelar trabajo';
+  const deleteConfirmTitle = isCancelled ? 'Eliminar definitivamente' : 'Cancelar trabajo';
+  const deleteConfirmLabel = isCancelled ? 'Sí, eliminar definitivo' : 'Sí, cancelar trabajo';
+  const deleteDescription = isCancelled
+    ? `Esta acción eliminará definitivamente el trabajo ${job?.title || ''}. No se podrá recuperar.`
+    : `El trabajo ${job?.title || ''} pasará a estado Cancelado. Luego, desde Cancelado, se podrá eliminar definitivamente.`;
 
   function handleChange(event) { const { name, value } = event.target; setForm((state) => ({ ...state, [name]: value })); }
   function handleClosePayloadChange(event) { const { name, value, type, checked } = event.target; setClosePayload((state) => ({ ...state, [name]: type === 'checkbox' ? checked : value })); }
   function handleSubmit(event) { event.preventDefault(); if (!isClosed) onSave?.(form); }
   function confirmDelete() { onDelete?.(job, closePayload); }
 
-  const footer = <>{mode === 'edit' && !isClosed && <button className="crm-button danger" type="button" onClick={() => setDeleteOpen(true)}><Trash2 size={16} /> Eliminar</button>}<button className="crm-button ghost" type="button" onClick={onClose}>Cancelar</button>{!isClosed && <button className="crm-button primary" type="submit" form="job-form" disabled={saving || !hasChanges || !form.clientId || !form.title}><Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}</button>}</>;
+  const footer = <>{mode === 'edit' && !isDelivered && <button className="crm-button danger" type="button" onClick={() => setDeleteOpen(true)}>{isCancelled ? <Trash2 size={16} /> : <XCircle size={16} />} {deleteActionLabel}</button>}<button className="crm-button ghost" type="button" onClick={onClose}>Cerrar</button>{!isClosed && <button className="crm-button primary" type="submit" form="job-form" disabled={saving || !hasChanges || !form.clientId || !form.title}><Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}</button>}</>;
 
   return <>
     <BaseDrawer isOpen={isOpen} title={mode === 'create' ? 'Nuevo trabajo' : job?.title || 'Detalle del trabajo'} description={isClosed ? 'Este trabajo está cerrado. Podés consultar la información, pero no modificarlo.' : 'Gestioná estado, prioridad, cliente, fechas, costos, pagos y seguimiento operativo.'} onClose={onClose} size="xl" footer={footer}>
-      {isClosed && <p className="warning-box">Este trabajo quedó cerrado como {JOB_STATUS_LABELS[job?.status] || job?.status}. No se permiten cambios operativos.</p>}
+      {isClosed && <p className="warning-box">Este trabajo quedó cerrado como {JOB_STATUS_LABELS[job?.status] || job?.status}. {isCancelled ? 'Desde este estado podés eliminarlo definitivamente si ya no debe quedar en el CRM.' : 'No se permiten cambios operativos.'}</p>}
       <form id="job-form" className="job-detail-grid" onSubmit={handleSubmit}>
         <section className="job-panel"><h3>Datos principales</h3><div className="job-form-grid">
           <label className="crm-field job-span-2"><span>Cliente</span><select name="clientId" value={form.clientId} onChange={handleChange} required disabled={isClosed}><option value="">Seleccionar cliente</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.fullName}</option>)}</select></label>
@@ -57,11 +65,11 @@ export default function JobFormDrawer({ isOpen, mode = 'create', job, clients = 
         {mode === 'edit' && <section className="job-panel job-span-2"><h3>Resumen operativo</h3><div className="job-summary-chips"><StatusBadge value={job?.status} labels={JOB_STATUS_LABELS} /><PriorityBadge value={job?.priority} /><span>{job?.estimatedDeliveryDate ? `Entrega: ${formatDate(job.estimatedDeliveryDate)}` : 'Sin entrega estimada'}</span><span>{job?.client?.fullName || 'Sin cliente'}</span></div></section>}
       </form>
     </BaseDrawer>
-    <ConfirmModal isOpen={deleteOpen} title="Eliminar trabajo" description={`¿Estás seguro de querer eliminar el trabajo ${job?.title || ''}?`} confirmLabel="Sí, eliminar" danger loading={saving} onClose={() => setDeleteOpen(false)} onConfirm={confirmDelete}>
-      <div className="job-delete-refund-box">
+    <ConfirmModal isOpen={deleteOpen} title={deleteConfirmTitle} description={deleteDescription} confirmLabel={deleteConfirmLabel} danger loading={saving} onClose={() => setDeleteOpen(false)} onConfirm={confirmDelete}>
+      {!isCancelled && <div className="job-delete-refund-box">
         <label className="job-refund-checkbox"><input type="checkbox" name="refundMoney" checked={closePayload.refundMoney} onChange={handleClosePayloadChange} /><span>¿Registrar devolución de dinero?</span></label>
-        {closePayload.refundMoney && <div className="job-form-grid"><MoneyInput label="Monto devuelto" name="refundAmount" value={closePayload.refundAmount} onChange={handleClosePayloadChange} /><label className="crm-field"><span>Método</span><select name="refundMethod" value={closePayload.refundMethod} onChange={handleClosePayloadChange}><option value="cash">Efectivo</option><option value="transfer">Transferencia</option><option value="card">Tarjeta</option><option value="other">Otro</option></select></label><label className="crm-field job-span-2"><span>Nota de devolución</span><textarea name="refundNote" value={closePayload.refundNote} onChange={handleClosePayloadChange} /></label></div>}
-      </div>
+        {closePayload.refundMoney && <div className="job-form-grid"><MoneyInput label="Monto devuelto" name="refundAmount" value={closePayload.refundAmount} onChange={handleClosePayloadChange} /><label className="crm-field"><span>Método</span><select name="refundMethod" value={closePayload.refundMethod} onChange={handleClosePayloadChange}><option value="cash">Efectivo</option><option value="transfer">Transferencia</option><option value="card">Tarjeta</option><option value="mercado_pago">Mercado Pago</option><option value="other">Otro</option></select></label><label className="crm-field job-span-2"><span>Nota de devolución</span><textarea name="refundNote" value={closePayload.refundNote} onChange={handleClosePayloadChange} /></label></div>}
+      </div>}
     </ConfirmModal>
   </>;
 }
