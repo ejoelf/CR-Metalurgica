@@ -1,8 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="26" fill="#1f1f1c"/>
-  <path d="M22 50 64 18l42 32v16l-10-7v48H32V59l-10 7V50Z" fill="#f7f3ea"/>
-  <path d="M42 63h17v36H42V63Zm27-14h17v50H69V49Z" fill="#1f1f1c"/>
-  <path d="M42 58c4-8 7-8 11 0 4-8 7-8 11 0" fill="none" stroke="#1f1f1c" stroke-width="4" stroke-linecap="round"/>
-  <text x="64" y="83" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="900" fill="#1f1f1c">CF</text>
-  <text x="64" y="103" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="900" fill="#1f1f1c">METAL-PINTURA</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="CF">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10213a"/>
+      <stop offset="1" stop-color="#030814"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#aeb9c8"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="url(#bg)"/>
+  <path d="M54 137a75 75 0 0 1 148 0h-28a48 48 0 0 0-92 0Z" fill="#0b1424" stroke="#eef4ff" stroke-width="8"/>
+  <path d="M38 176h180l12 18-12 18H38l-12-18Z" fill="#061020" stroke="#eef4ff" stroke-width="6"/>
+  <text x="128" y="156" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="92" font-weight="900" letter-spacing="-9" fill="url(#steel)" stroke="#071121" stroke-width="5">CF</text>
+  <text x="128" y="202" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="21" font-weight="900" fill="#ffffff">METAL</text>
+  <path d="M126 112 134 134 156 142 134 150 126 172 118 150 96 142 118 134Z" fill="#ffffff" opacity="0.95"/>
 </svg>
